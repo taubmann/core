@@ -1,0 +1,77 @@
+body{
+	font-family: verdana, sans serif;
+	font-size: .6em;
+}
+#menu {
+position: absolute;
+top: 10px;
+	left: 10px;
+	width: 200px;
+}
+button{
+	width:100%;
+	margin-top:4px;
+}
+
+
+#frame {
+	position: absolute;
+	top: 10px;
+	left: 240px;
+	width: 900px;
+	height: 95%;
+	border: 1px solid #ccc;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-khtml-border-radius: 5px;
+	-moz-box-shadow: 4px 4px 8px #888;
+	-webkit-box-shadow: 4px 4px 8px #888; 
+	box-shadow: 4px 4px 8px #888; 
+	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=5, Direction=135, Color='#888888');
+	-ms-filter: progid:DXImageTransform.Microsoft.Shadow(Strength=5, Direction=135, Color='#888888');
+}
+
+
+.load_script_button {
+	font-weight:bold;
+	background: #bfb !important;
+}
+
+
+.success{color:green;}
+.error{color:red;}
+
+
+/* Info-Block with Label-Tooltip */
+.ttips{
+	display: block;
+	margin-bottom: 10px;
+}
+.ttips a {
+	position:relative;
+	margin:3px;
+	margin-top:5px;
+	text-decoration:none;
+}
+.ttips a span {
+	display:none;
+}
+.ttips a:hover span {
+	display:block;
+	position:absolute;
+	padding:10px;
+	top:20px; 
+	left:0;
+	width:200px;
+	z-index:601;
+	color: #333;
+	border: 2px solid #333;
+	background: #eee;
+	text-align:left;
+	-webkit-border-radius: 8px;
+	-webkit-border-top-left-radius: 0;
+	-moz-border-radius: 8px;
+	-moz-border-radius-topleft: 0;
+	border-radius: 8px;
+	border-top-left-radius: 0;
+}

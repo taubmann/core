@@ -1,0 +1,249 @@
+{
+	"INTEGER": {
+		"type": "NUMERIC",
+		"quote": "0",
+		"php": "int",
+		"default": {
+			"Zero": 0
+		},
+		"mysql": "INT",
+		"max": "11",
+		"sqlite": "INTEGER"
+	},
+	"FLOAT": {
+		"type": "NUMERIC",
+		"quote": "0",
+		"php": "float",
+		"default": {
+			"Zero": 0
+		},
+		"mysql": "FLOAT",
+		"sqlite": "REAL"
+	},
+	"HIDDENINTEGER": {
+		"type": "NUMERIC",
+		"quote": "0",
+		"php": "int",
+		"default": {
+			"Zero": 0
+		},
+		"mysql": "INT",
+		"max": "11",
+		"sqlite": "INTEGER"
+	},
+	"EXCLUDEDINTEGER": {
+		"type": "NUMERIC",
+		"quote": "0",
+		"php": "int",
+		"default": {
+			"Zero": 0
+		},
+		"mysql": "INT",
+		"max": "11",
+		"sqlite": "INTEGER"
+	},
+	"WIZARDINTEGERBUTTON": {
+		"type": "NUMERIC",
+		"quote": "0",
+		"wizselect": "1",
+		"php": "int",
+		"default": {
+			"Zero": 0
+		},
+		"mysql": "INT",
+		"max": "11",
+		"sqlite": "INTEGER"
+	},
+	"BOOL": {
+		"type": "NUMERIC",
+		"quote": "0",
+		"php": "int",
+		"default": {
+			"False": 0,
+			"True": 1
+		},
+		"mysql": "INT",
+		"max": "1",
+		"sqlite": "INTEGER"
+	},
+	"SELINTEGER": {
+		"type": "NUMERIC",
+		"quote": "0",
+		"add": "1-10",
+		"php": "int",
+		"default": {
+			"Zero": 0
+		},
+		"mysql": "INT",
+		"max": "11",
+		"sqlite": "INTEGER"
+	},
+	"VARCHAR": {
+		"type": "CHARACTER",
+		"quote": "1",
+		"php": "string",
+		"default": {
+			"Empty": " "
+		},
+		"mysql": "VARCHAR",
+		"max": "255",
+		"sqlite": "TEXT"
+	},
+	"SELVARCHAR": {
+		"type": "CHARACTER",
+		"quote": "1",
+		"add": "",
+		"php": "string",
+		"default": {
+			"Empty": " "
+		},
+		"mysql": "VARCHAR",
+		"max": "255",
+		"sqlite": "TEXT"
+	},
+	"WIZARDVARCHAR": {
+		"type": "CHARACTER",
+		"quote": "1",
+		"wizselect": "1",
+		"php": "string",
+		"default": {
+			"Empty": " "
+		},
+		"mysql": "VARCHAR",
+		"max": "255",
+		"sqlite": "TEXT"
+	},
+	"EXCLUDEDVARCHAR": {
+		"type": "CHARACTER",
+		"quote": "1",
+		"add": "textfield",
+		"php": "string",
+		"default": {
+			"Empty": " "
+		},
+		"mysql": "VARCHAR",
+		"max": "255",
+		"sqlite": "TEXT"
+	},
+	"TEXT": {
+		"type": "CHARACTER",
+		"quote": "1",
+		"php": "string",
+		"default": {
+			"Empty": " "
+		},
+		"mysql": "TEXT",
+		"sqlite": "TEXT"
+	},
+	"EXCLUDEDTEXT": {
+		"type": "CHARACTER",
+		"quote": "1",
+		"php": "string",
+		"default": {
+			"Empty": " "
+		},
+		"mysql": "TEXT",
+		"sqlite": "TEXT"
+	},
+	"HIDDENTEXT": {
+		"type": "CHARACTER",
+		"quote": "1",
+		"php": "string",
+		"default": {
+			"Empty": " "
+		},
+		"mysql": "TEXT",
+		"sqlite": "TEXT"
+	},
+	"WIZARDTEXT": {
+		"type": "CHARACTER",
+		"quote": "1",
+		"wizselect": "1",
+		"php": "string",
+		"default": {
+			"Empty": " "
+		},
+		"mysql": "TEXT",
+		"sqlite": "TEXT"
+	},
+	"WIZARDBUTTON": {
+		"type": "CHARACTER",
+		"quote": "1",
+		"wizselect": "1",
+		"php": "string",
+		"default": {
+			"Empty": " "
+		},
+		"mysql": "TEXT",
+		"sqlite": "TEXT"
+	},
+	"WIZARDTEXTEMB": {
+		"type": "CHARACTER",
+		"quote": "1",
+		"wizselect": "1",
+		"php": "string",
+		"default": {
+			"Empty": " "
+		},
+		"mysql": "TEXT",
+		"sqlite": "TEXT"
+	},
+	"BLOB": {
+		"type": "CHARACTER",
+		"quote": "1",
+		"php": "string",
+		"default": {
+			"Empty": " "
+		},
+		"mysql": "BLOB",
+		"sqlite": "BLOB"
+	},
+	"DATE": {
+		"type": "OTHER",
+		"quote": "1",
+		"php": "string",
+		"default": {
+			"Empty": " ",
+			"Zero": 0,
+			"actual_Date": "function:date(\"Y-m-d\")"
+		},
+		"mysql": "DATE",
+		"sqlite": "TEXT"
+	},
+	"DATETIME": {
+		"type": "OTHER",
+		"quote": "1",
+		"php": "string",
+		"default": {
+			"Empty": " ",
+			"Zero": 0,
+			"actual_Datetime": "function:date(\"Y-m-d H:i:s\")"
+		},
+		"mysql": "DATETIME",
+		"sqlite": "TEXT"
+	},
+	"YEAR": {
+		"type": "OTHER",
+		"quote": "0",
+		"php": "int",
+		"default": {
+			"Empty": " ",
+			"Zero": 0,
+			"actual_Year": "function:date(\"Y\")"
+		},
+		"mysql": "YEAR",
+		"sqlite": "TEXT"
+	},
+	"TIMESTAMP": {
+		"type": "OTHER",
+		"quote": "0",
+		"php": "int",
+		"default": {
+			"Zero": 0,
+			"actual_Timestamp": "function:time()"
+		},
+		"mysql": "INT",
+		"max": "11",
+		"sqlite": "INTEGER"
+	}
+}

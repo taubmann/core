@@ -3,5 +3,5 @@
 # Except...
 !.gitignore
 !index.php
-!all
-!documentation
+!all/
+!documentation/

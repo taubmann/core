@@ -57,8 +57,13 @@ if ($archive->extract(	PCLZIP_OPT_PATH, $ppath,
 // create code for __configuration.php
 $config = '<?php
 /**
- * Configurations for "'.$_POST['wished_name'].'"
- */
+* Configurations for "'.$_POST['wished_name'].'"
+*
+* @copyright MIT-License: Free for personal & commercial use. (http://opensource.org/licenses/mit-license.php) 
+* @link http://cms-kit.org
+* @package '.$_POST['wished_name'].'
+*/
+
 final class Configuration
 {
 	const BUILD 				= \''.$KITVERSION.'\';
@@ -78,6 +83,10 @@ final class Configuration
 
 file_put_contents($ppath.'/objects/__configuration.php', $config);
 chmod($ppath.'/objects/__configuration.php', 0776);
+
+// 
+file_put_contents($ppath.'/objects/__database.php', str_replace('###PROJECTNAME###', $_POST['wished_name'], file_get_contents($ppath.'/objects/__database.php')));
+
 
 // set the session-credentials for the new project
 $_SESSION[$_POST['wished_name']]['root'] = 1;

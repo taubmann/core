@@ -1,17 +1,38 @@
 <?php
 
-/*
- * cms-kit Object-Generator
- * 
- * based on PHP Object-Generator (http://phpobjectgenerator.com)
- * version 2.0
- * copyright Free for personal & commercial use. (Offered under the modified BSD license)
- * 
- * */
+/**
+*  cms-kit Object-Generator
+* 
+*  inspired by PHP Object-Generator (http://phpobjectgenerator.com)
+*  Version 1.0
+* 
+*  Copyright notice
+*
+*  (c) 2013 Christoph Taubmann (info@cms-kit.org)
+*  All rights reserved
+*
+*  This script is part of cms-kit Framework. 
+*  This is free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License Version 3 as published by
+*  the Free Software Foundation, or (at your option) any later version.
+*
+*  The GNU General Public License can be found at
+*  http://www.gnu.org/licenses/gpl.html
+*  A copy is found in the textfile GPL.txt and important notices to other licenses
+*  can be found found in LICENSES.txt distributed with these scripts.
+*
+*  This script is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  This copyright notice MUST APPEAR in all copies of the script!
+*/
+
 $GLOBALS['cconfiguration'] = array(
 	'author' => 'cms-kit Object-Generator ',
-	'version' => '0.9 revision 2',
-	'copyright' => 'Free for personal & commercial use. (Offered under the modified BSD license)',
+	'version' => '1 Revision 0',
+	'copyright' => 'MIT-License: Free for personal & commercial use. (http://opensource.org/licenses/mit-license.php) ',
 	'link' => 'http://cms-kit.org'
 );
 
@@ -24,20 +45,21 @@ class ObjectGenerator
 	var $savePath; // where to save
 	
 	
-	function __construct($name, $model, $types, $savepath)
+	function __construct($projectName, $objectName, $model, $types, $savepath, $debug=false)
 	{
 		
-		// Variables
-		$this->objectName 	= $name;
+		// globalize Variables
+		$this->projectName 	= $projectName;
+		$this->objectName 	= $objectName;
 		$this->model 		= $model;
-		$this->elementList 	= $model[$name];
-		$this->treeType 	= $model[$name]['ttype'];
-		$this->db			= $model[$name]['db'];
-		$this->manualId 	= (Configuration::$DB_INCREMENT[$this->db] == 'manual') ? true : false; // manual/auto-increment
-		
-		//
-		$this->savePath 	= $savepath;
+		$this->elementList 	= $model[$objectName];
+		$this->treeType 	= $model[$objectName]['ttype'];
+		$this->db			= $model[$objectName]['db'];
 		$this->types 		= $types;
+		$this->savePath 	= $savepath;
+		$this->debug = $debug;
+		
+		$this->manualId 	= (Configuration::$DB_INCREMENT[$this->db] == 'manual') ? true : false; // manual/auto-increment
 		
 		$this->defaultFunctionCalls = array();
 		
@@ -95,7 +117,7 @@ class ObjectGenerator
 	function CreateComments($description='', $parameterDescriptionArray='', $returnType='')
 	{
 		
-		$this->str .= "/**\n\t* ".$description."\n";
+		$this->str .= "/**\n\t* ".$description."\n\t*\n";
 		
  		if ($parameterDescriptionArray != '')
  		{
@@ -115,11 +137,12 @@ class ObjectGenerator
 	
 	function CreatePreface()
 	{
-		$this->str .= "/*\n*\t class '".$this->objectName."' with integrated CRUD methods.";
+		$this->str .= "/**\n*\t class '".$this->objectName."' with integrated CRUD methods\n*\t";
 		$this->str .= "\n*\t @author ".$GLOBALS['cconfiguration']['author'];
 		$this->str .= "\n*\t @version ".$GLOBALS['cconfiguration']['versionNumber'].' rev. '.$GLOBALS['cconfiguration']['revisionNumber']." ";
 		$this->str .= "\n*\t @copyright ".$GLOBALS['cconfiguration']['copyright'];
 		$this->str .= "\n*\t @link ".$GLOBALS['cconfiguration']['link'];
+		$this->str .= "\n*\t @package ".$this->projectName;
 		$this->str .= "\n*/\n";
 	}
 	
@@ -132,8 +155,7 @@ class ObjectGenerator
 		//
 		$this->str .= "\ninclude_once('__database.php');";
 		
-		// create include of mapping-classes
-		//print_r($this->elementList['rel']);
+		// create include of Mapping-Classes
 		if(isset($this->elementList['rel']))
 		{
 			foreach ($this->elementList['rel'] as $key => $attr)
@@ -154,14 +176,15 @@ class ObjectGenerator
 		
 		$db_type = Configuration::$DB_TYPE[$this->db];
 		$this->str .="/**\n\t";
-		$this->str .=" * @const int DB (Database-Type: $db_type)\n\t";
-		$this->str .=" */\n\t";
+		$this->str .="* @const integer DB (Database-Type: $db_type)\n\t";
+		$this->str .="*/\n\t";
 		$this->str.="const DB = $this->db;";
 		$this->str.="\n\t\n\t";
 		
 		$this->str .="/**\n\t";
-		$this->str .=" * @var object _INSTANCE_\n\t";
-		$this->str .=" */\n\t";
+		$this->str .="* @var object _INSTANCE_\n\t";
+		$this->str .="* @access private\n\t";
+		$this->str .="*/\n\t";
 		$this->str.="static private \$_INSTANCE_ = null;";
 		$this->str.="\n\t\n\t";
 		
@@ -189,8 +212,8 @@ class ObjectGenerator
 			$this->str .= (isset($mod['comment']) ? " * " . $mod['comment'] . "\n\t" : '');
 			//Configuration::$DB_TYPE[$this->db]
 			
-			$this->str .= " * @var ". $this->types[$attr['type']]['php'] . ' $' . stripcslashes($key) . ' (Database: '.$this->types[$attr['type']][$db_type].")\n\t";
-			$this->str .= " */\n\t";
+			$this->str .= "* @var ". $this->types[$attr['type']]['php'] . ' $' . stripcslashes($key) . ' (Database: '.$this->types[$attr['type']][$db_type].")\n\t";
+			$this->str .= "*/\n\t";
 			
 			
 			// Variable
@@ -233,8 +256,9 @@ class ObjectGenerator
 				if ($attr == 's' || $attr == 'c')
 				{
 					$this->str .="/**\n\t";
-					$this->str .=" * @var array \$_".strtolower($key)."List List of $key objects\n\t";
-					$this->str .=" */\n\t";
+					$this->str .="* @var array \$_".strtolower($key)."List List of $key-Objects\n\t";
+					$this->str .="* @access private\n\t";
+					$this->str .="*/\n\t";
 					$this->str.="private \$_".strtolower($key)."List = array();\n\t";
 					$this->str.="\n\t";
 				}
@@ -248,8 +272,9 @@ class ObjectGenerator
 		
 		
 		$this->str .="\n\t/**\n\t";
-		$this->str .=" * @var array \$__columns Definitions of Relation-Fields for '".$this->objectName."' \n\t";
-		$this->str .=" */";
+		$this->str .="* @var array \$__columns Definitions of Relation-Fields for '".$this->objectName."'\n\t";
+		$this->str .="* @access private\n\t";
+		$this->str .="*/";
 		$this->str .= "\n\tprivate \$__columns = array(" . implode(', ', $tmp2) . " );";
 		
 	}
@@ -292,7 +317,7 @@ class ObjectGenerator
 	{
 		$this->str .= "\n\t\n\t";
 		$this->str .= $this->CreateComments("Gets object from database", 
-						array( (($this->manualId)?'string':'int') ." \$".strtolower($this->objectName)."Id"),
+						array( (($this->manualId)?'string':'integer') ." \$id"),
 						"object \$".$this->objectName);
 		
 		$this->str .="\tfunction Get (\$id)\n\t{";
@@ -316,7 +341,9 @@ class ObjectGenerator
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\tcatch (Exception \$e)";
 		$this->str .= "\n\t\t{";
-		$this->str .= "\n\t\t\treturn '[['.\$e->getMessage().']]';";
+		//if($this->debug){ $this->str .= "\n\t\t\ttrigger_error(, E_USER_ERROR);\n"; }
+		if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+		$this->str .= "\n\t\t\treturn false;";
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\t";
 		
@@ -442,7 +469,8 @@ class ObjectGenerator
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\tcatch (Exception \$e)";
 		$this->str .= "\n\t\t{";
-		$this->str .= "\n\t\t\treturn '[['.\$e->getMessage().']]';";
+		if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+		$this->str .= "\n\t\t\treturn false;";
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\t";
 		
@@ -618,7 +646,8 @@ class ObjectGenerator
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\tcatch (Exception \$e)";
 		$this->str .= "\n\t\t{";
-		$this->str .= "\n\t\t\treturn '[['.\$e->getMessage().']]';";
+		if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+		$this->str .= "\n\t\t\treturn false;";
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\t";
 		
@@ -627,7 +656,12 @@ class ObjectGenerator
 	
 	
 	
-	/*  see: http://stackoverflow.com/questions/889527/mysql-move-node-in-nested-set
+	
+	
+	function CreateAddTreeChildFunction()
+	{
+		
+		/*  see: http://stackoverflow.com/questions/889527/mysql-move-node-in-nested-set
 		Change positions of node and all it's sub nodes into negative values, which are equal to current ones by module.
 		Move all positions "up", which are more, that pos_right of current node.
 		Move all positions "down", which are more, that pos_right of new parent node.
@@ -638,19 +672,9 @@ class ObjectGenerator
 		step 3 (2 queries): increase left and/or right position values of future 'lower' items (and parents)
 		step 4: move node (and it's subnodes)
 		* and update it's parent-id (as a prepared statement)
-		* if there is any predecessor we have to "swap"
+		* if there is any precursor we have to "swap"
 	*/
-	
-	function CreateAddTreeChildFunction()
-	{
-		$n = strtolower($this->objectName);
-		
-		$this->str .= "\n\t\n\t";
-		$this->str .= $this->CreateComments("Associates a Node/Branch of a Tree as Child to a Parent-Object", 
-											array("object \$child", "object \$predecessor (not used atm)"),
-											'');
-		
-		$this->str .= "\tfunction Add".$n." (\$child, \$predecessor=false)\n\t{";
+		/*$this->str .= "\tfunction Add".$n." (\$child, \$precursor=false)\n\t{";
 		$this->str .= "\n\t\t";
 		
 		
@@ -671,7 +695,7 @@ class ObjectGenerator
 			'UPDATE `".$n."` SET `treeright` = `treeright` + ' . \$size . ' WHERE `treeright` >= ' . intval(\$this->treeright > \$child->treeright ? \$this->treeright - \$size : \$this->treeright),
 			'UPDATE `".$n."` SET `treeleft` = 0-(`treeleft`)+' . (\$this->treeright > \$child->treeright ? \$this->treeright - \$child->treeright - 1 : \$this->treeright - \$child->treeright - 1 + \$size) . ', `treeright` = 0-(`treeright`)+' . (\$this->treeright > \$child->treeright ? \$this->treeright - \$child->treeright - 1 : \$this->treeright - \$child->treeright - 1 + \$size) . ' WHERE `treeleft` <= ' . (0-\$child->treeleft) . ' AND `treeright` >= ' . (0-\$child->treeright),
 		);";
-		$this->str .= "\n\t\tif (\$predecessor)\n\t\t{";
+		$this->str .= "\n\t\tif (\$precursor)\n\t\t{";
 		$this->str .= "\n\t\t\t//\$sql[] = 'UPDATE `".$n."` SET `treeleft`=`treeleft`-'.\$x.', `treeright`=`treeright`-'.\$x.' WHERE `treeleft` BETWEEN ';";
 		$this->str .= "\n\t\t\t//\$sql[] = '';";
 		$this->str .= "\n\t\t}";
@@ -691,15 +715,83 @@ class ObjectGenerator
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\treturn true;";
 		$this->str .= "\n\t}";
+		
+		
+		
+		
+		
+		*/
+		$n = strtolower($this->objectName);
+		
+		$this->str .= "\n\t\n\t";
+		$this->str .= $this->CreateComments("Associates a Node/Branch of a Tree as Child to a Parent-Object", 
+											array("object \$child", "object \$precursor"),
+											'');
+		// adapted from: http://www.ninthavenue.com.au/how-to-move-a-node-in-nested-sets-with-sql
+		$this->str .= "\tfunction Add".$n." (\$child, \$precursor=false)\n\t{";
+		$this->str .= "\n\t\t";
+		$this->str .= "\n\t\t// fix possible SQL-Injections";
+		$this->str .= "\n\t\t\$child->treeleft = intval(\$child->treeleft);";
+		$this->str .= "\n\t\t\$child->treeright = intval(\$child->treeright);";
+		$this->str .= "\n\t\t";
+		$this->str .= "\n\t\t// Recursion-Check";
+		$this->str .= "\n\t\tforeach (DB::instance($this->db)->query('SELECT `id` FROM `".$n."` WHERE `treeleft` BETWEEN ' . \$child->treeleft . ' AND ' . \$child->treeright) as \$row)\n\t\t{";
+		$this->str .= "\n\t\t\tif(\$row->id == \$this->id)\n\t\t\t{\n\t\t\t\treturn false;\n\t\t\t}";
+		$this->str .= "\n\t\t}";
+		
+		$this->str .= "\n\t\t";
+		$this->str .= "\n\t\t// define Position adjustment Variables";
+		$this->str .= "\n\t\t\$newpos = intval((\$precursor) ? \$precursor->treeright+1 : \$this->treeleft+1);";
+		$this->str .= "\n\t\t\$width = \$child->treeright - \$child->treeleft + 1;";
+		$this->str .= "\n\t\t\$distance = \$newpos - \$child->treeleft;";
+		$this->str .= "\n\t\t\$tmppos = \$child->treeleft;";
+		$this->str .= "\n\t\t\$oldrpos = \$child->treeright;";
+		$this->str .= "\n\t\t";
+		$this->str .= "\n\t\tif (\$distance < 0)";
+		$this->str .= "\n\t\t{";
+		$this->str .= "\n\t\t\t\$distance -= \$width;";
+		$this->str .= "\n\t\t\t\$tmppos += \$width;";
+		$this->str .= "\n\t\t}";
+		$this->str .= "\n\t\t";
+		$this->str .= "\n\t\t\$queries = array (";
+		$this->str .= "\n\t\t\t// create new Space for the Subtree";
+		$this->str .= "\n\t\t\t'UPDATE `".$n."` SET `treeleft` = `treeleft` + ' . \$width . ' WHERE `treeleft` >= ' . \$newpos . ';',";
+		$this->str .= "\n\t\t\t'UPDATE `".$n."` SET `treeright` = `treeright` + ' . \$width . ' WHERE `treeright` >= ' . \$newpos . ';',";
+		$this->str .= "\n\t\t\t// move Subtree into new Space";
+		$this->str .= "\n\t\t\t'UPDATE `".$n."` SET `treeleft` = `treeleft` + ' . \$distance . ', `treeright` = `treeright` + ' . \$distance . ' WHERE `treeleft` >= ' . \$tmppos . ' AND `treeright` < ' . (\$tmppos + \$width) . ';',";
+		$this->str .= "\n\t\t\t// remove old Space vacated by the Subtree";
+		$this->str .= "\n\t\t\t'UPDATE `".$n."` SET `treeleft` = `treeleft` - ' . \$width . ' WHERE `treeleft` > ' . \$oldrpos . ';',";
+		$this->str .= "\n\t\t\t'UPDATE `".$n."` SET `treeright` = `treeright` - ' . \$width . ' WHERE `treeright` > ' . \$oldrpos . ';'";
+		$this->str .= "\n\t\t);";
+		$this->str .= "\n\t\t";
+		
+		
+		$this->str .= "\n\t\ttry";
+		$this->str .= "\n\t\t{";
+		$this->str .= "\n\t\t\tforeach (\$queries as \$query)\n\t\t\t{";
+		$this->str .= "\n\t\t\t\t\$prepare = DB::instance($this->db)->query(\$query);";
+		$this->str .= "\n\t\t\t}";
+		$this->str .= "\n\t\t\t// set the new Parent-ID";
+		$this->str .= "\n\t\t\t\$prepare = DB::instance($this->db)->prepare('UPDATE `".$n."` SET `treeparentid` = ? WHERE `id` = ?');";
+		$this->str .= "\n\t\t\t\$prepare->execute(array(\$this->id, \$child->id));";
+		$this->str .= "\n\t\t}";
+		$this->str .= "\n\t\tcatch(Exception \$e)";
+		$this->str .= "\n\t\t{";
+		if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+		$this->str .= "\n\t\t\treturn false;";
+		$this->str .= "\n\t\t}";
+		$this->str .= "\n\t\treturn true;";
+		$this->str .= "\n\t}";
 		// Add-Function end
 		
 		
 		
 		$this->str .= "\n\t\n\t";
 		$this->str .= $this->CreateComments("Associates a Parent-Object to a Tree-Node/Branch", 
-											array("object \$parent", "object \$predecessor (not used atm)"),'');
-		$this->str .= "\tfunction Set".$n." (\$parent, \$predecessor=false)\n\t{";
-		$this->str .= "\n\t\t\$parent->Add".$n."(\$this, \$predecessor=false);";
+											array("object \$parent", "object \$precursor the Node, the Child-Node is placed after"),
+											'');
+		$this->str .= "\tfunction Set".$n." (\$parent, \$precursor=false)\n\t{";
+		$this->str .= "\n\t\t\$parent->Add".$n."(\$this, \$precursor);";
 		$this->str .= "\n\t}";
 		$this->str .= "\n\t\n\t";
 		
@@ -712,28 +804,41 @@ class ObjectGenerator
 		
 		$this->str .= "\n\t\n\t";
 		$this->str .= $this->CreateComments("Removes a Node/Branch from a Parent-Object", 
-											array("object \$parent", "object \$predecessor"),'');
+											array("object \$parent"),'');
 		$this->str .= "\tfunction Remove".$n." (\$child)\n\t{";
-		
-		
-		$this->str .= "\n\t\t\$size = \$child->treeright - \$child->treeleft + 1;";
+		$this->str .= "\n\t\t";
+		$this->str .= "\n\t\t// fix possible SQL-Injections";
+		$this->str .= "\n\t\t\$child->treeleft = intval(\$child->treeleft);";
+		$this->str .= "\n\t\t\$child->treeright = intval(\$child->treeright);";
+		$this->str .= "\n\t\t";
+		$this->str .= "\n\t\t\$width = \$child->treeright - \$child->treeleft + 1;";
 		$this->str .= "\n\t\t\$max = intval(DB::instance($this->db)->query('SELECT MAX(`treeright`) AS m FROM `".$n."`')->fetch()->m);";
 	
-		$this->str .= "\n\t\t\$sql = array (
-			'UPDATE `".$n."` SET `treeleft` = 0-(`treeleft`), `treeright` = 0-(`treeright`) WHERE `treeleft` >= ' . intval(\$child->treeleft) . ' AND `treeright` <= ' . intval(\$child->treeright),
-			'UPDATE `".$n."` SET `treeleft` = `treeleft` - ' . \$size . ' WHERE `treeleft` > ' . intval(\$child->treeright),
-			'UPDATE `".$n."` SET `treeright` = `treeright` - ' . \$size . ' WHERE `treeright` > ' . intval(\$child->treeright),
-			'UPDATE `".$n."` SET `treeleft` = 0-(`treeleft`)-' . intval(\$child->treeleft) . '+' . (\$max-\$size+1) . ', `treeright` = 0-(`treeright`)-' . intval(\$child->treeleft) . '+' . (\$max-\$size+1) . ' WHERE `treeright` < 0'
+		$this->str .= "\n\t\t\$queries = array (
+			'UPDATE `".$n."` SET `treeleft` = 0-(`treeleft`), `treeright` = 0-(`treeright`) WHERE `treeleft` >= ' . \$child->treeleft . ' AND `treeright` <= ' . \$child->treeright . ';',
+			'UPDATE `".$n."` SET `treeleft` = `treeleft` - ' . \$width . ' WHERE `treeleft` > ' . \$child->treeright . ';',
+			'UPDATE `".$n."` SET `treeright` = `treeright` - ' . \$width . ' WHERE `treeright` > ' . \$child->treeright . ';',
+			'UPDATE `".$n."` SET `treeleft` = 0-(`treeleft`)-' . \$child->treeleft . '+' . (\$max - \$width + 1) . ', `treeright` = 0-(`treeright`)-' . \$child->treeleft . '+' . (\$max - \$width + 1) . ' WHERE `treeright` < 0;'
 		);";
 		
-		$this->str .= "\n\t\t\t";
-		$this->str .= "\n\t\tforeach (\$sql as \$query)\n\t\t{";
-		$this->str .= "\n\t\t\tDB::instance($this->db)->query(\$query);";
+		
+		
+		$this->str .= "\n\t\ttry";
+		$this->str .= "\n\t\t{";
+		$this->str .= "\n\t\t\tforeach (\$queries as \$query)\n\t\t\t{";
+		$this->str .= "\n\t\t\t\t\$prepare = DB::instance($this->db)->query(\$query);";
+		$this->str .= "\n\t\t\t}";
+		$this->str .= "\n\t\t\t// set the new Parent-ID";
+		$this->str .= "\n\t\t\t\$prepare = DB::instance($this->db)->prepare('UPDATE `".$n."` SET `treeparentid` = 0  WHERE `id` = ?');";
+		$this->str .= "\n\t\t\t\$prepare->execute(array(\$child->id));";
+		$this->str .= "\n\t\t}";
+		$this->str .= "\n\t\tcatch(Exception \$e)";
+		$this->str .= "\n\t\t{";
+		if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+		$this->str .= "\n\t\t\treturn false;";
 		$this->str .= "\n\t\t}";
 		
-		$this->str .= "\n\t\t\t";
-		$this->str .= "\n\t\t\$prepare = DB::instance($this->db)->prepare('UPDATE `".$n."` SET `treeparentid` = 0 WHERE `id` = ?');";
-		$this->str .= "\n\t\t\$prepare->execute(array(\$child->id));";
+		
 		$this->str .= "\n\t\treturn true;";
 		$this->str .= "\n\t}";
 		$this->str .= "\n\t\n\t";
@@ -890,7 +995,8 @@ class ObjectGenerator
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\tcatch (Exception \$e)";
 		$this->str .= "\n\t\t{";
-		$this->str .= "\n\t\t\treturn '[['.\$e->getMessage().']]';";
+		if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+		$this->str .= "\n\t\t\treturn false;";
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\t";
 		
@@ -907,23 +1013,23 @@ class ObjectGenerator
 		$this->str .= "\n\t\n\t";
 		
 		$this->str .= $this->CreateComments("Associates a Node/Branch of a Graph to a Parent-Object", 
-											array("object \$child", "object \$predecessor (not used atm)"),'');
-		$this->str .= "\tfunction Add".$n." (\$child, \$predecessor=false)\n\t{";
-		$this->str .= "\n\t\treturn \$this->setTreeMapping(\$child, \$predecessor, false);";
+											array("object \$child", "object \$precursor"),'');
+		$this->str .= "\tfunction Add".$n." (\$child, \$precursor=false)\n\t{";
+		$this->str .= "\n\t\treturn \$this->setTreeMapping(\$this, \$child, \$precursor, false);";
 		$this->str .= "\n\t}";
 		$this->str .= "\n\t\n\t";
 		
 		$this->str .= $this->CreateComments("Associates a Parent-Object to a Node/Branch as Child", 
-											array("object \$parent", "object \$predecessor"),'');
-		$this->str .= "\tfunction Set".$n." (\$parent, \$predecessor=false)\n\t{";
-		$this->str .= "\n\t\treturn \$parent->setTreeMapping(\$this, \$predecessor, false);";
+											array("object \$parent", "object \$precursor"),'');
+		$this->str .= "\tfunction Set".$n." (\$parent, \$precursor=false)\n\t{";
+		$this->str .= "\n\t\treturn \$this->setTreeMapping(\$parent, \$this, \$precursor, false);";
 		$this->str .= "\n\t}";
 		$this->str .= "\n\t\n\t";
 		
 		$this->str .= $this->CreateComments("Removes a Node/Branch from a Parent-Object", 
 											array("object \$child"),'');
 		$this->str .= "\tfunction Remove".$n." (\$child)\n\t{";
-		$this->str .= "\n\t\treturn \$this->setTreeMapping(\$child, false, true);";
+		$this->str .= "\n\t\treturn \$this->setTreeMapping(\$this, \$child, false, true);";
 		$this->str .= "\n\t}";
 		$this->str .= "\n\t\n\t";
 		
@@ -931,48 +1037,94 @@ class ObjectGenerator
 		// internal function to handle the three functions above
 		$this->str .= "\n\t\n\t";
 		$this->str .= $this->CreateComments("Associates a Node/Branch of a Graph to a Parent-Object", 
-											array("object \$child", "object \$predecessor (not used atm)", "bool \$delete"),
+											array("object \$parent", "object \$child", "object \$precursor", "bool \$delete"),
 											'');
 		
-		$this->str .= "\tprivate function setTreeMapping (\$child, \$predecessor=false, \$delete=false)\n\t{";
+		$this->str .= "\tprivate function setTreeMapping (\$parent, \$child, \$precursor=false, \$delete=false)\n\t{";
 		
 		$this->str .= "\n\t\t\$parents = array();";
 		$this->str .= "\n\t\t";
+		$this->str .= "\n\t\ttry";
+		$this->str .= "\n\t\t{";
 		
 		// get all parents from parent-element (including itself)
-		$this->str .= "\n\t\t// get all parents from parent-element (including itself)";
-		$this->str .= "\n\t\t\$prepare = DB::instance($this->db)->prepare('SELECT `pid`, `hops` FROM `".$n."matrix` WHERE `id`=?');";
-		$this->str .= "\n\t\t\$prepare->execute(array(\$this->id));";
-		$this->str .= "\n\t\twhile (\$row = \$prepare->fetch())\n\t\t{";
-		$this->str .= "\n\t\t\t// Recursion-Check";
-		$this->str .= "\n\t\t\tif (\$row->pid == \$child->id)";
-		$this->str .= "\n\t\t\t{";
-		$this->str .= "\n\t\t\t\treturn false;";
-		$this->str .= "\n\t\t\t}";
+		$this->str .= "\n\t\t\t// get all parents from parent-Node (including itself)";
+		$this->str .= "\n\t\t\t\$prepare = DB::instance($this->db)->prepare('SELECT `pid`, `hops` FROM `".$n."matrix` WHERE `id` = ?');";
+		$this->str .= "\n\t\t\t\$prepare->execute(array(\$parent->id));";
+		$this->str .= "\n\t\t\twhile (\$row = \$prepare->fetch())\n\t\t\t{";
+		$this->str .= "\n\t\t\t\t// Recursion-Check";
+		$this->str .= "\n\t\t\t\tif (\$row->pid == \$child->id)";
+		$this->str .= "\n\t\t\t\t{";
+		$this->str .= "\n\t\t\t\t\treturn false;";
+		$this->str .= "\n\t\t\t\t}";
 		
 		
-		$this->str .= "\n\t\t\t\$parents[] = array(\$row->pid, \$row->hops);";
+		$this->str .= "\n\t\t\t\t\$parents[] = array(\$row->pid, \$row->hops);";
 		//$this->str .= "\n\t\t\t";
-		$this->str .= "\n\t\t}";
-		$this->str .= "\n\t\t";
-		
-		// get all childs from child-element (including itself)
-		$this->str .= "\n\t\t// get all childs from child-element (including itself)";
-		$this->str .= "\n\t\t\$prepare0 = DB::instance($this->db)->prepare('SELECT `id`, `hops` FROM `".$n."matrix` WHERE `pid`=?');";
-		$this->str .= "\n\t\t\$prepare0->execute(array(\$child->id));";
-		$this->str .= "\n\t\tif (\$delete)\n\t\t{";
-		$this->str .= "\n\t\t\t\$prepare1 = DB::instance($this->db)->prepare('DELETE FROM `".$n."matrix` WHERE `pid`=? AND `id`=? AND `hops`=?');";
-		$this->str .= "\n\t\t}\n\t\telse\n\t\t{";
-		$this->str .= "\n\t\t\t\$prepare1 = DB::instance($this->db)->prepare('INSERT INTO `".$n."matrix` (`pid`, `id`, `hops`, `sort`) VALUES (?,?,?,0)');";
-		$this->str .= "\n\t\t}";
-		$this->str .= "\n\t\twhile (\$row = \$prepare0->fetch())\n\t\t{";
-		$this->str .= "\n\t\t\tforeach (\$parents as \$p)\n\t\t\t{";
-		$this->str .= "\n\t\t\t\ttry\n\t\t\t\t{";
-		$this->str .= "\n\t\t\t\t\t\$prepare1->execute(array(\$p[0], \$row->id, (\$p[1]+\$row->hops+1)));";
-		$this->str .= "\n\t\t\t\t}\n\t\t\t\tcatch (Exception \$e)\n\t\t\t\t{\n\t\t\t\t\treturn false;\n\t\t\t\t}";
 		$this->str .= "\n\t\t\t}";
+		$this->str .= "\n\t\t\t";
+		
+		
+		$this->str .= "\n\t\t\t// get all Children from the Child-Node (including itself)";
+		$this->str .= "\n\t\t\t\$prepare0 = DB::instance($this->db)->prepare('SELECT `id`, `hops`, `sort` FROM `".$n."matrix` WHERE `pid` = ?');";
+		$this->str .= "\n\t\t\t\$prepare0->execute(array(\$child->id));";
+		$this->str .= "\n\t\t\t";
+		$this->str .= "\n\t\t\t// decide wether to delete or add the Child-Node";
+		$this->str .= "\n\t\t\tif (\$delete)\n\t\t\t{";
+		$this->str .= "\n\t\t\t\t\$prepare1 = DB::instance($this->db)->prepare('DELETE FROM `".$n."matrix` WHERE `pid` = ? AND `id` = ? AND `hops` = ?');";
+		
+		$this->str .= "\n\t\t\t\t\$prepare2 = DB::instance($this->db)->prepare('SELECT `sort` FROM `grafmatrix` WHERE `hops` = 1 AND `pid` = ? AND `id` = ? LIMIT 1');";
+		$this->str .= "\n\t\t\t\t\$prepare2->execute( array( \$parent->id, \$child->id) );";
+		
+		$this->str .= "\n\t\t\t}\n\t\t\telse\n\t\t\t{";
+		$this->str .= "\n\t\t\t\t\$prepare1 = DB::instance($this->db)->prepare('INSERT INTO `".$n."matrix` (`pid`, `id`, `hops`, `sort`) VALUES (?,?,?,0)');";
+		$this->str .= "\n\t\t\t}";
+		$this->str .= "\n\t\t\t";
+		$this->str .= "\n\t\t\twhile (\$row = \$prepare0->fetch())\n\t\t\t{";
+		$this->str .= "\n\t\t\t\tforeach (\$parents as \$p)\n\t\t\t\t{";
+		$this->str .= "\n\t\t\t\t\t\t\$prepare1->execute( array( \$p[0], \$row->id, (\$p[1] + \$row->hops + 1) ) );";
+		$this->str .= "\n\t\t\t\t}";
+		$this->str .= "\n\t\t\t}";
+		$this->str .= "\n\t\t\t";
+		
+		
+		
+		
+		
+		$this->str .= "\n\t\t\tif (\$delete)";
+		$this->str .= "\n\t\t\t{";
+		$this->str .= "\n\t\t\t\t// remove Space";
+		$this->str .= "\n\t\t\t\t\$prepare3 = DB::instance($this->db)->prepare('UPDATE `grafmatrix` SET `sort` = (`sort`-1) WHERE `hops` = 1 AND `pid`= ? AND `sort` > ?');";
+		$this->str .= "\n\t\t\t\t\$prepare3->execute( array( \$parent->id, intval(\$prepare2->fetch()->sort) ) );";
+		$this->str .= "\n\t\t\t}";
+		$this->str .= "\n\t\t\telse";
+		$this->str .= "\n\t\t\t{";
+		$this->str .= "\n\t\t\t\t// if there is a Precursor to place the Child after";
+		$this->str .= "\n\t\t\t\tif (\$precursor)";
+		$this->str .= "\n\t\t\t\t{";
+		$this->str .= "\n\t\t\t\t\t\$prepare2 = DB::instance($this->db)->prepare('SELECT `sort` FROM `".$n."matrix` WHERE `hops` = 1 AND `pid` = ? AND `id` = ? LIMIT 1');";
+		$this->str .= "\n\t\t\t\t\t\$prepare2->execute( array( \$parent->id, \$precursor->id) );";
+		$this->str .= "\n\t\t\t\t\tif (\$row = \$prepare2->fetch())";
+		$this->str .= "\n\t\t\t\t\t{";
+		$this->str .= "\n\t\t\t\t\t\t\$sort = intval(\$row->sort);";
+		$this->str .= "\n\t\t\t\t\t\t// create Space for the new Node";
+		$this->str .= "\n\t\t\t\t\t\t\$prepare3 = DB::instance($this->db)->prepare('UPDATE `grafmatrix` SET `sort` = (`sort`+1) WHERE `hops` = 1 AND `pid`= ? AND `sort` > ?');";
+		$this->str .= "\n\t\t\t\t\t\t\$prepare3->execute( array( \$parent->id, \$sort ) );";
+		$this->str .= "\n\t\t\t\t\t\t// place the Child after Precursor";
+		$this->str .= "\n\t\t\t\t\t\t\$prepare4 = DB::instance($this->db)->prepare('UPDATE `grafmatrix` SET `sort` = ? WHERE `hops` = 1 AND `pid` = ? AND `id` = ?');";
+		$this->str .= "\n\t\t\t\t\t\t\$prepare4->execute( array( (\$sort+1), \$parent->id, \$child->id ) );";
+		$this->str .= "\n\t\t\t\t\t}";
+		$this->str .= "\n\t\t\t\t}";//precursor end
+		$this->str .= "\n\t\t\t}";
+		
+		
+		
 		$this->str .= "\n\t\t}";
-		$this->str .= "\n\t\t";
+		$this->str .= "\n\t\tcatch (Exception \$e)";
+		$this->str .= "\n\t\t{";
+		if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+		$this->str .= "\n\t\t\treturn false;";
+		$this->str .= "\n\t\t}";
 		
 		$this->str .= "\n\t\treturn true;";
 		$this->str .= "\n\t}";
@@ -988,7 +1140,7 @@ class ObjectGenerator
 		$this->str .= "\n\t\n\t";
 		$this->str .= $this->CreateComments("Saves the Object to the Database",
 											array('bool $deep'),
-											(($this->manualId)?'string':'int')." \$id");
+											(($this->manualId)?'string':'integer')." \$id");
 		if ($deep)
 		{
 			$this->str .= "\tfunction Save (\$deep = true)\n\t{";
@@ -1084,7 +1236,8 @@ class ObjectGenerator
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\tcatch (Exception \$e)";
 		$this->str .= "\n\t\t{";
-		$this->str .= "\n\t\t\treturn '[['.\$e->getMessage().']]';";
+		if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+		$this->str .= "\n\t\t\treturn false;";
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\t";
 		
@@ -1143,7 +1296,7 @@ class ObjectGenerator
 		$this->str .= "\n\t\n\t";
 		$this->str .= $this->CreateComments("Clones the object and saves it to the database",
 											array('bool $deep'),
-											(($this->manualId)?'string':'int')." \$id");
+											(($this->manualId)?'string':'integer')." \$id");
 		if ($deep)
 		{
 			$this->str .="\tfunction SaveNew (\$deep = false)\n\t{";
@@ -1270,7 +1423,8 @@ class ObjectGenerator
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\tcatch (Exception \$e)";
 		$this->str .= "\n\t\t{";
-		$this->str .= "\n\t\t\treturn '[['.\$e->getMessage().']]';";
+		if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+		$this->str .= "\n\t\t\treturn false;";
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\t";
 		
@@ -1292,7 +1446,8 @@ class ObjectGenerator
 			$this->str .= "\n\t\t}";
 			$this->str .= "\n\t\tcatch (Exception \$e)";
 			$this->str .= "\n\t\t{";
-			$this->str .= "\n\t\t\treturn '[['.\$e->getMessage().']]';";
+			if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+			$this->str .= "\n\t\t\treturn false;";
 			$this->str .= "\n\t\t}";
 			$this->str .= "\n\t\t";
 		}
@@ -1396,7 +1551,8 @@ class ObjectGenerator
 		$this->str .= "\n\t\t\t\t}";
 		$this->str .= "\n\t\t\t\tcatch (Exception \$e)";
 		$this->str .= "\n\t\t\t\t{";
-		$this->str .= "\n\t\t\t\t\treturn '[['.\$e->getMessage().']]';";
+		if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+		$this->str .= "\n\t\t\t\t\treturn false;";
 		$this->str .= "\n\t\t\t\t}";
 		$this->str .= "\n\t\t\t\t";
 		
@@ -1439,7 +1595,7 @@ class ObjectGenerator
 					// create the Mapping-Class
 					if($this->savePath)
 					{
-						new ObjectMap($this->objectName, $key, $this->savePath, $this->manualId, $this->db);
+						new ObjectMap($this->projectName, $this->objectName, $key, $this->savePath, $this->manualId, $this->db, $this->debug);
 					}
 					
 				}
@@ -1455,7 +1611,11 @@ class ObjectGenerator
 		
 		$this->str .= "\n\t\n\t";
 		$this->str .= $this->CreateComments("Gets a list of $child objects associated to this one", 
-											array("multidimensional array {(\"field\", \"comparator\", \"value\"), (\"field\", \"comparator\", \"value\"), ...}","array \$sortBy","int \$limit","int \$offset"),
+											array(
+											"multidimensional array {(\"field\", \"comparator\", \"value\"), (\"field\", \"comparator\", \"value\"), ...}",
+											"array \$sortBy",
+											"integer \$limit",
+											"integer \$offset"),
 											"array of $child objects");
 		
 		$this->str .= "\tfunction Get".$child."List (\$fcv = array(), \$sortBy = array(), \$limit = 0, \$offset = 0)\n\t{";
@@ -1473,8 +1633,8 @@ class ObjectGenerator
 		
 		$this->str .= "\n\t\n\t";
 		$this->str .= $this->CreateComments("Makes this the parent of all $child objects in the $child List array. Any existing $child will become orphan(s)",
-											array('array List of objects'),
-											"null");
+											array('array $list List of objects'),
+											'');
 		
 		$this->str .= "\tfunction Set".$child."List (&\$list)\n\t{";
 		$this->str .= "\n\t\t\$this->_".$childLower."List = array();";
@@ -1562,8 +1722,8 @@ class ObjectGenerator
 		$this->str .= $this->CreateComments("Returns a sorted array of objects that match given conditions", 
 											array(	"mixed \$fcv {(\"field\", \"comparator\", \"value\"), (\"field\", \"comparator\", \"value\"), ...}",
 													"array \$sortBy",
-													"int \$limit",
-													"int \$offset"),
+													"integer \$limit",
+													"integer \$offset"),
 											"array \$".$siblingLower."List");
 		
 		$this->str .= "\tfunction Get".$sibling."List (\$fcv = array(), \$sortBy = array(), \$limit = 0, \$offset = 0)\n\t{";
@@ -1758,9 +1918,10 @@ class ObjectMap
 	}
 	
 	
-	function __construct($object1, $object2, $save=false, $manualId, $db)
+	function __construct ($projectName, $object1, $object2, $save, $manualId, $db, $debug)
 	{
-		
+		$this->projectName = $projectName;
+		$this->debug = $debug;
 		// enforce alphabetical Order of Object-Names
 		$arr = array($object1, $object2);
 		natcasesort($arr);
@@ -1796,7 +1957,7 @@ class ObjectMap
 	function BeginObject()
 	{
 		
-		$t = (($this->manualId)?'string':'int');
+		$t = (($this->manualId)?'string':'integer');
 		
 		$this->mstr  = "<?php\n";
 		$this->mstr .= $this->CreatePreface();
@@ -1804,30 +1965,31 @@ class ObjectMap
 		$this->mstr .= "\nclass ".$this->object1 . $this->object2."Map\n{";
 		
 		$this->mstr .="\n\t\n\t/**\n\t";
-		$this->mstr .=" * @const int DB\n\t";
-		$this->mstr .=" */\n\tconst DB = $this->db;";
+		$this->mstr .="* @const integer DB\n\t";
+		$this->mstr .="*/\n\tconst DB = $this->db;";
 		
 		$this->mstr .="\n\t\n\t/**\n\t";
-		$this->mstr .=" * @var object _INSTANCE_\n\t";
-		$this->mstr .=" */\n\t";
+		$this->mstr .="* @var object _INSTANCE_\n\t";
+		$this->mstr .="* @access private\n\t";
+		$this->mstr .="*/\n\t";
 		$this->mstr .="static private \$_INSTANCE_ = null;";
 
 		
 		$this->mstr .="\n\t\n\t/**\n\t";
-		$this->mstr .=" * @var $t ".$this->object1."id\n\t";
-		$this->mstr .=" */\n\tpublic \$".$this->object1."id = '';";
+		$this->mstr .="* @var $t ".$this->object1."id\n\t";
+		$this->mstr .="*/\n\tpublic \$".$this->object1."id = '';";
 		
 		$this->mstr .="\n\t\n\t/**\n\t";
-		$this->mstr .=" * @var $t ".$this->object2."id\n\t";
-		$this->mstr .=" */\n\tpublic \$".$this->object2."id = '';";
+		$this->mstr .="* @var $t ".$this->object2."id\n\t";
+		$this->mstr .="*/\n\tpublic \$".$this->object2."id = '';";
 		
 		$this->mstr .="\n\t\n\t/**\n\t";
-		$this->mstr .=" * @var int ".$this->object1."sort\n\t";
-		$this->mstr .=" */\n\tpublic \$".$this->object1."sort = 0;";
+		$this->mstr .="* @var integer ".$this->object1."sort\n\t";
+		$this->mstr .="*/\n\tpublic \$".$this->object1."sort = 0;";
 		
 		$this->mstr .="\n\t\n\t/**\n\t";
-		$this->mstr .=" * @var int ".$this->object2."sort\n\t";
-		$this->mstr .=" */\n\tpublic \$".$this->object2."sort = 0;";
+		$this->mstr .="* @var integer ".$this->object2."sort\n\t";
+		$this->mstr .="*/\n\tpublic \$".$this->object2."sort = 0;";
 		
 	}
 	
@@ -1853,6 +2015,7 @@ class ObjectMap
 		$this->mstr .= "\n*\t @version ".$GLOBALS['cconfiguration']['versionNumber'].' rev. '.$GLOBALS['cconfiguration']['revisionNumber']." ";
 		$this->mstr .= "\n*\t @copyright ".$GLOBALS['cconfiguration']['copyright'];
 		$this->mstr .= "\n*\t @link ".$GLOBALS['cconfiguration']['link'];
+		$this->mstr .= "\n*\t @package ".$this->projectName;
 		$this->mstr .= "\n*/";
 	}
 	
@@ -1860,7 +2023,7 @@ class ObjectMap
 	function CreateComments($description='', $parameterDescriptionArray='', $returnType='')
 	{
 		
-		$this->mstr .= "/**\n\t* ".$description."\n";
+		$this->mstr .= "/**\n\t* ".$description."\n\t*\n";
 		
  		if ($parameterDescriptionArray != '')
  		{
@@ -1915,7 +2078,8 @@ class ObjectMap
 		$this->mstr .= "\n\t\t\t}";
 		$this->mstr .= "\n\t\t\tcatch(Exception \$e)";
 		$this->mstr .= "\n\t\t\t{";
-		$this->mstr .= "\n\t\t\t\treturn '[['.\$e->getMessage().']]';";
+		if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$on."map:[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+		$this->mstr .= "\n\t\t\t\treturn false;";
 		$this->mstr .= "\n\t\t\t}";
 		$this->mstr .= "\n\t\t}";
 		$this->mstr .= "\n\t}";
@@ -1930,7 +2094,10 @@ class ObjectMap
 		
 		$this->mstr .= "\n\t\n\t";
 		$this->mstr .= $this->CreateComments("Creates a Mapping between the two Objects", 
-											array("object $this->object1 \$object", "object $this->object2 \$otherObject"),
+											array(	
+													"object $this->object1 \$object", 
+													"object $this->object2 \$otherObject"
+												),
 											'object Save or false');
 		$this->mstr .= "\tfunction AddMapping(\$object, \$otherObject)\n\t{";
 		$this->mstr .= "\n\t\tif (\$object instanceof ".$this->object1." && \$object->id != '')";
@@ -2009,7 +2176,8 @@ class ObjectMap
 		$this->mstr .= "\n\t\t}";
 		$this->mstr .= "\n\t\tcatch (Exception \$e)";
 		$this->mstr .= "\n\t\t{";
-		$this->mstr .= "\n\t\t\treturn '[['.\$e->getMessage().']]';";
+		if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$on."map:[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+		$this->mstr .= "\n\t\t\treturn false;";
 		$this->mstr .= "\n\t\t}";
 		$this->mstr .= "\n\t\t";
 		$this->mstr .= "\n\t}";

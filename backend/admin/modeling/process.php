@@ -1,14 +1,27 @@
 <?php
-/*
- * neue Strategie:
- * 
- * alle Objekte laden
- * variablen + backup
- * 
- * einfacher diff für objekt-add/del
- * alle anderen objekte werden an funktion(en) übergeben
- * 
- * */
+/********************************************************************************
+*  Copyright notice
+*
+*  (c) 2013 Christoph Taubmann (info@cms-kit.org)
+*  All rights reserved
+*
+*  This script is part of cms-kit Framework. 
+*  This is free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License Version 3 as published by
+*  the Free Software Foundation, or (at your option) any later version.
+*
+*  The GNU General Public License can be found at
+*  http://www.gnu.org/licenses/gpl.html
+*  A copy is found in the textfile GPL.txt and important notices to other licenses
+*  can be found found in LICENSES.txt distributed with these scripts.
+*
+*  This script is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  This copyright notice MUST APPEAR in all copies of the script!
+************************************************************************************/
 
 // PREPARATION ////////////////////////////////////////////////////////////////////
 
@@ -266,7 +279,7 @@ foreach ($queries as $i => $db_queries)
 		{
 			
 			// call Object-Generator ($name, $model, $types, $savepath)
-			new ObjectGenerator($name, $newModel, $datatypes, $ppath);
+			new ObjectGenerator($projectName, $name, $newModel, $datatypes, $ppath, isset($_GET['debug']));
 			
 			$fileHtmlOutput[] = '<div class="grn">' . L('PHP_Class') . ' "<strong>' . $name . '</strong>" ' . 
 								(file_exists($ppath .'class.'.$name.'.php') ? L('updated') : L('created')) . 
@@ -302,8 +315,6 @@ $objects = json_decode($stringified_objects);
 ?>
 ';
 file_put_contents( $ppath."__model.php", $jsonstr0.indentJson($jsonstr1).$jsonstr2 );
-//((indentJson()
-//file_put_contents($ppath . "__model.php", "<"."?php\n\t//cms-kit Data-Model for: " . $projectName . "\n\t\$objects = json_decode('" . $jsonstr . "');\n?".">");
 
 
 chmod($ppath . "__model.php", 0777);
@@ -444,6 +455,14 @@ function deleteBackups(el)
 		aria-disabled="false">
 			<span class="ui-button-icon-primary ui-icon ui-icon-refresh"></span>
 			<span class="ui-button-text"><?php echo L('Rebuild_Objects');?></span>
+	</button>
+	<button
+		onclick="window.location='process.php?rebuild_objects=1&debug=1&project=<?php echo $projectName;?>';"
+		class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary"  
+		role="button" 
+		aria-disabled="false">
+			<span class="ui-button-icon-primary ui-icon ui-icon-refresh"></span>
+			<span class="ui-button-text"><?php echo L('Rebuild_Objects');?> ( DEBUG )</span>
 	</button>
 	<button
 		onclick="window.open('../file_manager/index.php?project=<?php echo $projectName;?>','fm')"

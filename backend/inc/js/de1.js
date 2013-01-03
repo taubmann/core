@@ -3,7 +3,7 @@
 /********************************************************************************
 *  Copyright notice
 *
-*  (c) 2012 Christoph Taubmann (info@cms-kit.org)
+*  (c) 2013 Christoph Taubmann (info@cms-kit.org)
 *  All rights reserved
 *
 *  This script is part of cms-kit Framework. 

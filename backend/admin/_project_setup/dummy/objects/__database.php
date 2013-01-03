@@ -1,27 +1,33 @@
 <?php
-
 /**
-* basic PDO-Wrapper-Class
+* PDO-Database-Wrapper
+* 
+* @author   Christoph Taubmann <info@cms-kit.org>
+* @copyright MIT-License: Free for personal & commercial use. (http://opensource.org/licenses/mit-license.php) 
+* @link http://cms-kit.org
+* @package ###PROJECTNAME###
 */
 
 require_once '__configuration.php';
 
 /**
 * access this object just via DB::instance([$index])
-* @package  DB
-* @author   Christoph Taubmann <info@cms-kit.org>
+* 
 * @access   public
 */
 class DB
 {
 	/**
 	* holds the Reference to the Database (Singleton)
-	* @var array $db 
+	* 
+	* @var array $db
+	* @access private
 	*/
 	private static $db = array();
 	
 	/**
 	* @var integer $escapecounter
+	* @access private
 	*/
 	private static $escapecounter = 0; 
 

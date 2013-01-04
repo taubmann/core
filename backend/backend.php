@@ -30,10 +30,7 @@ error_reporting(0);
 
 header ('Cache-Control: no-cache,must-revalidate', true);
 
-//include Intrusion-Detection-System if available
-//@include '../ids/sniffer.php';
 
-//
 require('inc/php/functions.php');
 
 // fix/sanitize GET-Parameter
@@ -48,14 +45,12 @@ if (!file_exists($ppath . '/objects/__database.php'))
 	header('location: index.php?error=project_unknown');
 }
 
-//$loginHeadHtml = '';
-
 // start the verification-process
 if (!isset($_SESSION[$projectName]))
 {
 	
 	
-	// get the super-password
+	// load the Super-Password-Hash
 	require('admin/super.php');
 	
 	
@@ -70,16 +65,18 @@ if (!isset($_SESSION[$projectName]))
 										'fields'	=> array()
 									);
 	
-	// load model + database
+	// load Model + Database
 	require_once ($ppath . '/objects/__model.php');
 	require_once ($ppath . '/objects/__database.php');
 	
 	$_SESSION[$projectName]['template'] = @intval($_POST['template']);
 	
 	// put static Configurations in Session (may be overwritten by user-settings)
-	// collect some configuration-settings
+	// collect some configuration-settings from the "all"-Extensions
 	$jj = array();
-	$cfiles = array('extensions/all/config/config.php', $ppath.'/extensions/all/config/config.php');
+	$cfiles = array (	'extensions/all/config/config.php',
+						$ppath.'/extensions/all/config/config.php'
+					);
 	foreach($cfiles as $cfile)
 	{
 		if ($s = @file_get_contents($cfile))
@@ -94,7 +91,7 @@ if (!isset($_SESSION[$projectName]))
 	$_SESSION[$projectName]['config'] = $jj;
 	
 	
-	// test for Super-Root
+	// check if Super-Root
 	if ( (
 			crpt($_POST['pass']) === $super && 
 			(
@@ -125,17 +122,16 @@ if (!isset($_SESSION[$projectName]))
 		
 		
 		$log = true;
-		//$loginHeadHtml .= '<script src="http://cms-kit.org/systemcheck?v='.$KITVERSION.'"></script>';
 	}
-	// no Super-Root, 
-	// test for regular Users if any
+	// no Super-Root, test for regular Users if any
 	else
 	{
 		// check for Usermanagement	
 		if(isset($objects->_user))
 		{
 			include('extensions/user/wizards/login/check.php');
-		}else
+		}
+		else
 		{
 			unset($_SESSION[$projectName]);
 			header('location: index.php?error=please_log_in&project=' . $projectName);
@@ -143,7 +139,7 @@ if (!isset($_SESSION[$projectName]))
 		}
 	}
 	
-	// collect admin-"wizards"
+	// collect Admin-Wizards
 	if (isset($_SESSION[$projectName]['root']))
 	{
 		$_SESSION[$projectName]['adminfolders'] = array();
@@ -152,7 +148,6 @@ if (!isset($_SESSION[$projectName]))
 			$f = substr(strval($f), 6);
 			if($_SESSION[$projectName]['root']>1 || substr($f,0,1) != '_')
 			{
-				//$_SESSION[$projectName]['adminfolders'][] = array($f, L($f));
 				$_SESSION[$projectName]['special']['user']['wizards'][] = array	(
 																					'label' => L($f),
 																					'url' => 'admin/' . $f . '/index.php?project=' . $projectName
@@ -170,13 +165,13 @@ if (!isset($_SESSION[$projectName]))
 		$_SESSION[$projectName]['objects'] = $objects;
 		$_SESSION[$projectName]['loginTime'] = time();
 		
-		// check to prevent session-hijacking
+		// create Check to prevent Session-Hijacking in crud.php
 		$_SESSION[$projectName]['user_agent'] = md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . Configuration::$DB_PASSWORD[0]);
-		
+		// reload this Page
 		header('location: backend.php?project=' . $projectName);
 	}
 	
-	// (try to) call a Login-Look
+	// (try to) call a Login-Hook
 	@include_once ($ppath . '/extensions/all/hooks.php');
 	if (function_exists('onLogin')) {
 		onLogin();
@@ -194,9 +189,9 @@ if ( !isset($_SESSION[$projectName]['special']['user']) )
 }
 
 // Objects
-$objectOptions = array();
-$entries = array();
 $els = array();
+$entries = array();
+$objectOptions = array();
 $objects = $_SESSION[$projectName]['objects'];
 $lang = $_SESSION[$projectName]['lang'];
 
@@ -215,26 +210,9 @@ $jsLangLabels = implode(',', $tmp);
 
 // Tag-Filter for Objects
 $tags = $tagsArr = array();
-/*
-foreach ($objects as $ov)
-{
-	if(isset($ov->tags->{$lang})) {
-		@$tagsArr = array_merge($tagsArr, $ov->tags->{$lang});
-	}
-}
-
-// collect Tags
-@$tagsArr = array_unique($tagsArr);
-@sort($tagsArr);
-
-foreach ($tagsArr as $tag)
-{
-	$tags[] = array('name'=> $tag, 'selected'=> ((isset($_GET['tag'])&&$_GET['tag']==$tag)?true:false) );
-}
-*/
 
 
-// (in der Tag-Gruppe) vorhandene Objekte sammeln
+// collect Objects (in this Tag-Group)
 foreach ($objects as $ok => $ov)
 {
 	if ( !isset($_GET['tag']) || in_array($_GET['tag'], $ov->tags->{$lang}) )

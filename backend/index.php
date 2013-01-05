@@ -102,45 +102,61 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 
 </head>
 <body>
-<noscript><h2><?php echo L('javascript_not_activated');?></h2></noscript>
+
+<noscript>
+	<h2>
+		<?php echo L('javascript_not_activated');?>
+	</h2>
+</noscript>
+
 <?php
-	if(isset($_GET['error']) && L($_GET['error'])){ echo '<div id="error">'.L($_GET['error']).'</div>'; }
+	if (isset($_GET['error']) && L($_GET['error']))
+	{
+		echo '<div id="error">'.L($_GET['error']).'</div>';
+	}
 ?>
 
-<div id="msg"><img src="inc/login/spinner-mini.gif" /> please wait!<hr /></div>
-<span id="head_right" style="float:right"><img src="inc/login/logo.png" /></span>
+<div id="msg">
+	<img src="inc/login/spinner-mini.gif" />
+	please wait!
+	<hr />
+</div>
+
+<span id="head_right" style="float:right">
+	<img src="inc/login/logo.png" />
+</span>
 
 <form id="form" style="display:none" method="post" action="backend.php">
 	<input type="hidden" id="lang" name="lang" value="<?php echo $l;?>" />
 	<input type="hidden" id="template" name="template" value="0" />
 
-<?php
+	<?php
 
-echo '	'.L('title').'<br />';
+	echo '	'.L('login').'<br />';
 
-if (count($projects)==1)
-{
-	echo '	<input type="hidden" name="project" value="'.basename($projects[0]).'" />';
-}
-else
-{
-	// you can decide wether to show a selectbox showing all your Projects OR a simple input-field
+	if (count($projects)==1)
+	{
+		echo '	<input type="hidden" name="project" value="'.basename($projects[0]).'" />';
+	}
+	else
+	{
+		// you can decide wether to show a selectbox showing all your Projects OR a simple input-field
 
-	/* Selectbox showing available Projects 
-		echo '	<select name="project" id="project"><option value="">'.L('project_name').'</option>';
-		foreach($projects as $p){ $n=basename($p);echo '		<option '.($n==$projectName?'selected="selected" ':'').'value="'.$n.'">'.L($n).'</option>'; }
-		echo '	</select>';
-	*/
+		/* Selectbox showing available Projects 
+			echo '	<select name="project" id="project"><option value="">'.L('project_name').'</option>';
+			foreach($projects as $p){ $n=basename($p);echo '		<option '.($n==$projectName?'selected="selected" ':'').'value="'.$n.'">'.L($n).'</option>'; }
+			echo '	</select>';
+		*/
 
-	/* simple Input-Field */
-	echo '
-	<p>
-		<label for="project">'.L('project_name').'</label>
-		<input type="text" id="project" name="project" placeholder="'.L('project_name').'" value="'.$projectName.'" /><br />
-	</p>';
-	
-}
-?>
+		/* simple Input-Field */
+		echo '
+		<p>
+			<label for="project">'.L('project_name').'</label>
+			<input type="text" id="project" name="project" placeholder="'.L('project_name').'" value="'.$projectName.'" /><br />
+		</p>';
+		
+	}
+	?>
 	<p>
 		<label for="name"><?php echo L('user_name');?></label>
 		<input type="text" id="name" name="name" placeholder="<?php echo L('user_name');?>" />
@@ -178,7 +194,7 @@ $('#form').show();//
 var msgNo = 0;//
 
 
-// activate "forgot-password"-Mode
+// activate "forgot-password"-Mode (not used atm)
 function setForgotten() {
 	var q = confirm('<?php echo L('to_request_access_enter_your_credentials');?>');
 	if(q)
@@ -188,7 +204,7 @@ function setForgotten() {
 		$('#form').attr('action', 'extensions/user/wizards/remember/index.php');
 	}
 }
-// save username+password as bookmark-url
+// save username+password as Bookmark-Url
 function setHash() {
 	window.location = '?project='+$('#pname').val()+'#name='+$('#name').val()+'&pass='+$('#pass').val();
 }
@@ -227,7 +243,7 @@ if(h.length>0) {
 	}, 1000);
 }
 
-// warn user if activated capsLock
+// warn User if activated capsLock
 $('#pass').keypress(function(e)
 {
     var s = String.fromCharCode( e.which );

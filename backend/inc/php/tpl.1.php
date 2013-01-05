@@ -37,7 +37,7 @@
 <script src="inc/js/jquery.min.js"></script>
 <script src="inc/js/jquery-ui.js"></script>
 
-<script src="inc/js/<?php echo $lang;?>1.js" ></script>
+<script src="inc/locale/<?php echo $lang;?>1.js" ></script>
 
 <style>
 @import url('inc/css/simplify.css');

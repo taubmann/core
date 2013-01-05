@@ -39,24 +39,24 @@ $projectName = preg_replace('/\W/', '', $_REQUEST['project']);
 
 $ppath = '../projects/' . $projectName;
 
-// back to login 
+// back to Login 
 if (!file_exists($ppath . '/objects/__database.php'))
 {
 	header('location: index.php?error=project_unknown');
 }
 
-// start the verification-process
+// start the Verification-Process
 if (!isset($_SESSION[$projectName]))
 {
 	
 	
 	// load the Super-Password-Hash
-	require('admin/super.php');
+	require_once 'admin/super.php';
 	
-	
+	// set the Check-Variable to false
 	$log = false;
 	
-	// define a new Session
+	// define/reset the main Session-Array
 	$_SESSION[$projectName] = array	(
 										'special'	=> array(), 
 										'lang'		=> $_POST['lang'], 
@@ -66,23 +66,29 @@ if (!isset($_SESSION[$projectName]))
 									);
 	
 	// load Model + Database
-	require_once ($ppath . '/objects/__model.php');
-	require_once ($ppath . '/objects/__database.php');
+	require_once $ppath . '/objects/__model.php';
+	require_once $ppath . '/objects/__database.php';
 	
-	$_SESSION[$projectName]['template'] = @intval($_POST['template']);
+	// Array containing Hook-Names to be processed (should be filled in hooks.php)
+	$loginHooks = array();
+	 include_once 'extensions/cms/hooks.php';
+	@include_once $ppath . '/extensions/cms/hooks.php';
 	
-	// put static Configurations in Session (may be overwritten by user-settings)
-	// collect some configuration-settings from the "all"-Extensions
+	$_SESSION[$projectName]['template'] = intval($_POST['template']);
+	
+	// save static Configurations in Session (may be overwritten by other Settings)
+	// collect some configuration-Settings from the "cms"-Extensions
 	$jj = array();
-	$cfiles = array (	'extensions/all/config/config.php',
-						$ppath.'/extensions/all/config/config.php'
+	$configs = array (	'extensions/cms/config/config.php',
+						$ppath . '/extensions/cms/config/config.php'
 					);
-	foreach($cfiles as $cfile)
+	
+	foreach ($configs as $config)
 	{
-		if ($s = @file_get_contents($cfile))
+		if ($s = file_get_contents($config))
 		{
-			$a = explode('EOD', $s);
-			if(count($a)==3 && $j = json_decode($a[1], true)) 
+			$arr = explode('EOD', $s);
+			if(count($arr)==3 && $j = json_decode($arr[1], true)) 
 			{
 				$jj = array_merge_recursive($jj, $j);
 			}
@@ -102,27 +108,36 @@ if (!isset($_SESSION[$projectName]))
 		 end($jj['autolog'])===1
 		)
 	{
-		
+		// define User as Super-Root (==2) and put some infs into the user-array 
 		$_SESSION[$projectName]['root'] = 2;
-		$_SESSION[$projectName]['special']['user'] = array	(
-																'prename'	=> 'superroot',
-																'lastname'	=> 'superroot',
-																'profiles'	=> array(0 => 'superroot'),
-																'id'		=> 0,
-																'lastlogin'	=> 0,
-																'logintime'	=> time(),
-																'wizards' => array(),
-																'fileaccess' => array(array(
-																	'driver'	=> 'LocalFileSystem',
-																	'path'		=> '',
-																	'tmbPath'	=> 'files/.tmb',
-																))
-															);
-		
-		
+		$_SESSION[$projectName]['special']['user'] = 
+		array	(
+			'prename'	=> 'superroot',
+			'lastname'	=> 'superroot',
+			'profiles'	=> array(0 => 'superroot'),
+			'id'		=> 0,
+			'lastlogin'	=> 0,
+			'logintime'	=> time(),
+			'wizards' => array(),
+			'fileaccess' => array(array(
+				'driver'	=> 'LocalFileSystem',
+				'path'		=> '',
+				'tmbPath'	=> 'files/.tmb',
+			))
+		);
 		
 		$log = true;
 	}
+	
+	// (try to) call Login-Hooks
+	foreach ($loginHooks as $hook)
+	{
+		if (function_exists($hook)
+		{
+			call_user_func($hook);
+		}
+	}
+	/*
 	// no Super-Root, test for regular Users if any
 	else
 	{
@@ -137,7 +152,7 @@ if (!isset($_SESSION[$projectName]))
 			header('location: index.php?error=please_log_in&project=' . $projectName);
 			exit();
 		}
-	}
+	}*/
 	
 	// collect Admin-Wizards
 	if (isset($_SESSION[$projectName]['root']))
@@ -145,48 +160,43 @@ if (!isset($_SESSION[$projectName]))
 		$_SESSION[$projectName]['adminfolders'] = array();
 		foreach(glob('admin/*', GLOB_ONLYDIR) as $f)
 		{
-			$f = substr(strval($f), 6);
+			$f = basename($f);
+			// Admin-Wizards beginning with "_" are for Super-Admins only
 			if($_SESSION[$projectName]['root']>1 || substr($f,0,1) != '_')
 			{
-				$_SESSION[$projectName]['special']['user']['wizards'][] = array	(
-																					'label' => L($f),
-																					'url' => 'admin/' . $f . '/index.php?project=' . $projectName
-																				);
+				$_SESSION[$projectName]['special']['user']['wizards'][] = 
+				array	(
+					'label' => L($f),
+					'url' => 'admin/' . $f . '/index.php?project=' . $projectName
+				);
 			}
 		}
 	}
-	
-	if (!$log) // login failed
+	// login failed
+	if (!$log)
 	{
 		unset($_SESSION[$projectName]);
+		header('location: index.php?error=please_log_in&project=' . $projectName);
+		exit();
 	}
-	else // login successful
+	// login successful
+	else
 	{
+		
 		$_SESSION[$projectName]['objects'] = $objects;
 		$_SESSION[$projectName]['loginTime'] = time();
 		
 		// create Check to prevent Session-Hijacking in crud.php
 		$_SESSION[$projectName]['user_agent'] = md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . Configuration::$DB_PASSWORD[0]);
-		// reload this Page
+		// refresh this Page to kill POST-Variables
 		header('location: backend.php?project=' . $projectName);
-	}
-	
-	// (try to) call a Login-Hook
-	@include_once ($ppath . '/extensions/all/hooks.php');
-	if (function_exists('onLogin')) {
-		onLogin();
 	}
 }
 
 // reset Captcha-Answer if exists
-if(isset($_SESSION['captcha_answer'])) unset($_SESSION['captcha_answer']);
+@unset($_SESSION['captcha_answer']);
 
-// redirect to Login-Page if login/session is not correct
-if ( !isset($_SESSION[$projectName]['special']['user']) )
-{
-	header('location: index.php?error=please_log_in&project=' . $projectName);
-	exit();
-}
+
 
 // Objects
 $els = array();

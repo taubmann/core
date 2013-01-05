@@ -31,8 +31,9 @@ error_reporting(0);
 $projectName = preg_replace('/\W/', '', $_GET['project']);
 if($_SESSION[$projectName]['root']!==2) exit('no Rights to edit!');
 
-$path = '../../inc/';
-$js_path = $path . 'js/';
+$path     = '../../inc/';
+$js_path  = $path . 'js/';
+$out_path = $path . 'locale/';
 
 if(!$_GET['lang'] || !file_exists($path.'locale/'.$_GET['lang'].'.php'))
 {
@@ -76,9 +77,6 @@ $src = array(
 		);
 
 
-		
-
-
 $c = 0;
 foreach ($src as $aa)
 {
@@ -107,7 +105,7 @@ foreach ($src as $aa)
 			if(!isset($_GET['nocompress'])) {
 				$str = preg_replace('/(\\t|\\r|\\n)/','', $str); // remove tabs + line-feeds ( agressive Method ! )
 			}
-			//// temorary methods ( less agressive )
+			//// temporary Methods ( less agressive )
 			//// $str = preg_replace('/(\\t)/','', $str); // remove only the tabs
 			//// $str = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "", $str); // remove blank lines
 			
@@ -126,7 +124,7 @@ foreach ($src as $aa)
 			}
 		}
 		
-		// translate languge-calls (the L-Word)
+		// translate Languge-Calls found in the Code (the L-Word)
 		if($a[2] && $LL)
 		{
 			$str = preg_replace("/_\('(\w+)'\)/e", "L('\\1')", $str);
@@ -135,9 +133,9 @@ foreach ($src as $aa)
 		$out .= $str . "\n";
 	}
 	
-	if(file_put_contents($js_path.$_GET['lang'].$c.'.js', $out))
+	if(file_put_contents($out_path.$_GET['lang'].$c.'.js', $out))
 	{
-		chmod($js_path.$_GET['lang'].$c.'.js', 0777);
+		chmod($out_path.$_GET['lang'].$c.'.js', 0777);
 	}
 	
 	else
@@ -152,7 +150,6 @@ foreach ($src as $aa)
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <title>JS-Packer</title>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
@@ -165,7 +162,7 @@ a, a:visited{text-decoration:underline;color:#00f;}
 	<a href="javascript:history.back()">back</a>
 	<h2>JS Packed</h2>
 	<p>Labels were translated to: "<?php echo $_GET['lang'];?>".</p>
-	<p>Desktop: <a target="_blank" href="<?php echo $js_path.$_GET['lang'];?>0.js">File</a></p>
-	<p>Mobile:  <a target="_blank" href="<?php echo $js_path.$_GET['lang'];?>1.js">File</a></p>
+	<p>Desktop: <a target="_blank" href="<?php echo $out_path.$_GET['lang'];?>0.js">File</a></p>
+	<p>Mobile:  <a target="_blank" href="<?php echo $out_path.$_GET['lang'];?>1.js">File</a></p>
 </body>
 </html>

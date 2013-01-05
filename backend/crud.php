@@ -23,7 +23,7 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
 /*
- * Backend-Functions
+* CRUD-Functions
 */
 require 'inc/php/header.php';
 
@@ -52,13 +52,13 @@ $objectId 			 = (isset($_GET['objectId']) ? $_GET['objectId'] : null);
 $objectFields 		 = $_SESSION[$projectName]['labels'][$objectName];
 $referenceName 		 = (isset($_GET['referenceName']) ? $_GET['referenceName'] : null);
 $referenceId 		 = (isset($_GET['referenceId']) ? $_GET['referenceId'] : null);
-$referenceFields 	= (isset($_GET['referenceName']) ? $_SESSION[$projectName]['labels'][$referenceName] : array('id'=>1));
+$referenceFields 	 = (isset($_GET['referenceName']) ? $_SESSION[$projectName]['labels'][$referenceName] : array('id'=>1));
 
 
 
-foreach($_POST as $k => $v)
+foreach ($_POST as $k => $v)
 {
-	switch(substr($k, 0, 2))
+	switch (substr($k, 0, 2))
 	{
 	
 	// base64-encode Content 
@@ -68,7 +68,7 @@ foreach($_POST as $k => $v)
 	
 		// encrypt Content (XOR or Blowfish)
 		case 'c_':
-			if(@$key = $_SESSION[$projectName]['config']['crypt'][$objectName][$k])
+			if (@$key = $_SESSION[$projectName]['config']['crypt'][$objectName][$k])
 			{
 				require_once('inc/php/crypt.php');
 				$key  = md5($objectName . $k . $key);
@@ -78,15 +78,15 @@ foreach($_POST as $k => $v)
 			}
 			else
 			{
-				unset($_POST[$k]);
+				unset ($_POST[$k]);
 			}
 		break;
 		
 		// save Data from Micro-Structure-Inputs back into JSON-Field
 		case 'j_':
-			if(@$temp = json_decode($v, true))
+			if (@$temp = json_decode($v, true))
 			{ 
-				foreach($temp as $jk => $jv){ $temp[$jk]['value'] = $_POST[$jk]; }
+				foreach ($temp as $jk => $jv){ $temp[$jk]['value'] = $_POST[$jk]; }
 				$_POST[$k] = json_encode($temp);
 			}
 		break;
@@ -96,8 +96,8 @@ foreach($_POST as $k => $v)
 
 if (isset($objects->{$objectName}->hooks->PRE) || isset($objects->{$objectName}->hooks->PST))
 {
-	 include('extensions/all/hooks.php');
-	@include($ppath . '/extensions/all/hooks.php');
+	 include('extensions/cms/hooks.php');
+	@include($ppath . '/extensions/cms/hooks.php');
 }
 
 
@@ -120,27 +120,25 @@ $c->sortBy = $_SESSION[$projectName]['sort'][$objectName];
 
 
 // call PRE/PST - Hooks
-function callHooks($what)
+function callHooks ($when)
 {
 	global $objects, $objectName;
 	
-	if(@is_array($objects->$objectName->hooks->{$what}))
+	if (@is_array($objects->$objectName->hooks->{$when}))
 	{
-		foreach($objects->$objectName->hooks->{$what} as $hookarr)
+		foreach ($objects->$objectName->hooks->{$when} as $hookarr)
 		{
 			if (function_exists($hookarr[0]))
 			{
-				call_user_func( $hookarr[0], (isset($hookarr[1])?explode(',',$hookarr[1]):null) );
+				call_user_func( $hookarr[0], (isset($hookarr[1]) ? explode(',',$hookarr[1]) : null) );
 			}
-			
-			
 		}
 	}
 }
 
 callHooks('PRE');
 
-if(method_exists($c, $action))
+if (method_exists($c, $action))
 {
 	$output = $c->$action();
 }

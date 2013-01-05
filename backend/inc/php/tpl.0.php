@@ -39,7 +39,7 @@
 
 <script src="inc/js/jquery.min.js"></script>
 <script src="inc/js/jquery-ui.js"></script>
-<script src="inc/js/<?php echo $lang;?>0.js" ></script>
+<script src="inc/locale/<?php echo $lang;?>0.js" ></script>
 
 </head>
 <body>
@@ -58,22 +58,6 @@
 <div id="iHeadRight" style="float:right">
 	
 <?php
-
-// draw Admin-Panel-Selector if allowed
-/*
-if(isset($_SESSION[$projectName]['adminfolders']))
-{
-	$html = '<span><select id="adminWizard" onchange="openAdminWizard(this)">
-<option value=""> '.L('Admin_Wizards')." </option>\n";
-	
-	foreach($_SESSION[$projectName]['adminfolders'] as $arr)
-	{
-		$html .= '<option value="'.$arr[0].'"> '.$arr[1]." </option>\n";
-	}
-	
-	$html .= '</select></span>';
-	echo $html;
-}*/
 
 
 if(isset($user_wizards))

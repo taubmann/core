@@ -9,7 +9,7 @@ $info = <<<EOD
 		],
 		"homepage": "",
 		"mail": "",
-		"copyright": "GPL"
+		"copyright": ""
 	},
 	"system":  {
 		"version": 0,

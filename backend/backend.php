@@ -23,7 +23,7 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
 /*
-	Backend-Functions
+* Backend-Functions
 */
 session_start();
 error_reporting(0);
@@ -105,7 +105,7 @@ if (!isset($_SESSION[$projectName]))
 				isset($_SESSION['captcha_answer']) && $_POST['name']==$_SESSION['captcha_answer']
 			)
 		 ) || 
-		 end($jj['autolog'])===1
+		 end($jj['autolog']) == 1
 		)
 	{
 		// define User as Super-Root (==2) and put some infs into the user-array 
@@ -132,27 +132,11 @@ if (!isset($_SESSION[$projectName]))
 	// (try to) call Login-Hooks
 	foreach ($loginHooks as $hook)
 	{
-		if (function_exists($hook)
+		if (function_exists($hook))
 		{
 			call_user_func($hook);
 		}
 	}
-	/*
-	// no Super-Root, test for regular Users if any
-	else
-	{
-		// check for Usermanagement	
-		if(isset($objects->_user))
-		{
-			include('extensions/user/wizards/login/check.php');
-		}
-		else
-		{
-			unset($_SESSION[$projectName]);
-			header('location: index.php?error=please_log_in&project=' . $projectName);
-			exit();
-		}
-	}*/
 	
 	// collect Admin-Wizards
 	if (isset($_SESSION[$projectName]['root']))
@@ -172,6 +156,7 @@ if (!isset($_SESSION[$projectName]))
 			}
 		}
 	}
+	
 	// login failed
 	if (!$log)
 	{
@@ -191,11 +176,12 @@ if (!isset($_SESSION[$projectName]))
 		// refresh this Page to kill POST-Variables
 		header('location: backend.php?project=' . $projectName);
 	}
-}
+	
+} // Verification-Process END
+
 
 // reset Captcha-Answer if exists
-@unset($_SESSION['captcha_answer']);
-
+if (isset($_SESSION['captcha_answer'])) unset($_SESSION['captcha_answer']);
 
 
 // Objects

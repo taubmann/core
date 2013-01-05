@@ -20,7 +20,6 @@ backend/inc/locale/*.js
 # track Files&Folders inside untracked Folders
 
 !projects/index.php
-!backend/extensions/all/**/*
 !backend/extensions/index.php
 !backend/wizards/index.php
 

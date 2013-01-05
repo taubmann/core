@@ -96,6 +96,7 @@ foreach ($_POST as $k => $v)
 
 if (isset($objects->{$objectName}->hooks->PRE) || isset($objects->{$objectName}->hooks->PST))
 {
+	 $loginHooks = array();//we need a dummy here
 	 include('extensions/cms/hooks.php');
 	@include($ppath . '/extensions/cms/hooks.php');
 }

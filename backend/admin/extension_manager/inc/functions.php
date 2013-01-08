@@ -106,9 +106,16 @@ function getDocList($lang, $current_ext_path)
 	$html = '';
 	$path = $current_ext_path.'/doc';
 	$in_lang = '';
-	if(file_exists($current_ext_path.'/doc/'.$lang)){
+	if(file_exists($current_ext_path.'/doc/'.$lang))
+	{
 		$path = $current_ext_path.'/doc/'.$lang;
 		$in_lang = ' ('.$lang.') ';
+	}
+	// default Language "en"
+	else
+	{
+		$path = $current_ext_path.'/doc/en';
+		$in_lang = ' (en) ';
 	}
 	
 	$docs = glob($path.'/{*.md,*.html}', GLOB_BRACE);
@@ -123,8 +130,13 @@ function getDocList($lang, $current_ext_path)
 			$n = basename($doc,	'.txt');
 			$n = basename($n,	'.md');
 			$n = basename($n,	'.html');
-			$add = ",'&edit_me=".substr($doc,strlen($current_ext_path)+1)."'";
-			$html .= '<button type="button" onclick="setFrame(\'showDoc\',\''.$doc.'\''.$add.')">'.str_replace('_',' ',$n).'</button>';
+			$add = ",'&edit_me=".substr($doc, strlen($current_ext_path)+1)."'";
+			
+			// dont show internal/hidden Files beginning with "_"
+			if( substr($n, 0, 1) != '_')
+			{
+				$html .= '<button type="button" onclick="setFrame(\'showDoc\',\''.$doc.'\''.$add.')">'.str_replace('_', ' ', $n).'</button>';
+			}
 		}
 		$html .= '</div>';
 		

@@ -3,7 +3,7 @@ $info = <<<EOD
 {
 	"info":  {
 		"name": "cms",
-		"description": "basic Hooks for cms-kit",
+		"description": "basic Hooks for the Project",
 		"authors":  [
 			"Christoph Taubmann"
 		],

@@ -161,6 +161,7 @@ function importFile(what, name)
 		document.getElementsByTagName("head")[0].appendChild(fileref);
 	}
 }
+
 // (re)set the size of menu+frame
 function setSize()
 {

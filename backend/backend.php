@@ -49,7 +49,6 @@ if (!file_exists($ppath . '/objects/__database.php'))
 if (!isset($_SESSION[$projectName]))
 {
 	
-	
 	// load the Super-Password-Hash
 	require_once 'admin/super.php';
 	
@@ -71,8 +70,8 @@ if (!isset($_SESSION[$projectName]))
 	
 	// Array containing Hook-Names to be processed (should be filled in hooks.php)
 	$loginHooks = array();
-	 include_once 'extensions/cms/hooks.php';
-	@include_once $ppath . '/extensions/cms/hooks.php';
+	include_once 'extensions/cms/hooks.php';
+	include_once $ppath . '/extensions/cms/hooks.php';
 	
 	$_SESSION[$projectName]['template'] = intval($_POST['template']);
 	
@@ -132,6 +131,7 @@ if (!isset($_SESSION[$projectName]))
 	// (try to) call Login-Hooks
 	foreach ($loginHooks as $hook)
 	{
+		echo $hook;
 		if (function_exists($hook))
 		{
 			call_user_func($hook);

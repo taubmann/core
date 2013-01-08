@@ -46,8 +46,8 @@ if ( !empty($_POST['pid']) && !empty($_POST['cid']) )
 	
 	// first we must check if the connection already exists
 	$query = 	($treeType == 'Tree') ?
-				'SELECT `treeparentid` AS i FROM `baum` WHERE `id` = ?' :
-				'SELECT `pid` AS i FROM `grafmatrix` WHERE `id` = ?';
+				'SELECT `treeparentid` AS i FROM `'.$objectName.'` WHERE `id` = ?' :
+				'SELECT `pid` AS i FROM `'.$objectName.'matrix` WHERE `id` = ?';
 	
 	$prepare = DB::instance($db)->prepare($query);
 	$prepare->execute(array($_POST['cid']));

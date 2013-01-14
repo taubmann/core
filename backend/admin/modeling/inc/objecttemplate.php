@@ -3,8 +3,7 @@
 /**
 *  cms-kit Object-Generator
 * 
-*  inspired by PHP Object-Generator (http://phpobjectgenerator.com)
-*  Version 1.0
+*  this Generator is based on PHP Object-Generator (http://phpobjectgenerator.com)
 * 
 *  Copyright notice
 *
@@ -31,7 +30,6 @@
 
 $GLOBALS['cconfiguration'] = array(
 	'author' => 'cms-kit Object-Generator ',
-	'version' => '1 Revision 0',
 	'copyright' => 'MIT-License: Free for personal & commercial use. (http://opensource.org/licenses/mit-license.php) ',
 	'link' => 'http://cms-kit.org'
 );
@@ -45,7 +43,7 @@ class ObjectGenerator
 	var $savePath; // where to save
 	
 	
-	function __construct($projectName, $objectName, $model, $types, $savepath, $debug=false)
+	function __construct($projectName, $objectName, $model, $types, $savepath, $version, $debug=false)
 	{
 		
 		// globalize Variables
@@ -57,6 +55,7 @@ class ObjectGenerator
 		$this->db			= $model[$objectName]['db'];
 		$this->types 		= $types;
 		$this->savePath 	= $savepath;
+		$this->version = $version;
 		$this->debug = $debug;
 		
 		$this->manualId 	= (Configuration::$DB_INCREMENT[$this->db] == 'manual') ? true : false; // manual/auto-increment
@@ -137,12 +136,12 @@ class ObjectGenerator
 	
 	function CreatePreface()
 	{
-		$this->str .= "/**\n*\t class '".$this->objectName."' with integrated CRUD methods\n*\t";
-		$this->str .= "\n*\t @author ".$GLOBALS['cconfiguration']['author'];
-		$this->str .= "\n*\t @version ".$GLOBALS['cconfiguration']['versionNumber'].' rev. '.$GLOBALS['cconfiguration']['revisionNumber']." ";
-		$this->str .= "\n*\t @copyright ".$GLOBALS['cconfiguration']['copyright'];
-		$this->str .= "\n*\t @link ".$GLOBALS['cconfiguration']['link'];
-		$this->str .= "\n*\t @package ".$this->projectName;
+		$this->str .= "/**\n*\t class '" . $this->objectName . "' with integrated CRUD methods\n*\t";
+		$this->str .= "\n*\t @author " . $GLOBALS['cconfiguration']['author'];
+		$this->str .= "\n*\t @version " . $this->version;
+		$this->str .= "\n*\t @copyright " . $GLOBALS['cconfiguration']['copyright'];
+		$this->str .= "\n*\t @link " . $GLOBALS['cconfiguration']['link'];
+		$this->str .= "\n*\t @package " . $this->projectName;
 		$this->str .= "\n*/\n";
 	}
 	
@@ -1918,7 +1917,7 @@ class ObjectMap
 	}
 	
 	
-	function __construct ($projectName, $object1, $object2, $save, $manualId, $db, $debug)
+	function __construct ($projectName, $object1, $object2, $save, $manualId, $db, $version, $debug)
 	{
 		$this->projectName = $projectName;
 		$this->debug = $debug;
@@ -1930,7 +1929,8 @@ class ObjectMap
 		
 		$this->manualId  = $manualId;
 		$this->db = $db;
-		
+		$this->version = $version;
+		$this->debug = $debug;
 		
 		$this->savePath = $save;
 		
@@ -2011,11 +2011,11 @@ class ObjectMap
 	function CreatePreface()
 	{
 		$this->mstr .= "/*\n*\t class for Mapping Objects '".$this->object1."' and '".$this->object2."' with integrated CRUD methods.";
-		$this->mstr .= "\n*\t @author ".$GLOBALS['cconfiguration']['author'];
-		$this->mstr .= "\n*\t @version ".$GLOBALS['cconfiguration']['versionNumber'].' rev. '.$GLOBALS['cconfiguration']['revisionNumber']." ";
-		$this->mstr .= "\n*\t @copyright ".$GLOBALS['cconfiguration']['copyright'];
-		$this->mstr .= "\n*\t @link ".$GLOBALS['cconfiguration']['link'];
-		$this->mstr .= "\n*\t @package ".$this->projectName;
+		$this->mstr .= "\n*\t @author " . $GLOBALS['cconfiguration']['author'];
+		$this->mstr .= "\n*\t @version " . $this->version;
+		$this->mstr .= "\n*\t @copyright " . $GLOBALS['cconfiguration']['copyright'];
+		$this->mstr .= "\n*\t @link " . $GLOBALS['cconfiguration']['link'];
+		$this->mstr .= "\n*\t @package " . $this->projectName;
 		$this->mstr .= "\n*/";
 	}
 	

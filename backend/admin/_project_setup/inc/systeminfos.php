@@ -22,9 +22,9 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
-/*
- * basic check for System-Capabilities
- * */
+/**
+* basic check for System-Capabilities
+*/
 
 function systemInfos()
 {
@@ -95,14 +95,15 @@ function systemInfos()
 	$html .= '<h4>'.L('Directory_Check').'</h4>';
 	$folders = array(
 		'projects',
+		'backend/admin',
 		'backend/extensions',
-		'backend/wizards'
+		'backend/wizards',
 	);
 	$main = '../../../';
 	foreach($folders as $folder)
 	{
 		$f = $main . $folder;
-		$html .= '<p class="si ' . ((file_exists($f)) ? (is_writable(($f)) ? 'si_ok' : 'si_warn') : 'si_err') . '"><b>'.$f.'</b></p>';
+		$html .= '<p class="si ' . ((file_exists($f)) ? (is_writable(($f)) ? 'si_ok' : 'si_warn') : 'si_err') . '"><b>'.$folder.'</b></p>';
 	}
 	
 	$html .= '</div>';

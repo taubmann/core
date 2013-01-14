@@ -28,11 +28,11 @@
 <head>
 <title>Super-Password</title>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
+<link rel="stylesheet" type="text/css" href="inc/css/styles.css" />
 <script type="text/javascript" src="../../inc/js/jquery.min.js"></script>
 <script type="text/javascript" src="inc/js/mocha.js"></script>
 <style>
-body{background: #eee;font:62.5% "Trebuchet MS", sans-serif;}
+body{background: #eee;font:72.5% "Trebuchet MS", sans-serif;}
 a{text-decoration:none;color:#000;}
 #frm{position:absolute;top:50%;left:50%;width:160px;margin:-80px 0px 0px -80px;}
 input{background:#fff;border:1px solid #333;padding:5px;margin:3px 0px;}
@@ -47,6 +47,7 @@ h3{color: #f00;}
 .stronger{background-color: #93C9F4;}
 .strongest{background-color: #B6FF6C;}
 .value{color:blue; padding-left: 10px;}
+
 </style>
 
 </head>
@@ -54,39 +55,47 @@ h3{color: #f00;}
 <form id="frm" style="display:none" method="post" action="superpw.php">
 <?php
 
-	require '../../inc/php/functions.php';
 
-	if(!file_exists('../super.php'))
+require '../../inc/php/functions.php';
+require 'inc/systeminfos.php';
+	
+
+if(!file_exists('../super.php'))
+{
+	if(is_writable('../'))
 	{
-		if(is_writable('../'))
+		if(isset($_POST['pass']))
 		{
-			if(isset($_POST['pass']))
-			{
-				file_put_contents('../super.php', '<?php'."\n// auto-generated: do not edit!\n\$super = '".crpt($_POST['pass'])."';\n");
-				chmod('../super.php', 0776);
-				echo '<h2>Password saved!</h2>
-				<a href="index.php">Project-Setup</a>
-				<hr />
-				<a href="../../">Login-Page</a>';
-			}
-			else
-			{
-				echo '<input type="password" autocomplete="off" id="inputPassword" name="pass" />
-				<div id="complexity" class="default">Enter a Password</div>
-				<div class="block"><div id="results" class="default">Details</div><div id="details"></div></div>
-				<hr /><input type="submit" value="save" />';
-			}
+			file_put_contents('../super.php', '<?php'."\n// auto-generated: do not edit!\n\$super = '".crpt($_POST['pass'])."';\n");
+			chmod('../super.php', 0776);
+			echo '<h2>Password saved!</h2>
+			<a href="index.php">Project-Setup</a>
+			<hr />
+			<a href="../../">Login-Page</a>';
 		}
 		else
 		{
-			echo '<h3>"backend/admin/" is not writable!</h3>';
+			echo '<input type="password" autocomplete="off" id="inputPassword" name="pass" />
+			<div id="complexity" class="default">Enter a Password</div>
+			<div class="block"><div id="results" class="default">Details</div><div id="details"></div></div>
+			<hr /><input type="submit" value="save" />';
 		}
 	}
 	else
 	{
-		echo '<h3>Super-Password already exists!</h3>';
+		echo '<h3>"backend/admin/" is not writable!</h3>';
 	}
-	
+}
+else
+{
+	echo '<h3>Super-Password already exists!</h3>';
+}
+
+
+echo systemInfos();
+
+
+
 ?>
 </form>
 

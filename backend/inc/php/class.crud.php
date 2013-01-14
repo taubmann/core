@@ -314,7 +314,7 @@ class crud
 		$str .= '</span>';
 		
 		// Button-Bar
-		$str .= '<div id="mainlistHead">';
+		$str .= '<div id="mainlistHead"><!--lb1-->';
 		//$this->strButton('',false,'');
 		// back-Button
 		//$str .= '<button ' . (($this->offset > 0) ? '' : ' disabled="disabled" ') . ' rel="arrowthick-1-w" onclick="store[objectName][\'offset\']-=limitNumber;getList()" title="'.$this->L('prev').'">'.$lbl[0].'</button>';
@@ -333,7 +333,7 @@ class crud
 		// sort-Button
 		if(!isset($this->disallow['sortbutton'])) $str .= '<button rel="shuffle" onclick="getFrame(\'inc/php/editList.php?projectName='.$this->projectName.'&objectName='.$this->objectName.'\')" title="'.$this->L('sort').'">'.$this->L('sort').'</button>';
 		
-		$str .= '<div id="pagination"></div></div>';
+		$str .= '<!--lb2--><div id="pagination"></div></div>';
 		
 		
 		
@@ -350,14 +350,14 @@ class crud
 	public function getTreeHead()
 	{
 		// Buttons
-		$str = '<div id="mainlistHead">';
+		$str = '<div id="mainlistHead"><!--lb1-->';
 		// New-Button
 		if(!isset($this->disallow['newbutton'])) $str .= $this->strButton('plus', 'new_entry', 'createContent()');
 		// Sort-Button
 		$str .= $this->strButton('shuffle', 'sort', 'getFrame(\'inc/php/editList.php?projectName='.$this->projectName.'&objectName='.$this->objectName.'\')');
 		// Order-Button
 		if(!isset($this->disallow['orderbutton'])) $str .= $this->strButton('link', 'order', 'getFrame(\'inc/php/manageTree.php?projectName='.$this->projectName.'&objectName='.$this->objectName.'\')');//'<button rel="link" onclick="getFrame(\'inc/php/manageTree.php?projectName='.$this->projectName.'&objectName='.$this->objectName.'\')" title="'.$this->L('arrange').'">'.$this->L('arrange').'</button>';
-		$str .= '</div>';
+		$str .= '<!--lb2--></div>';
 		$str .= '<div id="mainlist2"></div>';
 		
 		return $str;
@@ -519,12 +519,13 @@ class crud
 			
 			
 		}
-		
+		$str0 .= '<!--cb1-->';
 		
 		$str0 .= '<div id="innerForm">';
 		
 		$cnt = 0;
 		$col = $this->objects->{$this->objectName}->col;
+		
 		// loop the Fields
 		foreach($col as $fk => $fv)
 		{
@@ -611,8 +612,13 @@ class crud
 				}
 			}
 			
+			// replacements
+			$str1 .= '<!--s_'.$fk.'-->';
+			
 			// call the function array(label, fieldname, content, addition-array)
 			$str1 .= call_user_func( '_'.$fv->type, array( $lbl, $fk, $item->$fk, (isset($fv->add)?$fv->add:array()) ));
+			
+			$str1 .= '<!--e_'.$fk.'-->';
 			
 			// if Micro-Structure is detected
 			if($fks == 'j_' && $temp = json_decode($item->$fk))
@@ -642,12 +648,13 @@ class crud
 			$str1 = str_replace('###TABSHEAD###', '<ul>'.implode('', $tabHeads).'</ul>', $str1);
 		}
 		
-		// Content-Buttons (created because they need IDs and Style-Attributes) 
-		
+		// Content-Buttons (created here because they need IDs and Style-Attributes) 
+		$str2 .= '<span style="float:right"><!--cb3-->';
 		if(!isset($this->disallow['deletebutton']))
 		{
-			$str2 .= '<button id="deleteButton" style="float:right" type="button" rel="trash" onclick="deleteContent(\''.$this->objectId.'\')">'.$this->L('delete_entry').'</button> ';
+			$str2 .= '<button id="deleteButton" type="button" rel="trash" onclick="deleteContent(\''.$this->objectId.'\')">'.$this->L('delete_entry').'</button> ';
 		}
+		$str2 .= '</span><!--cb2-->';
 		if(!isset($this->disallow['savebutton']))
 		{
 			$str2 .= '<button id="saveButton" alt="'.$this->objectId.'" type="button" rel="disk" onclick="saveContent(\''.$this->objectId.'\')">'.$this->L('save').'</button> ';
@@ -659,7 +666,6 @@ class crud
 	* 
 	* 
 	* @return 
- 
 	*/
 	public function saveContent()
 	{
@@ -692,7 +698,6 @@ class crud
 	* 
 	* 
 	* @return 
- 
 	*/
 	public function createContent()
 	{
@@ -739,7 +744,6 @@ class crud
 	* 
 	* 
 	* @return 
- 
 	*/
 	public function multiSelect()
 	{
@@ -1008,6 +1012,7 @@ class crud
 		$str0 .=  $this->strButton('arrowthick-1-w',false,'getReferences(\''.$this->objectId.'\','.($offset1-$this->limit).','.$offset2.')', ($offset1 > 0));
 		
 		
+		
 		$allFilter = $this->getAssocListFilter;
 		$rel_ids = array();
 		$c = 0;
@@ -1060,7 +1065,7 @@ class crud
 		$str0 .=  $this->strButton('arrowthick-1-e',false,'getReferences(\''.$this->objectId.'\','.($offset1+$this->limit).','.$offset2.')',($c>=$ol));
 		// new-Button 
 		$str0 .= $this->strButton('plus','new_entry','window.location.hash=\'object='.$this->referenceName.'&connect_to_object='.$this->objectName.'&connect_to_id='.$this->objectId.'\'',!isset($this->disallow['newconnectbutton']));
-		
+		$str0 .=  '<!--rb1-->';
 		$str0 .= 	'</div><ul id="sublist" class="ilist rlist' . $pClass . '">' .
 					'<li class="ui-state-disabled">' . $this->L('connected') . '</li>' .
 					$str1;
@@ -1098,7 +1103,7 @@ class crud
 				$str2 .= $this->strLi(
 								$this->referenceName, 
 								$i->id . '|' . $nn . 
-								((isset($i->$pId) && strlen($i->$pId) > 0) ? '<sup>(!)</sup>' : '') 
+								((isset($i->$pId) && strlen($i->$pId) > 0) ? '(!)' : '') 
 						);//('.$i->$pId.')
 			}
 			$all_cnt++;
@@ -1127,6 +1132,9 @@ class crud
 		//$str1 .= $this->strButton('arrowthick-2-e-w',false,'$(\'#r_pagination\').toggle()', ($offset2>0 || $all_cnt>$this->limit));
 		// next-Button
 		$str1 .= $this->strButton('arrowthick-1-e',false,'getReferences(\''.$this->objectId.'\','.$offset1.','.($offset2+$this->limit).')', ($all_cnt>$this->limit));
+		
+		$str1 .= '<!--rb2-->';
+		
 		// Container for Pagination-Links
 		//$str1 .= '<div id="r_pagination" style="display:none"><br />'.$strp.'</div>';
 		$str1 .= '</div>';

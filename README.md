@@ -18,4 +18,4 @@ Unlike normal Content-Management-Systems there is no predefined (Data-)Structure
 * truly modular Architecture ([decoupled Content-Management](http://decoupledcms.org) at its best)
 
 
-More Infos can be found at <http://cms-kit.org>
+More Infos can be found at <http://cms-kit.org> (atm german only)

@@ -46,14 +46,16 @@ foreach(	array(
 					$ppath . '__model.php',// load old Model => (object)$objects
 					$ppath . '__modelxml.php',// load new Model => (string)$model
 					$ppath . '__database.php',// load Database-Connector
+					
 					'inc/process_includes.php',// load Helper-Functions
 					'inc/objecttemplate.php',// load Template-Class
 					'../../inc/php/pclzip.lib.php',// load ZIP-Library
+					'../../inc/php/functions.php',// version no
 					//'inc/locale/' . $_SESSION[$projectName]['lang'] . '.php',// try to load Language-Array
 				) as $inc)
 {
 	if(file_exists($inc)){
-		//echo $inc.'<br>';
+		//echo $inc.'<br />';
 		include $inc;
 	}else {
 		exit($inc . ' does not exist!');
@@ -279,7 +281,7 @@ foreach ($queries as $i => $db_queries)
 		{
 			
 			// call Object-Generator ($name, $model, $types, $savepath)
-			new ObjectGenerator($projectName, $name, $newModel, $datatypes, $ppath, isset($_GET['debug']));
+			new ObjectGenerator($projectName, $name, $newModel, $datatypes, $ppath, $KITVERSION, isset($_GET['debug']));
 			
 			$fileHtmlOutput[] = '<div class="grn">' . L('PHP_Class') . ' "<strong>' . $name . '</strong>" ' . 
 								(file_exists($ppath .'class.'.$name.'.php') ? L('updated') : L('created')) . 
@@ -314,7 +316,7 @@ EOD;
 $objects = json_decode($stringified_objects);
 ?>
 ';
-file_put_contents( $ppath."__model.php", $jsonstr0.indentJson($jsonstr1).$jsonstr2 );
+file_put_contents( $ppath."__model.php", $jsonstr0 . indentJson($jsonstr1) . $jsonstr2 );
 
 
 chmod($ppath . "__model.php", 0777);

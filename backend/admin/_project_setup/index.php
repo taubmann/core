@@ -39,11 +39,6 @@ $LL = array();
 
 $backend = '../../';
 
-// Project-Folder is not writable
-if(!is_writable($backend.'../projects')) {
-	exit('Folder "projects/" is not writable!');
-}
-
 // create Tooltip-Labels used in Step 3 / 4 below
 function hlp($what, $float=true)
 {
@@ -69,7 +64,7 @@ function hlp($what, $float=true)
 <div id="wrapper">
 <?php
 
-// #1# no (correct) superpassword/captcha => draw login-form
+// #### 1 #### no (correct) superpassword/captcha => draw login-form
 if (!isset($_POST['pass']) || crpt($_POST['pass']) !== $super)
 {
 	require 'inc/step1.php';
@@ -80,10 +75,7 @@ if (isset($_POST['pass']) && (!isset($_POST['captcha_answer']) || $_POST['captch
 	require 'inc/step1.php';
 }
 
-
-
-
-// #2# no (wished) Project-Name is given => draw Input to enter Project-Name
+// #### 2 #### no (wished) Project-Name is given => draw Input to enter Project-Name
 if (!isset($_POST['wished_name']))
 {
 	require 'inc/step2.php';
@@ -99,10 +91,7 @@ if (file_exists($ppath.'/objects/__configuration.php'))
 	require 'inc/step2.php';
 }
 
-
-
-
-// #3# draw input for Database-/Folder-Credentials
+// #### 3 #### draw input for Database-/Folder-Credentials
 if (!isset($_POST['generate_project']))
 {
 	require 'inc/step3.php';
@@ -111,7 +100,7 @@ if (!isset($_POST['generate_project']))
 
 
 
-// #4# show the Success-Form
+// #### 4 #### show the Success-Form
 if (isset($_POST['generate_project']))
 {
 	require 'inc/step4.php';

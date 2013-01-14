@@ -33,8 +33,50 @@ $path = '../../inc/css/';
 
 include 'helper.php';
 
+/* to add a new Style:
+ * 
+ * 1. go to http://jqueryui.com/themeroller and select/create a new Style
+ * 2. download your Style with all components (full package)
+ * 3. create a new unique Style-Folder under ../../inc/css/ (Folder has to be writable!)
+ * 4. copy from the package/css/ images and the main stylesheet AND rename it to "jquery-ui.css" (no Version-Numbers!)
+ * 5. copy the Style-Hash from the Themeroller-URL into a File called "parameter.txt" in your Style-Folder
+ *    (it is used to adapt some Values in the Base-CSS)
+ * 6. Save / create a Thumbnail for the Style-Selector called "preview.png" and copy it to your Style-Folder
+ * 7. run Admin Wizards/Script-Manager/CSS-Packer
+ * 
+ * Alternatives to ThemeRoller may be...
+ * 
+ * http://jqueryuithemegallery.just-page.de
+ * http://jquit.com/builder
+ * http://www.warfuric.com/taitems/demo.html
+ * 
+ * atm you need to declare these Variables 
+ * ffDefault=&cornerRadius=&bgColorContent=&borderColorContent=&fcContent=&bgColorDefault=&bgImgOpacityDefault=&borderColorDefault=&fcDefault=&bgColorActive=&fcActive=&bgColorHighlight=&borderColorHighlight=&fcHighlight=&bgColorError=
+*/
 
+$folders = glob($path.'*', GLOB_ONLYDIR);
+$styles = array();
+foreach ($folders as $folder)
+{
+	if($params = file_get_contents($folder.'/parameter.txt'))
+	{
+		$styles[basename($folder)] = $params;
+	}
+}
 
+// DEVELOPMENT:
+// print_r($styles);
+// pretty-print array for development-purposes
+// parse_str($styles['darkness'], $testi); echo '<pre>'; print_r($testi); echo '</pre>'; exit();
+/* if you want to know whitch variables are used in styles.css 
+$css = file_get_contents($path.'styles.css');
+parse_str($styles['cupertino'], $params);
+$k = array_keys($params);
+$kw = array();
+foreach($k as $s){ if(strpos($css,$s)!==false){ $kw[] = $s; } }
+array_unique($kw);
+echo implode('=&', $kw).'=';
+*/
 
 $html = '';
 

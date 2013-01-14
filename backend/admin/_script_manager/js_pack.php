@@ -82,13 +82,6 @@ foreach ($src as $aa)
 {
 	$out = '// AUTO-CREATED FILE (created at '.time().") do not edit!\n\n";
 	
-	// add available language-files
-	if (isset($_GET['lang']) && file_exists('../locale/js_'.$_GET['lang']))
-	{
-		$langadds = glob($path.'locale/js_'.$_GET['lang'].'/*.js');
-		foreach($langadds as $file) array_push($aa, array($file,true,false));
-	}
-
 	foreach($aa as $a)
 	{
 		

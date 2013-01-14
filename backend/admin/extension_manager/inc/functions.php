@@ -121,24 +121,33 @@ function getDocList($lang, $current_ext_path)
 	$docs = glob($path.'/{*.md,*.html}', GLOB_BRACE);
 	if(count($docs)>0)
 	{
-		$html .= '<h3>'.L('Docs').' ('.count($docs).')'.$in_lang.'</h3>
-		<div>';
 		
 		
+		$list = array();
 		foreach($docs as $doc)
 		{
-			$n = basename($doc,	'.txt');
-			$n = basename($n,	'.md');
+			//$n = basename($n,	'.txt');
+			$n = basename($doc,	'.md');
 			$n = basename($n,	'.html');
+			
 			$add = ",'&edit_me=".substr($doc, strlen($current_ext_path)+1)."'";
 			
-			// dont show internal/hidden Files beginning with "_"
-			if( substr($n, 0, 1) != '_')
+			// dont show internal/hidden Files beginning with "."
+			if( substr($n, 0, 1) != '.')
 			{
-				$html .= '<button type="button" onclick="setFrame(\'showDoc\',\''.$doc.'\''.$add.')">'.str_replace('_', ' ', $n).'</button>';
+				$list[] = 	'<button type="button" onclick="setFrame(\'showDoc\',\''.$doc.'\''.$add.')">' .
+							preg_replace(array('/^[0-9]+/','/_/'), array('',' '), $n) . // replace Numbers at the Beginning and Underscores
+							//$n .
+							'</button>';
 			}
 		}
-		$html .= '</div>';
+		
+		if(count($list)>0)
+		{
+			$html .= '<h3>'.L('Docs').' ('.count($docs).')'.$in_lang.'</h3><div>' .
+			implode('', $list) .
+			'</div>';
+		} 
 		
 	}
 	return $html;

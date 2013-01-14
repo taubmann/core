@@ -23,8 +23,8 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
 /*
- * show Documentation-Files (or redirect to HTM(L)
- * */
+* show Documentation-Files (or redirect to HTM(L)
+*/
 
 error_reporting(0);
 
@@ -46,20 +46,24 @@ if($mime!='md' && $mime!='txt') {
 <html lang="en">
 <head>
 <title>Documentation</title>
+
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<script src="inc/toc_helper.js"></script>
-<link rel="stylesheet" href="inc/toc_helper.css" />
+
+<link rel="stylesheet" href="inc/styles/toc_helper.css" />
+<link rel="stylesheet" href="inc/styles/syntax.css" />
+
+<script src="inc/js/toc_helper.js"></script>
+<script src="inc/js/highlight.pack.js"></script>
+
 <style>
 	body{font:.8em "Trebuchet MS", sans-serif;}
 	img{border:0px none;}
-	pre{padding:10px;margin:10px;border: 1px dotted #bbb;}
+	pre{padding:10px;margin:10px;border:1px dotted #bbb;}
 	.footnotes{font-size:.8em;}
 </style>
 <style media="print">
 	#innertoc{display:none;}
-	a[href^="http"]:after {
-		content: " (" attr(href) ") ";
-	}
+	a[href^="http"]:after{content:" (" attr(href) ") ";}
 </style>
 </head>
 <body>
@@ -81,11 +85,15 @@ if(!isset($_GET['e'])) {
 	echo '&nbsp;&nbsp;<a title="open in new window" target="_blank" href="showDoc.php?e='.trim(base64_encode($_GET['file']),'=').'"><img src="inc/styles/externallink.png"></a>';
 }
 
-include 'inc/markdown.php';
+// see https://github.com/egil/php-markdown-extra-extended
+include 'inc/markdown_extended.php';
 $doc_path = dirname($_GET['file']).'/';
-echo ( ($str=file_get_contents($_GET['file'])) ? Markdown($str) : 'no File found!' );
+echo ( ($str=file_get_contents($_GET['file'])) ? MarkdownExtended($str) : 'no File found!' );
 ?>
 
-<script>document.body.appendChild(createTOC())</script>
+<script>
+	document.body.appendChild(createTOC());
+	hljs.initHighlightingOnLoad();
+</script>
 </body>
 </html>

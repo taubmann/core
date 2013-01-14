@@ -85,4 +85,25 @@ function checkForNumber(el) {
 	el.style.color = (isNaN(el.value)) ? '#f00' : '#000';
 };
 
+// fix this
+jQuery(function($){
+	$.datepicker.regional['de'] = {
+		closeText: _('close'),
+		prevText: _('back'),
+		nextText: _('next'),
+		currentText: _('today'),
+		monthNames: ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
+		monthNamesShort: ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],
+		dayNames: ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'],
+		dayNamesShort: ['So','Mo','Di','Mi','Do','Fr','Sa'],
+		dayNamesMin: ['So','Mo','Di','Mi','Do','Fr','Sa'],
+		weekHeader: _('Wo'),
+		dateFormat: _('dd.mm.yy'),
+		firstDay: 1,
+		isRTL: false,
+		showMonthAfterYear: false,
+		yearSuffix: ''};
+	$.datepicker.setDefaults($.datepicker.regional['de']);
+});
+
 $(window).unload(function(){window.name=JSON.stringify(store)});

@@ -1,13 +1,12 @@
 <?php
 //super-simple captcha to protect against brute-force password-guessing
 session_start();
-$ch = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-$s = '';
-for($i=0; $i < 5; $i++) $s .= $ch[mt_rand(0, strlen($ch)-1)];
-$_SESSION['captcha_answer'] = $s;
-$f = 5;
-$w = imagefontwidth($f) * strlen($s);
-$h = imagefontheight($f)+3;
+$n = array(mt_rand(5,100), mt_rand(0,10), mt_rand(0,10));
+$_SESSION['captcha_answer'] = $n[0] + $n[1] - $n[2];
+$s = $n[0] .' + '. $n[1] .' - '. $n[2];
+$f  = 5;
+$w  = imagefontwidth($f) * strlen($s);
+$h = imagefontheight($f);
 $i = imagecreatetruecolor ($w, $h);
 $c1 = imagecolorallocate ($i, mt_rand(150,255), mt_rand(150,255), mt_rand(150,255));
 $c2 = imagecolorallocate ($i, mt_rand(0,100), mt_rand(0,100), mt_rand(0,100));

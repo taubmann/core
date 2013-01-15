@@ -49,6 +49,8 @@
 	?>
 	</ul>
 	<hr />
+	<p><a href="../../inc/login/index.php?<?php echo $getP;?>">Pic-of-the-Day - Editor</a> lets you add/remove Pictures shown on Login</p>
+	<hr />
 	Update <b>Language-Files</b> <br />
 	By uploading a Language-ZIP-File, you can update/extend your Backend-Languages<br /><br />
 	<form action="update_languages.php?<?php echo $getP;?>" method="post" enctype="multipart/form-data">

@@ -27,8 +27,6 @@ $projectName = preg_replace('/[^-\w]/', '', $_GET['project']);
 if($_SESSION[$projectName]['root']!==2) exit('no Rights to edit!');
 
 
-
-
 $path = '../../inc/css/';
 
 include 'helper.php';
@@ -52,6 +50,7 @@ include 'helper.php';
  * 
  * atm you need to declare these Variables 
  * ffDefault=&cornerRadius=&bgColorContent=&borderColorContent=&fcContent=&bgColorDefault=&bgImgOpacityDefault=&borderColorDefault=&fcDefault=&bgColorActive=&fcActive=&bgColorHighlight=&borderColorHighlight=&fcHighlight=&bgColorError=
+
 */
 
 $folders = glob($path.'*', GLOB_ONLYDIR);

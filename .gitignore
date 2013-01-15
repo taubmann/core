@@ -1,5 +1,3 @@
-# untracked Files&Folders
-
 bac
 .htaccess
 projects/**/*
@@ -7,8 +5,7 @@ backend/admin/super.php
 backend/extensions/**/*
 backend/wizards/**/*
 
-# ignore Files inside Language-Folders
-
+# Language-Folders
 backend/admin/extension_manager/inc/**/*
 backend/admin/modeling/inc/**/*
 backend/admin/_project_setup/inc/**/*
@@ -17,9 +14,8 @@ backend/inc/locale/login/*.php
 backend/inc/locale/*.php
 backend/inc/locale/*.js
 
-# track Files&Folders inside untracked Folders
-
 !projects/index.php
 !backend/extensions/index.php
+!backend/extensions/cms/**/*
 !backend/wizards/index.php
 

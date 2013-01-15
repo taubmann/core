@@ -42,6 +42,8 @@ $queries 		= array(); // array of DB-Queries
 $tables 		= array(); // array to hold existing Column-Names
 $reduced_tables = array(); // array to hold Tables with dropped columns for sqlite
 
+if(!is_writable($ppath)) exit('Folder "objects" is not writable!');
+
 foreach(	array(
 					$ppath . '__model.php',// load old Model => (object)$objects
 					$ppath . '__modelxml.php',// load new Model => (string)$model
@@ -284,7 +286,10 @@ foreach ($queries as $i => $db_queries)
 			new ObjectGenerator($projectName, $name, $newModel, $datatypes, $ppath, $KITVERSION, isset($_GET['debug']));
 			
 			$fileHtmlOutput[] = '<div class="grn">' . L('PHP_Class') . ' "<strong>' . $name . '</strong>" ' . 
-								(file_exists($ppath .'class.'.$name.'.php') ? L('updated') : L('created')) . 
+								(file_exists($ppath .'class.'.$name.'.php') ? 
+											(is_writable($ppath .'class.'.$name.'.php') ? L('updated') : '<span class="rd">'.L('could_not_be_written').'</span>' ) : 
+											L('created')
+								) .
 								" - ( <a target='_blank' href='helper/phprev.php?project=$projectName&file=$name'>" . L('view_Source') . 
 								"</a> )</div>";
 		}

@@ -150,7 +150,7 @@ function processObject($name, $object, $db)
 			//
 			if ($b = text2array($object['fields']['field'][$i]['lang']))
 			{
-				$tmp['col'][$fname]['lang'] = $b;
+				$tmp['col'][$fname]['lang'] = processLabel($b);// see: inc/includes.php
 			}
 			
 			//

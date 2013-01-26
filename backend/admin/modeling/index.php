@@ -1,82 +1,7 @@
 <?php
 session_start();
 
-$backend = '../../';
-
-
-$projectName = preg_replace('/\W/', '', $_GET['project']);
-$ppath = $backend . '../projects/' . strtolower($projectName);
-
-if(!isset($_SESSION[$projectName]['root'])) exit('no Rights to edit!');
-
-$lang = $_SESSION[$projectName]['lang'];
-$LL = array();
-@include 'inc/locale/'.$lang.'.php';
-function L($str){
-	global $LL;
-	//file_put_contents('ll.txt', $str.PHP_EOL, FILE_APPEND);chmod('ll.txt',0777); // export all labels
-	return ( isset($LL[$str]) ? $LL[$str] : str_replace('_',' ',$str) );
-}
-
-require $ppath . '/objects/__configuration.php';
-
-// get embed-codes for wizards an hooks
-$dirs = glob($backend.'wizards/*',	GLOB_ONLYDIR);
-$dirs = array_merge($dirs,glob($backend.'extensions/*',	GLOB_ONLYDIR));
-$dirs = array_merge($dirs,glob($ppath.'/extensions/*',	GLOB_ONLYDIR));
-
-$embeds = array(	'w' => array(),
-					'h' => array()
-				);
-
-// collect Informations from Extensions & Wizards
-foreach($dirs as $dir)
-{
-	if(@$estr = file_get_contents($dir.'/doc/info.php'))
-	{
-		
-		//
-		$arr = explode('EOD', $estr);
-		if(@$eson = json_decode($arr[1], true))
-		{
-			// fill wizard-embeds (type/wizard)
-			if(isset($eson['system']['inputs']))
-			{
-				foreach($eson['system']['inputs'] as $i)
-				{
-					if(isset($eson['system']['include']))
-					{
-						if(!isset($embeds['w'][$i])) $embeds['w'][$i] = array();
-						
-						$embeds['w'][$i][] = 	str_replace(array(' ','-'),'_', $eson['info']['name']) . 
-												':[\'' . implode('#OR#', $eson['system']['include']) . '\',\'' .
-												(	
-													(isset($eson['info']['description'][$lang])) ?
-														$eson['info']['description'][$lang] :
-														$eson['info']['description']['en']
-												).
-												'\']';
-						
-					}
-				}
-			}
-			
-			// fill hook-embeds
-			if(isset($eson['system']['hooks']))
-			{
-				foreach($eson['system']['hooks'] as $k=>$i)
-				{
-					//if(!$embeds['h'][$k]) $embeds['h'][$k] = array();
-					$i['name'] = $k;
-					$embeds['h'][$k] = json_encode($i);
-				}
-			}
-			
-		}
-	}
-}// collert END
-
-
+include 'inc/index_includes.php';
 
 
 ?>
@@ -296,7 +221,7 @@ ${obj}
 			{{/each}}
 		</select>
 	</p>
-	<p><!--<span style="inline-block" class="ui-icon ui-icon-pencil" onclick="$('#defaultSelect').html('<input type=\'text\' />')"></span>-->
+	<p>
 		<label><?php echo L('Default_Value')?>:</label>
 		<span id="defaultSelect">
 			<select id="defaultDefaults" onchange="$('#field_default').val(this.value)"><option value=""><?php echo L('Default_Value')?></option>
@@ -363,7 +288,8 @@ echo "var databases = ['" . implode("','", Configuration::$DB_ALIAS) . "'];\n";
 echo "var project = '".$projectName."', wizards = [];\n";
 
 // available Wizards
-foreach($embeds['w'] as $k => $v) {
+foreach($embeds['w'] as $k => $v)
+{
 	echo  "wizards['$k'] = {" . implode(',', $v) . "}\n";
 }
 
@@ -375,14 +301,19 @@ var ddefaultLabel=[];
 ';
 $ddefaultLabel = array();
 $datatypes = json_decode(file_get_contents('rules/datatypes.json'), true);
-foreach($datatypes as $k=>$v) {
-	echo "dtypeLabel['$k']='".L($k)."';\n";
-	foreach($v['default'] as $dk=>$dv) {
+foreach($datatypes as $k=>$v)
+{
+	echo "dtypeLabel['$k'] = '".L($k)."';\n";
+	foreach($v['default'] as $dk=>$dv)
+	{
 		$ddefaultLabel[] = $dk;
 	}
 }
 $ddefaultLabel = array_unique($ddefaultLabel);
-foreach($ddefaultLabel as $dl) echo "ddefaultLabel['$dl']='".L($dl)."';\n";
+foreach($ddefaultLabel as $dl)
+{
+	echo "ddefaultLabel['$dl'] = '".L($dl)."';\n";
+}
 
 echo '
 var dbhLabel = [];
@@ -559,7 +490,7 @@ $(function()
 	});
 	
 	$('#menu_help').click(function(){
-		$('#dialogbody').html('<iframe src="../extension_manager/showDoc.php?file=../../extensions/documentation/doc/<?php echo $lang?>/Object_Modeling.md"></iframe>');
+		$('#dialogbody').html('<iframe src="../extension_manager/showDoc.php?file=../../extensions/documentation/doc/<?php echo $lang?>/.object_modeling"></iframe>');
 		$('#dialog_SaveButton').hide();
 		$('#dialog').dialog('open');
 	});

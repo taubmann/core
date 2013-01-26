@@ -6,11 +6,13 @@ if($_POST['content']) {
 	if(file_exists($file)) {
 		if(is_writable($file)) {
 				file_put_contents($file, $_POST['content']);
-				echo 'File saved';
+				echo '<b style="color:green">File saved</b>';
+		}else{
+			echo '<b style="color:red">File is not writable</b>';
 		}
 		
 	}else{
-		echo 'File "'.$file.'" not found!';
+		echo '<b style="color:red">File "'.$file.'" not found!</b>';
 	}
 }
 ?>

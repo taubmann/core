@@ -91,6 +91,7 @@ if(file_exists($file)) {
 
 <?php
 $readonly = '';
+
 // draw save-button only if allowed (project-folder OR super-root)
 if($m < 1 || $_SESSION[$projectName]['root'] == 2)
 {

@@ -1,17 +1,17 @@
 <?php
 function _SELVARCHAR($arr)
 {
-	if(isset($arr[3]))
+	if(count($arr['add'])>0)
 	{
-		$str = '<select class="selectbox" name="'.$arr[1].'">';
-		foreach($arr[3] as $val=>$lbl)
+		$str = '<select class="selectbox" name="'.$arr['name'].'">';
+		foreach($arr['add'] as $val=>$lbl)
 		{
-			$str .= '<option '.($val==$arr[2]?'selected="selected" ':'').'value="'.htmlspecialchars($val).'">'.($lbl?$lbl:$val).'</option>';
+			$str .= '<option '.($val==$arr['value']?'selected="selected" ':'').'value="'.htmlspecialchars($val).'">'.($lbl?$lbl:$val).'</option>';
 		}
 		$str .= '</select>';
-		return '<div><label>'.$arr[0].'</label>'.$str.'</div>';
+		return '<div><label>'.$arr['label'].'</label>'.$str.'</div>';
 	}
 	// Fallback
-	return '<div><label>'.$arr[0].'</label><input type="text" name="'.$arr[1].'" value="'.$arr[2].'" /></div>';
+	return '<div><label>'.$arr['label'].'</label><input type="text" name="'.$arr['name'].'" placeholder="'.$arr['placeholder'].'" value="'.$arr['value'].'" /></div>';
 }
 ?>

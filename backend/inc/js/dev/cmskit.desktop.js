@@ -509,7 +509,9 @@ function getContent(id)
 			newEl.insertBefore($(this));
 			$(this).remove();
 		});
-		
+		//alert(data);
+		//var script = $(data).find('script').text();//data.replace(/<script>(.*)<\/script>/, "$1"); // Remove tags
+		//alert(script);
 	}
 	);
 	

@@ -459,7 +459,114 @@ class crud
 	* 
 	* 
 	* @return 
- 
+	*/
+	private function processLabelxx ($str, &$cnt, &$tabHeads)
+	{
+		// Accordion-Limiter
+		$arr = explode('--', $str);
+		if (count($arr) === 2)
+		{
+			$str = $arr[1];
+			$str1 = 	(($cnt>0)
+						? '</div>'
+						: '<div id="accordion">').'<h3><a href="javascript:void(0)">'.$arr[0].'</a></h3><div>';
+			$strp1 = '</div>';
+			$cnt++;
+		}
+		
+		// Tab-Limiter
+		$arr = explode('||', $str);
+		if (count($arr) === 2)
+		{
+			$str = $arr[1];
+			if($cnt == 0)
+			{
+				$tabHeads = array();
+			}
+			$str1 = 	(($cnt>0)
+						? '</div>'
+						: '<div id="tabs">###TABSHEAD###') . '<div id="tabs-'.$cnt.'">';
+			$strp1 = '</div>';
+			$tabHeads[] = '<li><a href="#tabs-'.$cnt.'">'.$arr[0].'</a></li>';
+			$cnt++;
+		}
+		
+		// Tooltip
+		if (preg_match('/\(([^\)]+)\)/', $str, $ttip))
+		{
+			$str = '<a href="javascript:void(0)">' . trim(preg_replace('/\s*\([^)]*\)/', '', $str)) . '<span>' . $ttip[1] . '</span></a>';
+		}
+		
+		// Placeholder
+		$ph = array('','');
+		if (preg_match('/\[(.*?)\]/', $str, $ph))
+		{
+			$str = trim(preg_replace('/\[(.*?)\]/', '', $str));
+		}
+		
+		/*return array(
+			'lbl' => $str,
+			'str1' => $str1,
+			'strp1' => $strp1,
+			'ph' => $ph[1]
+		);*/
+		
+	}
+	/**
+	* 
+	* 
+	* @return 
+	*/
+	private function processLabel ($a, &$cnt, &$tabHeads)
+	{
+		$arr = clone $a;
+		
+		//if (isset($arr->))
+		if (isset($arr->accordionhead))
+		{
+			$str1 = 	(($cnt>0)
+						? '</div>'
+						: '<div id="accordion">').'<h3><a href="#">' . $arr->accordionhead . '</a></h3><div>';
+			$strp1 = '</div>';
+			$cnt++;
+		}
+		
+		if (isset($arr->tabhead))
+		{
+			if($cnt == 0)
+			{
+				$tabHeads = array();
+			}
+			$str1 = 	(($cnt>0)
+						? '</div>'
+						: '<div id="tabs">###TABSHEAD###') . '<div id="tabs-' . $cnt . '">';
+			$strp1 = '</div>';
+			$tabHeads[] = '<li><a href="#tabs-' . $cnt . '">' . $arr->tabhead . '</a></li>';
+			$cnt++;
+		}
+		
+		//crappy
+		if (isset($arr->doc))
+		{
+			$arr->label = '<span onclick="openDoc(\'' . $this->lang . '/' . $arr->doc . '\')">' . $arr->label . '</span>';
+		}
+		
+		if (isset($arr->tooltip))
+		{
+			$arr->label = '<a href="#">' . $arr->label . '<span>' . $arr->tooltip . '</span></a>';
+		}
+		
+		return array (
+						'lbl' => $arr,
+						'str1' => $str1,
+						'strp1' => $strp1,
+					);
+	}
+	
+	/**
+	* 
+	* 
+	* @return 
 	*/
 	public function getContent()
 	{
@@ -479,13 +586,7 @@ class crud
 		{
 			foreach ($this->objects->{$this->objectName}->rel as $rk => $rt)
 			{
-				/*$lok = strtolower($rk);
-				$addField = $rk.'id';
-				foreach($this->objects->$rk->col as $fk => $fv)
-				{
-					if($addField == $rk.'id' && ($fv->type=='VARCHAR' || $fv->type=='TEXT')) $addField = $fk;
-				}
-				//alt="'.$addField.'" */
+				
 				$str0 .= '<option class="relType'.$rt.'" value="'.$rk.'">'.(isset($this->objects->$rk->lang->{$this->lang}) ? $this->objects->$rk->lang->{$this->lang} : $rk).'</option>';
 			}
 		}
@@ -523,6 +624,7 @@ class crud
 		$str0 .= '<div id="innerForm">';
 		
 		$cnt = 0;
+		$tabHeads = null;
 		$col = $this->objects->{$this->objectName}->col;
 		
 		// loop the Fields
@@ -534,55 +636,23 @@ class crud
 				continue;
 			}
 			
-			// load Field-Templates
+			// load the Field-Template
 			include_once('fieldtypes/'.$fv->type.'.php');
 			
 			
 			$lbl = $fk;
+			$placeholder = '';
 			
-			// Label-Tweaks
-			if (isset($fv->lang->{$this->lang}))
+			// translated Labels
+			if (isset($fv->lang->{$this->lang}->label))
 			{
+				$a = $this->processLabel( $fv->lang->{$this->lang}, $cnt, $tabHeads );
 				
-				// Label-Translations
-				$lbl = $fv->lang->{$this->lang};
+				$str1 .= $a['str1'];
+				$strp .= $a['strp'];
 				
-				// Accordion-Limiter
-				$lblArr = explode('--', $lbl);
-				if (count($lblArr) === 2)
-				{
-					$lbl = $lblArr[1];
-					$str1 .= 	(($cnt>0)
-								? '</div>'
-								: '<div id="accordion">').'<h3><a href="javascript:void(0)">'.$lblArr[0].'</a></h3><div>';
-					$strp1 = '</div>';
-					$cnt++;
-				}
-				
-				
-				// Tab-Limiter
-				$lblArr = explode('||', $lbl);
-				if (count($lblArr) === 2)
-				{
-					$lbl = $lblArr[1];
-					if($cnt == 0)
-					{
-						$tabHeads = array();
-					}
-					$str1 .= 	(($cnt>0) 
-								? '</div>' 
-								: '<div id="tabs">###TABSHEAD###') . '<div id="tabs-'.$cnt.'">';
-					$strp1 = '</div>';
-					$tabHeads[] = '<li><a href="#tabs-'.$cnt.'">'.$lblArr[0].'</a></li>';
-					$cnt++;
-				}
-				
-				// Tooltip-Limiter
-				$lblArr = explode('##', $lbl);
-				if (count($lblArr) === 2)
-				{
-					$lbl = '<a href="javascript:void(0)">' . $lblArr[0] . '<span>'.$lblArr[1] . '</span></a>';
-				}
+				$lbl = $a['lbl']->label;
+				if(isset($a['lbl']->placeholder)) $placeholder = $a['lbl']->placeholder;
 				
 			}//if lang END
 			
@@ -611,31 +681,72 @@ class crud
 				}
 			}
 			
-			// replacements
+			// Replacement-Start
 			$str1 .= '<!--s_'.$fk.'-->';
 			
 			// call the function array(label, fieldname, content, addition-array)
-			$str1 .= call_user_func( '_'.$fv->type, array( $lbl, $fk, $item->$fk, (isset($fv->add)?$fv->add:array()) ));
+			$str1 .= call_user_func(
+									'_'.$fv->type,
+									array(
+											'name' => $fk,
+											'label' => $lbl,
+											'placeholder' => $placeholder,
+											'value' => $item->$fk,
+											'add' => ( isset($fv->add) ? $fv->add : array() )
+										)
+									);
 			
 			$str1 .= '<!--e_'.$fk.'-->';
 			
-			// if Micro-Structure is detected
-			if($fks == 'j_' && $temp = json_decode($item->$fk))
+			// if a Generic Structure is detected
+			if($fv->type == 'MODEL')
 			{
-				foreach($temp as $jk => $jv)
+				if($temp = json_decode($item->$fk))
 				{
-					@include_once('fieldtypes/'.$jv->type.'.php');
-					if( function_exists('_'.$jv->type) )
+					foreach($temp as $jk => $jv)
 					{
-						$jlbl = isset($jv->lang->{$this->lang}) ? $jv->lang->{$this->lang} : $jk;
-						$str1 .= call_user_func( '_'.$jv->type, array( $jlbl, $jk, $jv->value, (isset($jv->add)?$jv->add:array()) ));
-					}
-					else
-					{
-						$str1 .= '<p>Content-Type "'.$jv['type'].'" does not exist!</p>';
+						@include_once('fieldtypes/'.$jv->type.'.php');
+						if( function_exists('_'.$jv->type) )
+						{
+							$jlbl = $jk;
+							$placeholder = '';
+							if(isset($jv->lang->{$this->lang}))
+							{
+								$arr = $this->processLabel( $jv->lang->{$this->lang}, $cnt, $tabHeads );
+								
+								$str1 .= $arr['str1'];
+								$strp .= $arr['strp'];
+								$jlbl = $arr['lbl']->label;
+								if(isset($arr['lbl']->placeholder)) $placeholder = $arr['lbl']->placeholder;
+							}
+								
+							$str1 .= call_user_func(
+													'_'.$jv->type,
+													array( 
+															'name' => $jk,
+															'label' => $jlbl,
+															'placeholder' => $placeholder,
+															'value' => $jv->value, 
+															'add' => ( isset($jv->add) ? $jv->add : array() ) 
+														)
+													);
+						}
+						else
+						{
+							$str1 .= '<p>Content-Type "'.$jv['type'].'" does not exist!</p>';
+						}
 					}
 				}
-			}
+				
+				// if something happened, we should know it
+				switch(json_last_error())
+				{
+					case JSON_ERROR_DEPTH:		trigger_error('JSON-Error in '.$fk.', id '.$this->objectId.': Maximum stack depth exceeded', E_USER_ERROR); break;
+					case JSON_ERROR_CTRL_CHAR:	trigger_error('JSON-Error in '.$fk.', id '.$this->objectId.': Unexpected control character found', E_USER_ERROR); break;
+					case JSON_ERROR_SYNTAX:		trigger_error('JSON-Error in '.$fk.', id '.$this->objectId.': Syntax error, malformed JSON', E_USER_ERROR); break;
+				}
+				
+			}// Micro-Model END
 			
 			
 		}// foreach END
@@ -658,6 +769,13 @@ class crud
 		{
 			$str2 .= '<button id="saveButton" alt="'.$this->objectId.'" type="button" rel="disk" onclick="saveContent(\''.$this->objectId.'\')">'.$this->L('save').'</button> ';
 		}
+		// Javascript-Slot (insert a Newline at first)
+		$str2 .= '
+<script>
+// <!--js-->
+
+</script>';
+		
 		return $str0 . $strp0 . $str1 . $strp1 . $str2;
 	}
 	

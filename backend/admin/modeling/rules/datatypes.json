@@ -245,5 +245,15 @@
 		"mysql": "INT",
 		"max": "11",
 		"sqlite": "INTEGER"
+	},
+	"MODEL": {
+		"type": "OTHER",
+		"quote": "1",
+		"php": "string",
+		"default": {
+			"Empty": " "
+		},
+		"mysql": "BLOB",
+		"sqlite": "BLOB"
 	}
 }

@@ -82,23 +82,50 @@ foreach ($_POST as $k => $v)
 			}
 		break;
 		
-		// save Data from Micro-Structure-Inputs back into JSON-Field
-		case 'j_':
-			if (@$temp = json_decode($v, true))
-			{ 
-				foreach ($temp as $jk => $jv){ $temp[$jk]['value'] = $_POST[$jk]; }
-				$_POST[$k] = json_encode($temp);
-			}
-		break;
 	}
+	
+	// save Data from generic Structure-Inputs back into JSON-Field
+	if ($objects->{$objectName}->col->{$k}->type == 'MODEL')
+	{
+		$temp = json_decode($v, true);
+		
+		// if something happened, we should know it
+		switch (json_last_error())
+		{
+			case JSON_ERROR_DEPTH:		trigger_error('JSON-Error in '.$k.': Maximum stack depth exceeded', E_USER_ERROR); break;
+			case JSON_ERROR_CTRL_CHAR:	trigger_error('JSON-Error in '.$k.': Unexpected control character found', E_USER_ERROR); break;
+			case JSON_ERROR_SYNTAX:		trigger_error('JSON-Error in '.$k.': Syntax error, malformed JSON', E_USER_ERROR); break;
+		}
+		
+		// if there is a Shadow-Table, populate all generic Fields
+		$p2 = false;
+		if (isset($objects->{$objectName.'shadow'}))
+		{
+			$p1 = DB::instance($objectDB)->prepare('DELETE FROM `'.$objectName.'shadow` WHERE `'.$objectName.'id` = ?');
+			$p1->execute(array($objectId));
+			$p2 = DB::instance($objectDB)->prepare('INSERT INTO `'.$objectName.'shadow` (`'.$objectName.'id`, `name`, `value`) VALUES (?, ?, ?)');
+		}
+		
+		foreach ($temp as $jk => $jv)
+		{
+			$temp[$jk]['value'] = $_POST[$jk];
+			
+			if($p2)
+			{
+				$p2->execute(array($objectId, $jk, $_POST[$jk]));
+			}
+		}
+		$_POST[$k] = json_encode($temp);
+	}
+	
 }
 
 
 if (isset($objects->{$objectName}->hooks->PRE) || isset($objects->{$objectName}->hooks->PST))
 {
-	 $loginHooks = array();//we need a dummy here
-	 include('extensions/cms/hooks.php');
-	@include($ppath . '/extensions/cms/hooks.php');
+	$loginHooks = array();//we need a dummy here
+	include('extensions/cms/hooks.php');
+	include($ppath . '/extensions/cms/hooks.php');
 }
 
 

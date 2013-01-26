@@ -49,6 +49,7 @@ foreach(	array(
 					$ppath . '__modelxml.php',// load new Model => (string)$model
 					$ppath . '__database.php',// load Database-Connector
 					
+					'inc/includes.php',// load Helper-Functions
 					'inc/process_includes.php',// load Helper-Functions
 					'inc/objecttemplate.php',// load Template-Class
 					'../../inc/php/pclzip.lib.php',// load ZIP-Library

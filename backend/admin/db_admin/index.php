@@ -1,18 +1,23 @@
 <?php
-/*
- * simple Redirection with GET-Params to adminer.php
- */
+/**
+* 
+* simple Inclusion/Redirection of/to adminer.php
+*/
 session_start();
 $projectName = @preg_replace('/[^a-z0-9_]/si', '', strtolower($_GET['project']));
 if(!isset($_SESSION[$projectName]['root'])) exit('you are not allowed to access this Service!');
 
 $ppath = '../../../projects/' . $projectName;
 require($ppath . '/objects/__configuration.php');
+$cnt = count(Configuration::$DB_TYPE);
 
-/* create the Target for Links/Redirection
- * 
- * 
- */
+
+
+/** 
+* create the Target for Links/Redirection
+* 
+* 
+*/
 
 function createHiddenFields($i)
 {
@@ -72,18 +77,15 @@ button{
 		
 <?php
 
-
-
 $html = '<h4>choose Database</h4>
 
 ';
 
-$cnt = count(Configuration::$DB_TYPE);
-
 for($i=0; $i<$cnt; $i++) 
 {
-	//$html .= '<p><a href="'.mkLink($i).'">'.Configuration::$DB_ALIAS[$i]."</a></p>\n";
-	$html .= '<form method="post" target="_blank" action="adminer.php">';
+	
+	$html .= '<form id="frm" method="post" action="adminer_frames.php">';
+	
 	$html .= createHiddenFields($i);
 	$html .= '<button 
 				class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" 
@@ -96,8 +98,10 @@ for($i=0; $i<$cnt; $i++)
 			</form>';
 }
 
-$html .= '
-';
+if($cnt == 1)
+{
+	$html .= '<script>document.getElementById("frm").submit()</script>';
+}
 
 echo $html;
 

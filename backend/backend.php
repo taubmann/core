@@ -27,6 +27,7 @@
 */
 session_start();
 error_reporting(0);
+session_regenerate_id();
 
 header ('Cache-Control: no-cache,must-revalidate', true);
 
@@ -37,6 +38,11 @@ require('inc/php/functions.php');
 foreach($_GET as $k=>$v){ $_GET[str_replace('amp;','',$k)] = preg_replace('/\W/', '', $v); }
 $projectName = preg_replace('/\W/', '', $_REQUEST['project']);
 
+if (isset($_POST['project']))
+{
+	unset($_SESSION[$projectName]);
+}
+
 $ppath = '../projects/' . $projectName;
 
 // back to Login 
@@ -45,10 +51,11 @@ if (!file_exists($ppath . '/objects/__database.php'))
 	header('location: index.php?error=project_unknown');
 }
 
+
 // start the Verification-Process
-if (!isset($_SESSION[$projectName]))
+if (!isset($_SESSION[$projectName]) )
 {
-	
+	echo $projectName;
 	// load the Super-Password-Hash
 	require_once 'admin/super.php';
 	
@@ -63,11 +70,11 @@ if (!isset($_SESSION[$projectName]))
 										'sort'		=> array(),
 										'fields'	=> array()
 									);
-	
+	echo 1;
 	// load Model + Database
 	require_once $ppath . '/objects/__model.php';
 	require_once $ppath . '/objects/__database.php';
-	
+	echo 1;
 	// Array containing Hook-Names to be processed (should be filled in hooks.php)
 	$loginHooks = array();
 	include_once 'extensions/cms/hooks.php';

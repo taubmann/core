@@ -509,11 +509,8 @@ function getContent(id)
 			newEl.insertBefore($(this));
 			$(this).remove();
 		});
-		//alert(data);
-		//var script = $(data).find('script').text();//data.replace(/<script>(.*)<\/script>/, "$1"); // Remove tags
-		//alert(script);
-	}
-	);
+		
+	});
 	
 	getConnectedReferences(id);
 };
@@ -572,7 +569,6 @@ function saveContent(id)
 		var f=$(this), fd=f[0].contentWindow||f[0]; // iframe
 		fd.transfer();// run function
 	});
-	
 	$.post('crud.php?action=saveContent&projectName='+projectName+'&objectName='+objectName+'&objectId='+id, $('#colMidb').serialize(), 
 	function(data) {
 		message(data);
@@ -818,25 +814,7 @@ function prettify(id)
 
 };
 
-/**
-* transform all Button-Elements within an Container-Element
-* 
-* name: styleButtons
-* @param id
-* @return
-* 
-*/
-function styleButtons(id)
-{ 
-	$('#'+id+' button').each(function() {
-		
-		$(this).button( {
-			icons:{primary:'ui-icon-'+$(this).attr('rel')}, 
-			text:(($(this).text()=='.')?false:true),
-			title:''
-		})
-	}
-)};
+
 
 
 
@@ -861,7 +839,6 @@ function logout()
 	}else{
 		window.location='index.php?project='+projectName;
 	}
-	
 };
 
 
@@ -884,10 +861,12 @@ function getFrame(url, el)
 		modal: true,
 		show: "scale",
 		hide: "scale",
-		close: function(event,ui){ 
+		close: function(event, ui)
+		{ 
 			$("#dialogb2").attr('src','about:blank');
 		},
-		resizeStop: function(event, ui) {
+		resizeStop: function(event, ui)
+		{
 			store['dwh'] = [$(this).dialog('option','width'), $(this).dialog('option','height')];
 		}
 	})

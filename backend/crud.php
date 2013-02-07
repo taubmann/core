@@ -68,13 +68,12 @@ foreach ($_POST as $k => $v)
 	
 		// encrypt Content (XOR or Blowfish)
 		case 'c_':
-			if (@$key = $_SESSION[$projectName]['config']['crypt'][$objectName][$k])
+			if (isset($_SESSION[$projectName]['config']['crypt'][$objectName][$k]))
 			{
 				require_once('inc/php/crypt.php');
-				$key  = md5($objectName . $k . $key);
-				$_POST[$k] = 	( substr($objects->{$objectName}->col->{$k}->type, -4) == 'CHAR' ) ? 
-								X_OR::encrypt($v, $key) : 
-								Blowfish::encrypt($v, $key, md5(Configuration::$DB_PASSWORD[$objectDB]));
+				// objectname, fieldname, entry_id, password
+				$key  = md5($objectName . $k . $objectId . $_SESSION[$projectName]['config']['crypt'][$objectName][$k]);
+				$_POST[$k] = 	Blowfish::encrypt($v, $key, md5(Configuration::$DB_PASSWORD[$objectDB]));
 			}
 			else
 			{
@@ -84,10 +83,10 @@ foreach ($_POST as $k => $v)
 		
 	}
 	
-	// save Data from generic Structure-Inputs back into JSON-Field
+	// save Data from a Generic Structure-Inputs back into JSON-Field
 	if ($objects->{$objectName}->col->{$k}->type == 'MODEL')
 	{
-		$temp = json_decode($v, true);
+		$temp = json_decode(utf8_encode($v), true);
 		
 		// if something happened, we should know it
 		switch (json_last_error())
@@ -97,7 +96,7 @@ foreach ($_POST as $k => $v)
 			case JSON_ERROR_SYNTAX:		trigger_error('JSON-Error in '.$k.': Syntax error, malformed JSON', E_USER_ERROR); break;
 		}
 		
-		// if there is a Shadow-Table, populate all generic Fields
+		// if there is a Shadow-Table, populate Values of all generic Fields
 		$p2 = false;
 		if (isset($objects->{$objectName.'shadow'}))
 		{
@@ -108,11 +107,14 @@ foreach ($_POST as $k => $v)
 		
 		foreach ($temp as $jk => $jv)
 		{
-			$temp[$jk]['value'] = $_POST[$jk];
-			
-			if($p2)
+			if ($jk !== 'MODEL')
 			{
-				$p2->execute(array($objectId, $jk, $_POST[$jk]));
+				$temp[$jk]['value'] = $_POST[$k.'___'.$jk];
+				// write to shadow-table
+				if($p2)
+				{
+					$p2->execute(array($objectId, $jk, $_POST[$k.'__'.$jk]));
+				}
 			}
 		}
 		$_POST[$k] = json_encode($temp);

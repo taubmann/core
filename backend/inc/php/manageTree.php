@@ -131,19 +131,6 @@ if ( !empty($_POST['pid']) && !empty($_POST['cid']) )
 		clear:both;
 	}
 	
-	#waiter {
-		position:absolute;
-		top:40%;left:50%;
-		padding: 20px;
-		margin-left: -45px;
-		z-index: 5;
-		width:70px;
-		background: #fff;
-		text-align: center;
-		border-radius: 15px;
-		display: none;
-		color: #000;
-	}
 	
 	</style>
 </head>
@@ -211,32 +198,37 @@ if ( !empty($_POST['pid']) && !empty($_POST['cid']) )
 // draw the Trees
 var params = '<?php echo $js_params?>';
 var toid = "#i_pid"
-
-$('.tree').folderTree({
-	script: params,
-	statCheck: function(target)
-	{
-		target.find('li>span').each(function(i)
+$(document).ready(function()
+{
+	$('.tree').folderTree({
+		script: params,
+		statCheck: function(target)
 		{
-			// add the ID to the Label
-			var i = $(this).data('id')
-			if(i) {$(this).append(' - [ ID: '+i+' ]')}
-			// set Click-Handler
-			$(this).on('click', function(e) {
-				$(this).css('background','#fff');
-				//$('#input_'+$(this).parents('.tree').attr('id'))
-				$(toid).val( $(e.target).data('id') );
+			target.find('li>span').each(function(i)
+			{
+				// add the ID to the Label
+				var i = $(this).data('id')
+				if(i) {$(this).append(' - [ ID: '+i+' ]')}
+				// set Click-Handler
+				$(this).on('click', function(e) {
+					$(this).css('background','#fff');
+					//$('#input_'+$(this).parents('.tree').attr('id'))
+					$(toid).val( $(e.target).data('id') );
+				})
 			})
-		})
-	}
+		}
+	});
+	$('body').on({
+		ajaxStart: function() {
+			$(this).addClass('loading');
+		},
+		ajaxStop: function() {
+			$(this).removeClass('loading');
+		}
+	});
 });
-
 </script>
 
-<div id="waiter">
-	<img src="../css/spinner.gif" /><br />
-	<?php echo L('please_wait')?>
-</div>
-
+<div class="wait"></div>
 </body>
 </html>

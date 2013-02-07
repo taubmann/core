@@ -132,11 +132,8 @@ if(isset($user_wizards))
 	<div id="colRightb"> </div>
 </div>
 
+<div class="wait"></div>
 
-
-<script>
-
-</script>
 </body>
 </html>
 

@@ -460,63 +460,6 @@ class crud
 	* 
 	* @return 
 	*/
-	private function processLabelxx ($str, &$cnt, &$tabHeads)
-	{
-		// Accordion-Limiter
-		$arr = explode('--', $str);
-		if (count($arr) === 2)
-		{
-			$str = $arr[1];
-			$str1 = 	(($cnt>0)
-						? '</div>'
-						: '<div id="accordion">').'<h3><a href="javascript:void(0)">'.$arr[0].'</a></h3><div>';
-			$strp1 = '</div>';
-			$cnt++;
-		}
-		
-		// Tab-Limiter
-		$arr = explode('||', $str);
-		if (count($arr) === 2)
-		{
-			$str = $arr[1];
-			if($cnt == 0)
-			{
-				$tabHeads = array();
-			}
-			$str1 = 	(($cnt>0)
-						? '</div>'
-						: '<div id="tabs">###TABSHEAD###') . '<div id="tabs-'.$cnt.'">';
-			$strp1 = '</div>';
-			$tabHeads[] = '<li><a href="#tabs-'.$cnt.'">'.$arr[0].'</a></li>';
-			$cnt++;
-		}
-		
-		// Tooltip
-		if (preg_match('/\(([^\)]+)\)/', $str, $ttip))
-		{
-			$str = '<a href="javascript:void(0)">' . trim(preg_replace('/\s*\([^)]*\)/', '', $str)) . '<span>' . $ttip[1] . '</span></a>';
-		}
-		
-		// Placeholder
-		$ph = array('','');
-		if (preg_match('/\[(.*?)\]/', $str, $ph))
-		{
-			$str = trim(preg_replace('/\[(.*?)\]/', '', $str));
-		}
-		
-		/*return array(
-			'lbl' => $str,
-			'str1' => $str1,
-			'strp1' => $strp1,
-			'ph' => $ph[1]
-		);*/
-		
-	}
-	/**
-	* 
-	* 
-	* @return 
-	*/
 	private function processLabel ($a, &$cnt, &$tabHeads)
 	{
 		$arr = clone $a;
@@ -548,7 +491,7 @@ class crud
 		//crappy
 		if (isset($arr->doc))
 		{
-			$arr->label = '<span onclick="openDoc(\'' . $this->lang . '/' . $arr->doc . '\')">' . $arr->label . '</span>';
+			$arr->label = '<u onclick="openDoc(\'' .  str_replace(array('LANG','PROJECT'), array($this->lang, $this->projectName), $arr->doc) . '\')">' . $arr->label . '</u>';
 		}
 		
 		if (isset($arr->tooltip))
@@ -561,6 +504,18 @@ class crud
 						'str1' => $str1,
 						'strp1' => $strp1,
 					);
+	}
+	
+	private function arrayToObject($d)
+	{
+		if (is_array($d))
+		{
+			return (object) array_map(__METHOD__, $d);
+		}
+		else
+		{
+			return $d;
+		}
 	}
 	
 	/**
@@ -659,23 +614,24 @@ class crud
 			$fks = substr($fk, 0, 2);
 			
 			// simple base64-decoding
-			if($fks == 'e_')
+			if ($fks == 'e_')
 			{
 				$item->$fk = base64_decode($item->$fk);
 			}
 			
 			// decryption
-			if($fks == 'c_')
+			if ($fks == 'c_')
 			{
-				if ( @$key = $_SESSION[$this->projectName]['config']['crypt'][$this->objectName][$fk] )
+				if ( isset($_SESSION[$this->projectName]['config']['crypt'][$this->objectName][$fk]) )
 				{
 					require_once('crypt.php');
-					$key2  = md5($this->objectName . $fk.  $key);
+					// objectname, fieldname, entry_id, password
+					$key  = md5($this->objectName . $fk .  $_SESSION[$this->projectName]['config']['crypt'][$this->objectName][$fk]);
 					$key2 .= md5($key2 . $key);
 					$type  = substr($fv->type, -4);
-					$item->$fk =	($type=='CHAR') 
-									? X_OR::decrypt($item->$fk, $key2) 
-									: Blowfish::decrypt($item->$fk, $key2, md5(Configuration::$DB_PASSWORD[0]));
+					//$item->$fk =	($type=='CHAR') ?
+					//				X_OR::decrypt($item->$fk, $key2) :
+					$item->$fk =	Blowfish::decrypt($item->$fk, $key2, md5(Configuration::$DB_PASSWORD[0]));
 				} else {
 					$item->$fk = $this->L('not_decryptable');
 				}
@@ -699,31 +655,46 @@ class crud
 			$str1 .= '<!--e_'.$fk.'-->';
 			
 			// if a Generic Structure is detected
-			if($fv->type == 'MODEL')
+			if ($fv->type == 'MODEL')
 			{
-				if($temp = json_decode($item->$fk))
+				if ($temp = json_decode($item->$fk, true))
 				{
-					foreach($temp as $jk => $jv)
+					
+					// load an external Model if declared
+					if (isset($temp['MODEL']) && $php = file_get_contents($this->ppath.'/objects/generic/'.trim($temp['MODEL']).'.php'))
 					{
-						@include_once('fieldtypes/'.$jv->type.'.php');
-						if( function_exists('_'.$jv->type) )
+						if($tpl = json_decode(substr($php, 13), true))
+						{
+							$temp = array_replace_recursive($tpl, $temp);
+						}
+					}
+					$temp = $this->arrayToObject($temp);
+					
+					foreach ($temp as $jk => $jv)
+					{
+						// skip invalid fields
+						if (!isset($jv->type) || !isset($jv->value)){ continue; }
+						
+						
+						include_once ('fieldtypes/'.$jv->type.'.php');
+						if ( function_exists('_'.$jv->type) )
 						{
 							$jlbl = $jk;
 							$placeholder = '';
-							if(isset($jv->lang->{$this->lang}))
+							if (isset($jv->lang->{$this->lang}))
 							{
 								$arr = $this->processLabel( $jv->lang->{$this->lang}, $cnt, $tabHeads );
 								
 								$str1 .= $arr['str1'];
 								$strp .= $arr['strp'];
 								$jlbl = $arr['lbl']->label;
-								if(isset($arr['lbl']->placeholder)) $placeholder = $arr['lbl']->placeholder;
+								if (isset($arr['lbl']->placeholder)) $placeholder = $arr['lbl']->placeholder;
 							}
 								
 							$str1 .= call_user_func(
 													'_'.$jv->type,
 													array( 
-															'name' => $jk,
+															'name' => $fk.'___'.$jk,
 															'label' => $jlbl,
 															'placeholder' => $placeholder,
 															'value' => $jv->value, 
@@ -746,7 +717,7 @@ class crud
 					case JSON_ERROR_SYNTAX:		trigger_error('JSON-Error in '.$fk.', id '.$this->objectId.': Syntax error, malformed JSON', E_USER_ERROR); break;
 				}
 				
-			}// Micro-Model END
+			}// Generic Model END
 			
 			
 		}// foreach END

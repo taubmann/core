@@ -742,13 +742,6 @@ function prettify(id)
 	.filter(":checked").button({icons: {primary: "ui-icon-circle-check"}});
 };
 
-function styleButtons(id)
-{ 
-	$('#'+id+' button').each(function() {
-		$(this).button( {icons:{ primary: 'ui-icon-'+$(this).attr('rel')}, text: (($(this).text()=='.')?false:true)})
-	})
-};
-
 
 
 function logout() {

@@ -1,14 +1,40 @@
 <?php
+/********************************************************************************
+*  Copyright notice
+*
+*  (c) 2013 Christoph Taubmann (info@cms-kit.org)
+*  All rights reserved
+*
+*  This script is part of cms-kit Framework. 
+*  This is free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License Version 3 as published by
+*  the Free Software Foundation, or (at your option) any later version.
+*
+*  The GNU General Public License can be found at
+*  http://www.gnu.org/licenses/gpl.html
+*  A copy is found in the textfile GPL.txt and important notices to other licenses
+*  can be found found in LICENSES.txt distributed with these scripts.
+*
+*  This script is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  This copyright notice MUST APPEAR in all copies of the script!
+************************************************************************************/
 session_start();
-include '../modeling/inc/index_includes.php';
+
+$modeling = (file_exists('../modeling')?'../modeling':'../_modeling');
+
+if(!file_exists($modeling)) exit('admin->modeling is missing');
+
+require $modeling . '/inc/index_includes.php';
 
 ?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
-
 <title>cms-kit Generic Modeling</title>
-
 <meta charset="utf-8" />
 <link href="../../inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/jquery-ui.css" rel="stylesheet" />
 <link href="../../inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/style.css" rel="stylesheet" />
@@ -65,6 +91,10 @@ include '../modeling/inc/index_includes.php';
 	height: 490px;
 	border: 0px none;
 }
+
+.dangerous {
+	border: 2px solid #c00;
+}
     
 </style>
 
@@ -75,20 +105,19 @@ include '../modeling/inc/index_includes.php';
 
 <script>if(!window.JSON){document.writeln('<script src="../../inc/js/json2.min.js"><\/script>')}</script>
 
-<script src="../modeling/inc/js/jquery.tmpl.js"></script>
-<script src="../modeling/rules/disallowedNames.js"></script>
-
 
 
 <script type="text/javascript">
 /* <![CDATA[ */
-
 var model = {};
+var disallowedFieldNames = [' ', '_', ' ', 'id'];
 
 <?php
 echo "var project = '".$projectName."', wizards = [];\n";
 
 foreach($embeds['w'] as $k => $v){	echo  "wizards['$k'] = {" . implode(',', $v) . "}\n"; }// available Wizards
+
+	
 
 // these Types makes no Sense in a JSON-Model
 $forbiddenTypes = array(
@@ -99,7 +128,8 @@ $forbiddenTypes = array(
 							'MODEL',
 						);
 
-$datatypes = json_decode(file_get_contents('../modeling/rules/datatypes.json'), true);
+$datatypes = json_decode(file_get_contents($modeling . '/rules/datatypes.json'), true);
+
 echo 'var typeSelect = \'<select onchange="checkTypeSelect(this)" name="type">';
 foreach($datatypes as $k => $v)
 {
@@ -112,7 +142,10 @@ foreach($datatypes as $k => $v)
 		$ddefaultLabel[] = $dk;
 	}
 }
-echo '</select>\';
+echo '</select>\';';
+
+
+echo '
 var ddefault=[];
 ';
 $ddefaultLabel = array_unique($ddefaultLabel);
@@ -126,7 +159,14 @@ foreach($ddefaultLabel as $dl)
 $(function()
 {
 	
-	
+	$('body').on({
+		ajaxStart: function() {
+			$(this).addClass('loading');
+		},
+		ajaxStop: function() {
+			$(this).removeClass('loading');
+		}
+	});
 	
 	// File-List
 	$('#filelist').on('click', '.label', function()
@@ -216,6 +256,12 @@ $(function()
 		$('#dialog').dialog('open');
 		
 	});
+	$('#gotoRestore').on('click', function()
+	{
+		window.location = 'restore.php?project='+project;
+	});
+	
+	
 	$('#dialog').dialog(
 	{
 		autoOpen: false,
@@ -256,7 +302,8 @@ $(function()
 								{
 									action : 'process_label',
 									project : project,
-									str : JSON.stringify(toArr(arr[i]['value']))
+									str : JSON.stringify(toArr(arr[i]['value'])),
+									file: 'x'
 								}, 
 								function (data)
 								{
@@ -300,15 +347,18 @@ function loadModel(name)
 //
 function showModel(data, name)
 {
-		model = JSON.parse(data);
+	model = JSON.parse(data);
 	
 	var lstr = '<li class="ui-state-default ui-selectee" data-name="XX" id="col_XX"><span title="<?php echo L('delete_Field')?>" class="ui-icon ui-icon-trash"></span><span title="<?php echo L('edit_Field_properties')?>" class="ui-icon ui-icon-pencil"></span><span title="<?php echo L('drag_to_Sort')?>" class="ui-icon ui-icon-arrowthick-2-n-s"></span><span class="label">XX</span></li>';
 	
 	html = 	'<div id="colMid">'+
 			
-			'<button id="saveFieldButton" style="float:right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" ' +
+			'<span  style="float:right">' +
+			'<button id="saveFieldButton" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" ' +
 			'role="button" aria-disabled="false"><span class="ui-button-icon-primary ui-icon ui-icon-disk"></span><span class="ui-button-text"><?php echo L('Save');?></span>'+
 			'</button> '+
+			//'<input type="checkbox" title="do not perform any DB-Update" id="no_db_update" />' +
+			'</span>' +
 			
 			'<button id="showJsonButton" style="float:right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" ' +
 			'role="button" aria-disabled="false"><span class="ui-button-icon-primary ui-icon ui-icon-disk"></span><span class="ui-button-text"><?php echo L('show_Code');?></span>'+
@@ -374,7 +424,7 @@ function showModel(data, name)
 			$.post('json_io.php?project='+project+'&action=save&file='+name,
 			{
 				json : str
-			}, 
+			},
 			function (data)
 			{
 				alert(data);
@@ -387,18 +437,89 @@ function showModel(data, name)
 	$('#showJsonButton').on('click', function()
 	{
 		var str = JSON.stringify(model, null, '\t');
-		var html  = '<button id="loadStrButton" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" ' +
-					'role="button" aria-disabled="false"><span class="ui-button-icon-primary ui-icon ui-icon-plus"></span><span class="ui-button-text"><?php echo L('load_Json');?></span>'+
-					'</button>'+
-					'<p><textarea id="jsonField" style="width:95%;height:500px">'+str+'</textarea></p>';
 		
+		var html  = '<span style="float:right">' +
+					'<button id="saveOnlyJson" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary ui-state-error" ' +
+					'role="button" aria-disabled="false"><span class="ui-button-icon-primary ui-icon ui-icon-disk"></span><span class="ui-button-text"><?php echo L('save_Json');?> (<?php echo L('no_DB_Update');?>)</span>'+
+					'</button>'+
+					'<button id="replaceInDbModels" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary ui-state-error" ' +
+					'role="button" aria-disabled="false"><span class="ui-button-icon-primary ui-icon ui-icon-scissors"></span><span class="ui-button-text"><?php echo L('replace_DB_Model_String');?></span>'+
+					'</button>'+
+					'</span>' +
+					
+					'<button id="loadStrButton" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" ' +
+					'role="button" aria-disabled="false"><span class="ui-button-icon-primary ui-icon ui-icon-arrowreturnthick-1-s"></span><span class="ui-button-text"><?php echo L('load_Json');?></span>'+
+					'</button>'+
+					
+					'<p><textarea id="jsonField" style="width:95%;height:500px">'+str+'</textarea></p>'+
+					
+					//'<button id="clearBackups" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary ui-state-error" ' +
+					//'role="button" aria-disabled="false"><span class="ui-button-icon-primary ui-icon ui-icon-trash"></span><span class="ui-button-text"><?php echo L('clear_Backups');?></span>'+
+					//'</button>'+
+					'';
 		
 		$('#dialogbody').html(html);
+		
 		$('#loadStrButton').on('click', function()
 		{
 			showModel($('#jsonField').val(), name);
 			$('#dialog').dialog('close');
 		});
+		
+		$('#saveOnlyJson').on('click', function()
+		{
+			var q1 = confirm('<?php echo L('save_only_the_Model_without_updating_the_Database')?>?');
+			var q2 = confirm('<?php echo L('you_know_what_you_are_doing')?>?');
+			if (q1 && q2)
+			{
+				$.post('json_io.php?project='+project+'&action=saveonlyjson&file='+name,
+				{
+					json : str
+				},
+				function (data)
+				{
+					alert(data);
+				});
+			}
+		});
+		
+		$('#replaceInDbModels').on('click', function()
+		{
+			var sn = prompt('<?php echo L('insert_Needle')?>','//');
+			var sr = prompt('<?php echo L('insert_Replacement')?>','');
+			var ts = confirm('<?php echo L('run_a_Test_on_the_first_Entry')?>');
+			if (sn && sr)
+			{
+				$.post('json_io.php?project='+project+'&action=dbreplace&file='+name,
+				{
+					test: (ts ? 1 : 2),
+					needle: sn,
+					replacement: sr,
+					json: str
+				},
+				function (data)
+				{
+					alert(data);
+				});
+			}
+		});
+		/*
+		$('#clearBackups').on('click', function()
+		{
+			var q = confirm('<?php echo L('clear_definitively_all_Backups')?>?');
+			if (q)
+			{
+				$.post('json_io.php?project='+project+'&action=clearbackups&file=x',
+				{},
+				function (data)
+				{
+					alert(data);
+				});
+				
+			}
+		});
+		*/
+		
 		$('#dialog_SaveButton').hide();
 		$('#dialog').dialog('open');
 	});
@@ -538,35 +659,53 @@ function editField(name)
 </head>
 <body>
 <div id="colLeft">
+	<span style="float:right">
 	<button
-		style="float:right"
+		id="gotoRestore"
+		title="<?php echo L('Backups')?>"
+		class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" 
+		role="button" 
+		aria-disabled="false">
+			<span class="ui-button-icon-primary ui-icon ui-icon-clock"></span>
+			<span class="ui-button-text"><?php echo L('restore_from_Backup')?></span>
+	</button>
+	<button
 		id="getHelpButton"
+		title="<?php echo L('get_Help')?>"
 		class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" 
 		role="button" 
 		aria-disabled="false">
 		<span class="ui-button-icon-primary ui-icon ui-icon-help"></span>
-		<span class="ui-button-text"><?php echo L('get_Help');?></span>
+		<span class="ui-button-text"><?php echo L('get_Help')?></span>
 	</button>
+	
+	</span>
 	<button
 		id="addModelButton"
 		class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" 
 		role="button" 
 		aria-disabled="false">
 			<span class="ui-button-icon-primary ui-icon ui-icon-plus"></span>
-			<span class="ui-button-text"><?php echo L('new_Model');?></span>
+			<span class="ui-button-text"><?php echo L('new_Model')?></span>
 	</button>
 	
-	
-	<ul id="filelist" class="ilist rlist">
+	<ul id="filelist" style="clear:both" class="ilist rlist">
 	<?php
 	$files = glob($ppath.'/objects/generic/*.php');
 	foreach ($files as $file)
 	{ 
 		$n = substr(basename($file),0,-4);
-		echo '<li class="ui-state-default ui-selectee" data-name="'.$n.'"><span title="'.L('delete_Model').'" class="ui-icon ui-icon-trash"></span><span title="'.L('duplicate_Model').'" class="ui-icon ui-icon-copy"></span><span class="label">'.$n.'</span></li>';
+		echo '<li class="ui-state-default ui-selectee" data-name="'.$n.'">
+				<span title="'.L('delete_Model').'" class="ui-icon ui-icon-trash"></span>
+				<span title="'.L('duplicate_Model').'" class="ui-icon ui-icon-copy"></span>
+				<span class="label">'.$n.'</span>
+			 </li>';
 	}
 	?>
 	</ul>
+	
+	
+	
 </div>
 
 <div id="fieldlist">
@@ -575,6 +714,6 @@ function editField(name)
 
 <div id="dialog"><div id="dialogbody"></div></div>
 
-
+<div class="wait"></div>
 </body>
 </head>

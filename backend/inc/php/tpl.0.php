@@ -46,8 +46,10 @@
 	
 <!-- mini-overlay -->
 <div id="dialog1"><div id="dialogb1"></div></div>
+
 <!-- maxi-overlay -->
 <div id="dialog2"><iframe id="dialogb2" style="border:0px none"></iframe></div>
+
 <!-- status-messagebox -->
 <div id="messagebox"></div>
 
@@ -141,6 +143,7 @@ echo '</select>';
 	<div id="colRightb"> </div>
 </div>
 
+<div class="wait"></div>
 </body>
 </html>
 

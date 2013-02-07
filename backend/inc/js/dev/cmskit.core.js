@@ -106,4 +106,46 @@ jQuery(function($){
 	$.datepicker.setDefaults($.datepicker.regional['de']);
 });
 
+/**
+* transform all Button-Elements within an Container-Element
+* 
+* name: styleButtons
+* @param id
+* @return
+* 
+*/
+function styleButtons(id)
+{ 
+	$('#'+id+' button').each(function() {
+		
+		$(this).button( {
+			icons:{primary:'ui-icon-'+$(this).attr('rel')}, 
+			text:(($(this).text()=='.')?false:true),
+			title:''
+		})
+	}
+)};
+
+$(document).ready(function()
+{
+	// supress href-call on blind Links
+	$('body').on('click', 'a[href="#"]',function(e){e.preventDefault()});
+	$('body').on({
+		ajaxStart: function() {
+			$(this).addClass('loading');
+		},
+		ajaxStop: function() {
+			$(this).removeClass('loading');
+		}
+	});
+	
+});
+// open a Help-File
+function openDoc(p)
+{
+	getFrame('admin/extension_manager/showDoc.php?file=../../'+p)
+};
+
 $(window).unload(function(){window.name=JSON.stringify(store)});
+
+

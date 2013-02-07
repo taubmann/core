@@ -354,7 +354,7 @@ body {
 
 #working_area {
 	position: absolute;
-	width: 90%;
+	width: 96%;
 	top: 80px;
 	left: 10px;
 }
@@ -447,7 +447,7 @@ function deleteBackups(el)
 
 
 <div id="controls" class="ui-widget-header ui-corner-all">
-	
+	<!--
 	<button
 		onclick="window.location='index.php?project=<?php echo $projectName;?>'"
 		class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" 
@@ -456,6 +456,7 @@ function deleteBackups(el)
 			<span class="ui-button-icon-primary ui-icon ui-icon-arrowreturnthick-1-w"></span>
 			<span class="ui-button-text"><?php echo L('Data_Modeling');?></span>
 	</button>
+	-->
 	<button
 		onclick="window.location='process.php?rebuild_objects=1&project=<?php echo $projectName;?>';"
 		class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary"  
@@ -511,11 +512,13 @@ echo '
 
 <fieldset id="sql-fieldset">
 	<legend>2. '.L('SQL_Queries').'</legend>
-' . implode("\n", $queryHtmlOutput) . '</fieldset>
+' . implode("\n", $queryHtmlOutput) . '
+</fieldset>
 
 <fieldset>
 	<legend>3. '.L('PHP_Objects').'</legend>
-' . implode("\n", $fileHtmlOutput) . '</fieldset>
+' . implode("\n", $fileHtmlOutput) . 
+'</fieldset>
 ';
 ?>
 	

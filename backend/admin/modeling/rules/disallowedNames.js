@@ -1,7 +1,11 @@
-/*
- * 
- * 
- * */
+/**
+* List of disallowed Names for Database-Tables and Fields
+* 
+* used in 
+* backend/admin/modeling/index.php
+* backend/admin/generic_modeling/index.php
+* 
+* */
  
 // Table-Names
 var disallowedTableNames = [

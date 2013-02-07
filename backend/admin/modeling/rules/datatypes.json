@@ -132,7 +132,7 @@
 		"default": {
 			"Empty": " "
 		},
-		"mysql": "TEXT",
+		"mysql": "MEDIUMTEXT",
 		"sqlite": "TEXT"
 	},
 	"EXCLUDEDTEXT": {
@@ -142,7 +142,7 @@
 		"default": {
 			"Empty": " "
 		},
-		"mysql": "TEXT",
+		"mysql": "MEDIUMTEXT",
 		"sqlite": "TEXT"
 	},
 	"HIDDENTEXT": {
@@ -152,7 +152,7 @@
 		"default": {
 			"Empty": " "
 		},
-		"mysql": "TEXT",
+		"mysql": "MEDIUMTEXT",
 		"sqlite": "TEXT"
 	},
 	"WIZARDTEXT": {
@@ -163,7 +163,7 @@
 		"default": {
 			"Empty": " "
 		},
-		"mysql": "TEXT",
+		"mysql": "MEDIUMTEXT",
 		"sqlite": "TEXT"
 	},
 	"WIZARDBUTTON": {
@@ -174,7 +174,7 @@
 		"default": {
 			"Empty": " "
 		},
-		"mysql": "TEXT",
+		"mysql": "MEDIUMTEXT",
 		"sqlite": "TEXT"
 	},
 	"WIZARDTEXTEMB": {
@@ -185,7 +185,7 @@
 		"default": {
 			"Empty": " "
 		},
-		"mysql": "TEXT",
+		"mysql": "MEDIUMTEXT",
 		"sqlite": "TEXT"
 	},
 	"BLOB": {
@@ -253,7 +253,7 @@
 		"default": {
 			"Empty": " "
 		},
-		"mysql": "BLOB",
-		"sqlite": "BLOB"
+		"mysql": "MEDIUMTEXT",
+		"sqlite": "TEXT"
 	}
 }

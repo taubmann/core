@@ -24,6 +24,7 @@
 *********************************************************************************/
 session_start();
 error_reporting(0);
+session_regenerate_id();
 
 // fix/sanitize GET-Parameter
 foreach($_GET as $k=>$v){ $_GET[str_replace('amp;','',$k)] = preg_replace('/\W/', '', $v); }

@@ -315,8 +315,7 @@ span.ui-icon-arrow-2-n-s, span.ui-icon-arrow-4
 {
 	background: #bgColorDefault url(images/ui-bg_glass_bgImgOpacityDefault_bgColorDefault_1x400.png) 50% 50% repeat-x;
 	border: 1px solid #borderColorDefault;
-	color: #000;
-	color: fcDefault;
+	color: #fcDefault;
 	cursor: pointer;
 	display: inline-block;
 	font-weight: normal;
@@ -330,6 +329,8 @@ span.ui-icon-arrow-2-n-s, span.ui-icon-arrow-4
 	color: #fcActive !important;
 	padding: 5px 0px 5px 2px !important;
 }
+
+/* styles for Placeholder-Text */
 :-moz-placeholder
 {
 	color: #fcActive;
@@ -341,4 +342,28 @@ span.ui-icon-arrow-2-n-s, span.ui-icon-arrow-4
 ::-webkit-input-placeholder
 {
 	color: #fcActive;
+}
+
+/* Wait-Dialog for all Ajax-Actions */
+.wait
+{
+	display:    none;
+	position:   fixed;
+	z-index:    5555;
+	top:        0;
+	left:       0;
+	height:     100%;
+	width:      100%;
+	background: rgba( 255, 255, 255, .5 ) 
+				url('../spinner-big.gif') 
+				50% 50% 
+				no-repeat;
+}
+body.loading
+{
+	overflow: hidden;   
+}
+body.loading .wait
+{
+	display: block;
 }

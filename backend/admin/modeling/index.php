@@ -1,4 +1,27 @@
 <?php
+/********************************************************************************
+*  Copyright notice
+*
+*  (c) 2013 Christoph Taubmann (info@cms-kit.org)
+*  All rights reserved
+*
+*  This script is part of cms-kit Framework. 
+*  This is free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License Version 3 as published by
+*  the Free Software Foundation, or (at your option) any later version.
+*
+*  The GNU General Public License can be found at
+*  http://www.gnu.org/licenses/gpl.html
+*  A copy is found in the textfile GPL.txt and important notices to other licenses
+*  can be found found in LICENSES.txt distributed with these scripts.
+*
+*  This script is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  This copyright notice MUST APPEAR in all copies of the script!
+************************************************************************************/
 session_start();
 
 include 'inc/index_includes.php';
@@ -26,88 +49,111 @@ include 'inc/index_includes.php';
 
 
 <style>
-	body{
-		font: 65% "Trebuchet MS", sans-serif;
-		margin: 0;
-		background:url('inc/back.gif');
-	}
+body
+{
+	font: 65% "Trebuchet MS", sans-serif;
+	margin: 0;
+	background:url('inc/back.gif');
+}
+
+canvas
+{
+	border: 1px solid #000;
+	z-index: 1;
 	
-	canvas {
-		border: 1px solid #000;
-		z-index: 1;
-		
-	}
-	
-	#objects {
-		position: absolute;
-		z-index: 2;
-	}
-	.object{
-		position: absolute;
-		width: 200px;
-	}
-	.object p {
-		padding: 7px;
-	}
-	
-	.object label {
-		float: right;
-		border: 1px solid #ccc;
-		margin-right: 3px;
-		cursor: pointer;
-	}
-	
-	
-	.ui-multidraggable {
-		border: 2px dashed #000;
-	}
-    .ui-icon-arrowthick-2-n-s {
-		cursor: move;
-	}
-	textarea {
-		line-height: 2em;
-	}
-	
-	#menu {
-		position: fixed;
-		z-index: 5;
-		top: 5px;
-		left: 5px;
-		padding: 5px;
-	}
-	
-	#dialogbody label {
-		display: inline-block;
-		width: 120px;
-		font-weight: bold;
-		border-bottom: 1px solid #ccc;
-	}
-	#dialogbody input, #dialogbody textarea, #dialogbody  select {
-		background: #fff;
-		width: 400px;
-		border: 1px solid #666;
-		padding: 5px;
-		font: 1.2em/120% Tahoma, Arial, sans-serif; color: navy;
-	}
-	#dialogbody iframe {
-		width: 100%;
-		height: 390px;
-	}
-    
-    .Tree p {
-		background: #FC9856;
-	}
-	.Graph p {
-		background: #56BAFC;
-	}
-	
-	ul { list-style-type: none; margin: 0; padding: 0; margin: 0; width: 100%; }
-    ul li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; height: 18px; }
-    ul li span { position: absolute; margin-left: -1.3em; }
+}
+
+
+#objects
+{
+	position: absolute;
+	z-index: 2;
+}
+.object
+{
+	position: absolute;
+	width: 200px;
+}
+.object p {
+	padding: 7px;
+}
+
+.object label
+{
+	float: right;
+	border: 1px solid #ccc;
+	margin-right: 3px;
+	cursor: pointer;
+}
+
+.ui-multidraggable
+{
+	border: 2px dashed #000;
+}
+.ui-icon-arrowthick-2-n-s
+{
+	cursor: move;
+}
+textarea
+{
+	line-height: 2em;
+}
+
+#menu
+{
+	position: fixed;
+	z-index: 5;
+	top: 5px;
+	left: 5px;
+	padding: 5px;
+}
+
+#dialogbody label
+{
+	display: inline-block;
+	width: 120px;
+	font-weight: bold;
+	border-bottom: 1px solid #ccc;
+}
+#dialogbody input, #dialogbody textarea, #dialogbody  select
+{
+	background: #fff;
+	width: 400px;
+	border: 1px solid #666;
+	padding: 5px;
+	font: 1.2em/120% Tahoma, Arial, sans-serif; color: navy;
+}
+#dialogbody iframe
+{
+	width: 100%;
+	height: 490px;
+	border: 0;
+}
+
+.Tree p
+{
+	background: #FC9856;
+}
+.Graph p {
+	background: #56BAFC;
+}
+
+ul
+{
+	list-style-type: none; margin: 0; padding: 0; margin: 0; width: 100%;
+}
+ul li
+{
+	margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; height: 18px;
+}
+ul li span
+{
+	position: absolute; margin-left: -1.3em;
+}
     
 </style>
 
-<!-- jquery-TEMPLATES BEGIN-->
+<!-- jQuery-TEMPLATES BEGIN-->
 
 <script id="objectExportTemplate" type="text/x-jquery-tmpl">
 	<h2><?php echo L('Export')?></h2>
@@ -251,7 +297,7 @@ ${obj}
 </form>
 </script>
 
-<!-- jquery-TEMPLATES END -->
+<!-- jQuery-TEMPLATES END -->
 
 </head>
 <body>
@@ -375,13 +421,13 @@ $(function()
 	
 	
 	// Menu-Buttons
-	$('#menu_new_object').click(function(){
+	$('#menu_new_object').on('click', function(){
 		addObject();
 	});
 	
 		
 	
-	$('#menu_export').click(function()
+	$('#menu_export').on('click', function()
 	{
 		// check if Session is still alive
 		var head = document.getElementsByTagName('head')[0];
@@ -389,6 +435,8 @@ $(function()
 		lnk.type = 'text/javascript'; 
 		lnk.src = 'inc/session.php?project='+project;
 		head.appendChild(lnk);
+		
+		$('#dialog_SaveButton').hide();
 		
 		// create a local Copy of objects
 		var J = $.extend(true, {}, objects);
@@ -426,7 +474,7 @@ $(function()
 		}).appendTo('#dialogbody');
 		
 		// re-import XML from Textarea
-		$('#button_importXML').click(function()
+		$('#button_importXML').on('click', function()
 		{
 			objects = {}, path = [], relations = [];//reset JS-Objects
 			clearLines();//clear BG-Vectors
@@ -440,7 +488,7 @@ $(function()
 			}
 		});
 		
-		$('#button_saveXML, #button_exportXML').click(function()
+		$('#button_saveXML, #button_exportXML').on('click', function()
 		{
 			var action = $(this).data('action');
 			
@@ -451,8 +499,10 @@ $(function()
 					if(action == 'export')
 					{
 						var q = confirm('<?php echo L('open_Setup_and_write_Model_to_Database')?>!');
-						if(q) {
-							window.location = 'process.php?project=<?php echo $projectName?>'
+						if(q)
+						{
+							//window.location = 'process.php?project=<?php echo $projectName?>'
+							$('#dialogbody').html('<iframe src="process.php?project=<?php echo $projectName?>"></iframe>');
 						}
 					}else {
 						alert('<?php echo L('saved_Model')?>');
@@ -465,7 +515,7 @@ $(function()
 		});
 		
 		// sort internal Order of the objects
-		$('#button_sortXML').click(function()
+		$('#button_sortXML').on('click', function()
 		{
 			$('#dialogbody').html('');
 			$('#objectSortTemplate').tmpl({ obj: objects.object }).appendTo('#dialogbody');
@@ -489,8 +539,8 @@ $(function()
 		
 	});
 	
-	$('#menu_help').click(function(){
-		$('#dialogbody').html('<iframe src="../extension_manager/showDoc.php?file=../../extensions/documentation/doc/<?php echo $lang?>/.object_modeling"></iframe>');
+	$('#menu_help').on('click', function(){
+		$('#dialogbody').html('<iframe src="../extension_manager/showDoc.php?file=../../extensions/documentation/doc/<?php echo $lang?>/.object_modeling.md"></iframe>');
 		$('#dialog_SaveButton').hide();
 		$('#dialog').dialog('open');
 	});
@@ -754,7 +804,7 @@ function addObject(objectname, x, y)
 	$('#objects').append(html);
 	
 	// start m:n Connecting
-	$('#'+objectname+' .ui-icon-arrowthick-2-e-w:first').click(function()
+	$('#'+objectname+' .ui-icon-arrowthick-2-e-w:first').on('click', function()
 	{
 		var target = prompt('<?php echo L('enter_Name_of_Sibling_Object')?>','');
 		if(target && path[target]) {
@@ -762,7 +812,7 @@ function addObject(objectname, x, y)
 		}
 	});
 	// start 1:n Connecting
-	$('#'+objectname+' .ui-icon-arrowthick-1-ne:first').click(function()
+	$('#'+objectname+' .ui-icon-arrowthick-1-ne:first').on('click', function()
 	{
 		var target = prompt('<?php echo L('enter_Name_of_Parent_Object')?>','');
 		if(target && path[target]) {
@@ -771,7 +821,7 @@ function addObject(objectname, x, y)
 	});
 	
 	// edit Object-Function
-	$('#'+objectname+' p .ui-icon-pencil:first').click(function() {
+	$('#'+objectname+' p .ui-icon-pencil:first').on('click', function() {
 		
 		//alert(JSON.stringify(objects.object[i]));
 		$('#objectEditTemplate').tmpl({
@@ -795,7 +845,7 @@ function addObject(objectname, x, y)
 	});
 	
 	// Add-Field-Function
-	$('#'+objectname+' p .ui-icon-circle-plus:first').click(function()
+	$('#'+objectname+' p .ui-icon-circle-plus:first').on('click', function()
 	{
 		var fieldname = prompt('<?php echo L('enter_Field_Name')?>','');
 		if(fieldname)
@@ -829,7 +879,7 @@ function addObject(objectname, x, y)
 	});
 	
 	// delete object
-	$('#'+objectname+' p .ui-icon-trash:first').click(function() {
+	$('#'+objectname+' p .ui-icon-trash:first').on('click', function() {
 		var q = confirm('<?php echo L('delete_%s')?>?'.replace('%s', objectname));
 		if(q)
 		{
@@ -930,7 +980,7 @@ function addField (objectname, fieldname, col, norefresh)
 	if(!norefresh) ul.sortable('refresh');
 	
 	// Edit Field-Function
-	$('#'+objectname+'-____-'+fieldname+' .ui-icon-pencil:first').click(function()
+	$('#'+objectname+'-____-'+fieldname+' .ui-icon-pencil:first').on('click', function()
 	{
 		var i0 = path[objectname][0], 
 			i1 = path[objectname][1][fieldname];
@@ -989,7 +1039,7 @@ function addField (objectname, fieldname, col, norefresh)
 	
 
 	// delete Field-Function
-	$('#'+objectname+'-____-'+fieldname+' .ui-icon-trash:first').click(function()
+	$('#'+objectname+'-____-'+fieldname+' .ui-icon-trash:first').on('click', function()
 	{
 		var c = confirm('delete '+fieldname+'?');
 		if(c) {

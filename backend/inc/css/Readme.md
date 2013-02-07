@@ -2,7 +2,7 @@
 
 **Super-Root only!**
 
-You can create new Styles for the Backend to fit it to your / your Company's Branding
+You can create new Styles for the Backend to fit the Backend to your / your Company's Branding
 
 to add a new Style:
 
@@ -10,9 +10,11 @@ to add a new Style:
 2. download your Style with all components (full package)
 3. create a new unique Style-Folder under backend/inc/css/ (Folder has to be writable!)
 4. copy from the package/css/ images and the main stylesheet AND rename it to "jquery-ui.css" (no Version-Numbers!)
-5. copy the Style-Hash from the Themeroller-URL into a File called "parameter.txt" in your Style-Folder (it is used to adapt some Values in the Base-CSS)
-6. Save / create a Thumbnail for the Style-Selector called "preview.png" and copy it to your Style-Folder
-7. run Admin_Wizards > Script-Manager > CSS-Packer
+5. copy the compressed Style-Hash from the Themeroller-URL
+6. decompress it via the Wizard extension/documentation/wizards/de_compress
+7. save the decompressed hash into a File called "parameter.txt" in your Style-Folder (it is used to adapt some Values in the Base-CSS)
+8. Save / create a Thumbnail for the Style-Selector called "preview.png" and copy it to your Style-Folder
+9. run Admin_Wizards > Script-Manager > CSS-Packer
 
 Alternatives to ThemeRoller may be...
 

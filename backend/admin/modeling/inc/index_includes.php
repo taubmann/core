@@ -22,30 +22,7 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ************************************************************************************/
-$backend = '../../';
 
-$projectName = preg_replace('/\W/', '', $_GET['project']);
-$ppath = $backend . '../projects/' . strtolower($projectName);
-
-if(!isset($_SESSION[$projectName]['root'])) exit('no Rights to edit!');
-
-$lang = $_SESSION[$projectName]['lang'];
-$LL = array();
-@include dirname(__FILE__) . '/locale/'.$lang.'.php';
-
-function L($str)
-{
-	global $LL;
-	if(isset($LL[$str]))
-	{
-		return $LL[$str];
-	}
-	else
-	{
-		//file_put_contents(dirname(__FILE__).'/ll.txt', $str.PHP_EOL, FILE_APPEND);chmod(dirname(__FILE__).'/ll.txt',0777); // export all labels
-		return str_replace('_',' ',$str);
-	}
-}
 
 require $ppath . '/objects/__configuration.php';
 

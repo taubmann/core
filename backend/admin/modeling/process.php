@@ -30,31 +30,29 @@ session_start();
 //error_reporting(E_ERROR | E_WARNING | E_PARSE);
 error_reporting(0);
 
-$projectName 	= preg_replace('/\W/', '', $_GET['project']);
-
-if(!$_SESSION[$projectName]['root']) exit('no Rights to edit!');
 
 // VARIABLES
-$ppath 			= '../../../projects/' . $projectName . '/objects/';// relative Path to Objects-Folder
+
 $html 			= ''; // Html-Output (at the bottom)
-$LL 			= array(); // Language-Array
+
 $queries 		= array(); // array of DB-Queries
 $tables 		= array(); // array to hold existing Column-Names
 $reduced_tables = array(); // array to hold Tables with dropped columns for sqlite
 
-if(!is_writable($ppath)) exit('Folder "objects" is not writable!');
+require 'inc/includes.php';
 
 foreach(	array(
+					
+					'inc/process_includes.php',// load Helper-Functions
+					'inc/objecttemplate.php',// load Template-Class
+					
+					'../../inc/php/pclzip.lib.php',// load ZIP-Library
+					'../../inc/php/functions.php',// version no
+					
 					$ppath . '__model.php',// load old Model => (object)$objects
 					$ppath . '__modelxml.php',// load new Model => (string)$model
 					$ppath . '__database.php',// load Database-Connector
 					
-					'inc/includes.php',// load Helper-Functions
-					'inc/process_includes.php',// load Helper-Functions
-					'inc/objecttemplate.php',// load Template-Class
-					'../../inc/php/pclzip.lib.php',// load ZIP-Library
-					'../../inc/php/functions.php',// version no
-					//'inc/locale/' . $_SESSION[$projectName]['lang'] . '.php',// try to load Language-Array
 				) as $inc)
 {
 	if(file_exists($inc)){
@@ -65,7 +63,7 @@ foreach(	array(
 	}
 }
 
-
+if(!is_writable($ppath)) exit('Folder "objects" is not writable!');
 
 // INCLUDES
 

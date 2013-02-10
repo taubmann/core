@@ -24,29 +24,29 @@
 ************************************************************************************/
 session_start();
 
-include 'inc/index_includes.php';
-
+require 'inc/includes.php';
+require '../../inc/php/collectExtensionInfos.php';
+require $ppath . '__configuration.php';
 
 ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>cms-kit-modeling</title>
+<title>cms-kit Database-Modeling</title>
 
 <link href="../../inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/jquery-ui.css" rel="stylesheet" />
 
 <script src="../../inc/js/jquery.min.js"></script>
 <script>$.uiBackCompat = false;</script>
 <script src="../../inc/js/jquery-ui.js"></script>
+<script src="../../inc/js/rules/disallowedNames.js"></script>
+
 <script src="inc/js/jquery.ui.multidraggable.js"></script>
 <script>if(!window.JSON){document.writeln('<script src="../../inc/js/json2.min.js"><\/script>')}</script>
 
 <script src="inc/js/JsonXml.js"></script>
 <script src="inc/js/jquery.tmpl.js"></script>
-<script src="rules/disallowedNames.js"></script>
-
-
 
 <style>
 body
@@ -62,7 +62,6 @@ canvas
 	z-index: 1;
 	
 }
-
 
 #objects
 {
@@ -326,6 +325,17 @@ ${obj}
 <script type="text/javascript">
 /* <![CDATA[ */
 
+var dtypeLabel=[],
+	ddefaultLabel=[],
+	datatypes = [],
+	datatype = {},
+	datatype_defaults = {},
+	fieldtypecolor = [];
+	fieldtypecolor["NUMERIC"]	= "#4682b4",
+	fieldtypecolor["CHARACTER"]	= "#a0522d",
+	fieldtypecolor["OTHER"]		= "#cdc9a5",
+	dbhLabel = [];
+	
 <?php
 
 // available Databases 
@@ -333,25 +343,33 @@ echo "var databases = ['" . implode("','", Configuration::$DB_ALIAS) . "'];\n";
 
 echo "var project = '".$projectName."', wizards = [];\n";
 
-// available Wizards
+// available Wizards (backend/inc/php/collectExtensionInfos.php)
+$embeds = collectExtensionInfos($projectName);
 foreach($embeds['w'] as $k => $v)
 {
 	echo  "wizards['$k'] = {" . implode(',', $v) . "}\n";
 }
 
 // available Hooks
-echo  'var hooks = [' . str_replace(array('"description"','"embed"','"name"'), array('d', 'e', 'n'), implode(',', array_values($embeds['h']))) . "];\n";
-
-echo 'var dtypeLabel=[];
-var ddefaultLabel=[];
+echo  '
+var hooks = [' . str_replace(array('"description"','"embed"','"name"'), array('d', 'e', 'n'), implode(',', array_values($embeds['h']))) . '];
+	dbhLabel["List"]  = "'.L('htype_List').'";
+	dbhLabel["Tree"]  = "'.L('htype_Tree').'";
+	dbhLabel["Graph"] = "'.L('htype_Graph').'";
 ';
 $ddefaultLabel = array();
-$datatypes = json_decode(file_get_contents('rules/datatypes.json'), true);
-foreach($datatypes as $k=>$v)
+$datatypes = json_decode(file_get_contents('../../inc/js/rules/datatypes.json'), true);
+
+foreach($datatypes as $k => $v)
 {
 	echo "dtypeLabel['$k'] = '".L($k)."';\n";
+	echo "datatype['$k'] = fieldtypecolor['".$v['type']."'];\n";
+	echo "datatypes.push(['$k', fieldtypecolor['".$v['type']."']]);\n";
+	echo "datatype_defaults['$k'] = {};\n";
+	
 	foreach($v['default'] as $dk=>$dv)
 	{
+		echo "datatype_defaults['$k']['$dk'] = '$dv';\n";
 		$ddefaultLabel[] = $dk;
 	}
 }
@@ -361,12 +379,7 @@ foreach($ddefaultLabel as $dl)
 	echo "ddefaultLabel['$dl'] = '".L($dl)."';\n";
 }
 
-echo '
-var dbhLabel = [];
-dbhLabel["List"]  = "'.L('htype_List').'";
-dbhLabel["Tree"]  = "'.L('htype_Tree').'";
-dbhLabel["Graph"] = "'.L('htype_Graph').'";
-';
+
 ?>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -377,9 +390,6 @@ dbhLabel["Graph"] = "'.L('htype_Graph').'";
 // define global Variables
 var canvas,
 	ctx,
-	datatypes = [],
-	datatype = {},
-	datatype_defaults = {},
 	objects = {},
 	path = [],
 	relations = [],
@@ -394,16 +404,14 @@ $(function()
 	canvas = document.getElementById('bezier');
 	ctx = canvas.getContext('2d');
 	
-	
-	
+	$.get('xml_io.php?project=<?php echo $projectName?>', function(xml)
+	{
+		processXML(xml);
+	});
+	/*
 	$.getJSON('rules/datatypes.json', function(data)
 	{
 		
-		// Data-Type-Colors
-		var fieldtypecolor = [];
-			fieldtypecolor['NUMERIC']	= '#4682b4',
-			fieldtypecolor['CHARACTER']	= '#a0522d',
-			fieldtypecolor['OTHER']		= '#cdc9a5';
 		
 		$.each(data, function(key, val) {
 			datatype[key] = fieldtypecolor[val.type];
@@ -413,11 +421,8 @@ $(function()
 		//alert(JSON.stringify(datatype))
 	
 		
-		$.get('xml_io.php?project=<?php echo $projectName?>', function(xml)
-		{
-			processXML(xml);
-		});
-	});
+		
+	});*/
 	
 	
 	// Menu-Buttons

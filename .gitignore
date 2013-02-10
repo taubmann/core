@@ -5,17 +5,17 @@ backend/admin/super.php
 backend/extensions/**/*
 backend/wizards/**/*
 
-# Language-Folders
-backend/admin/extension_manager/inc/**/*
-backend/admin/modeling/inc/**/*
-backend/admin/_project_setup/inc/**/*
-
-backend/inc/locale/login/*.php
-backend/inc/locale/*.php
-backend/inc/locale/*.js
-
 !projects/index.php
 !backend/extensions/index.php
 !backend/extensions/cms/**/*
 !backend/wizards/index.php
+
+# Language-Folders
+backend/inc/locale/login/*.php
+backend/inc/locale/*.php
+backend/inc/locale/*.js
+backend/admin/extension_manager/inc/locale/*.php
+backend/admin/generic_modeling/inc/locale/*.php
+backend/admin/modeling/inc/locale/*.php
+backend/admin/_project_setup/inc/locale/*.php
 

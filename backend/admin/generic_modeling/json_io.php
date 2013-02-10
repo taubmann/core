@@ -24,19 +24,17 @@
 ************************************************************************************/
 session_start();
 
-$modeling = (file_exists('../modeling')?'../modeling':'../_modeling');
 
-require $modeling . '/inc/index_includes.php';
+require 'inc/includes.php';
 
-$projectName = preg_replace('/\W/', '', $_GET['project']);
+//$projectName = preg_replace('/\W/', '', $_GET['project']);
 $action = preg_replace('/\W/', '', $_GET['action']);
 if(!isset($_SESSION[$projectName]['root'])) exit('no Rights to edit!');
 
-$opath = '../../../projects/' . $projectName.'/objects/';
-$backuppath = $opath . 'generic/backup/';
-$path = $opath . 'generic/' . preg_replace('/\W/', '', $_GET['file']) . '.php';
+$backuppath = $ppath . 'generic/backup/';
+$path = $ppath . 'generic/' . preg_replace('/\W/', '', $_GET['file']) . '.php';
 
-if(!is_writable($opath.'generic')) exit('ERROR: "objects/generic/" is not writable!');
+if(!is_writable($ppath . 'generic')) exit('ERROR: "objects/generic/" is not writable!');
 if(!is_writable($backuppath)) exit('ERROR: "objects/generic/backup/" is not writable!');
 
 switch ($action)
@@ -132,8 +130,8 @@ switch ($action)
 			$diff = $p->diff($old, $new);
 			
 			// we need to lookup for all Fields with Type "Model"
-			require $opath . '__model.php';
-			require $opath . '__database.php';
+			require $ppath . '__model.php';
+			require $ppath . '__database.php';
 			
 			
 			foreach ($objects as $objectname => $object)

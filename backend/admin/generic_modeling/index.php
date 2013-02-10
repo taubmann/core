@@ -24,15 +24,13 @@
 ************************************************************************************/
 session_start();
 
-$modeling = (file_exists('../modeling')?'../modeling':'../_modeling');
 
-if(!file_exists($modeling)) exit('admin->modeling is missing');
-
-require $modeling . '/inc/index_includes.php';
+require 'inc/includes.php';
+require '../../inc/php/collectExtensionInfos.php';
 
 ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <title>cms-kit Generic Modeling</title>
 <meta charset="utf-8" />
@@ -115,6 +113,9 @@ var disallowedFieldNames = [' ', '_', ' ', 'id'];
 <?php
 echo "var project = '".$projectName."', wizards = [];\n";
 
+// available Wizards (backend/inc/php/collectExtensionInfos.php)
+$embeds = collectExtensionInfos($projectName);
+
 foreach($embeds['w'] as $k => $v){	echo  "wizards['$k'] = {" . implode(',', $v) . "}\n"; }// available Wizards
 
 	
@@ -128,7 +129,7 @@ $forbiddenTypes = array(
 							'MODEL',
 						);
 
-$datatypes = json_decode(file_get_contents($modeling . '/rules/datatypes.json'), true);
+$datatypes = json_decode(file_get_contents('../../inc/js/rules/datatypes.json'), true);
 
 echo 'var typeSelect = \'<select onchange="checkTypeSelect(this)" name="type">';
 foreach($datatypes as $k => $v)
@@ -691,7 +692,7 @@ function editField(name)
 	
 	<ul id="filelist" style="clear:both" class="ilist rlist">
 	<?php
-	$files = glob($ppath.'/objects/generic/*.php');
+	$files = glob($ppath.'generic/*.php');
 	foreach ($files as $file)
 	{ 
 		$n = substr(basename($file),0,-4);

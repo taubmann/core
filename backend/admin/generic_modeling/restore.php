@@ -24,15 +24,12 @@
 ************************************************************************************/
 session_start();
 
-$modeling = (file_exists('../modeling')?'../modeling':'../_modeling');
 
-require $modeling . 'inc/includes.php';
 
-$projectName = preg_replace('/\W/', '', $_GET['project']);
-if(!isset($_SESSION[$projectName]['root'])) exit('no Rights to edit!');
+require 'inc/includes.php';
+
 
 $me = 'restore.php';
-$ppath = '../../../projects/'.$projectName.'/objects/';
 $bpath = $ppath . 'generic/backup/';
 $ts = time();
 
@@ -198,8 +195,8 @@ if (isset($_POST['f_i_l_e_n_a_m_e']))
 		$a = explode('-', substr(basename($bf),0,-4));
 		$entry = $obj->Get($a[6]);
 		
-		// backup the Entry first
-		$backup = $bpath . $ts . '-backuprestore-' . $a[2] . '-' . $_SESSION[$projectName]['special']['user']['id'] . '-' . $a[4] . '-' . $a[5] . '-' . $a[6] . '.php'
+		// create a Backup of the the Entry first
+		$backup = $bpath . $ts . '-restore-' . $a[2] . '-' . $_SESSION[$projectName]['special']['user']['id'] . '-' . $a[4] . '-' . $a[5] . '-' . $a[6] . '.php';
 		file_put_contents( $backup, '<?php exit;?>'."\n".$entry->$props['FIELDNAME'] );
 		chmod($backup, 0777);
 		

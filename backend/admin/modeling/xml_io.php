@@ -1,9 +1,7 @@
 <?php
 session_start();
 $projectName = preg_replace('/\W/', '', $_GET['project']);
-
 if(!isset($_SESSION[$projectName]['root'])) exit('no Rights to edit!');
-
 $xml_path = '../../../projects/' . $projectName . '/objects/__modelxml.php';
 
 
@@ -27,5 +25,4 @@ else
 	header ("Content-Type:text/xml");
 	echo $model;
 }
-
 ?>

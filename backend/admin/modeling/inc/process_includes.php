@@ -1,6 +1,33 @@
 <?php
-
+/********************************************************************************
+*  Copyright notice
+*
+*  (c) 2013 Christoph Taubmann (info@cms-kit.org)
+*  All rights reserved
+*
+*  This script is part of cms-kit Framework. 
+*  This is free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License Version 3 as published by
+*  the Free Software Foundation, or (at your option) any later version.
+*
+*  The GNU General Public License can be found at
+*  http://www.gnu.org/licenses/gpl.html
+*  A copy is found in the textfile GPL.txt and important notices to other licenses
+*  can be found found in LICENSES.txt distributed with these scripts.
+*
+*  This script is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  This copyright notice MUST APPEAR in all copies of the script!
+************************************************************************************/
 // 
+/**
+* 
+* 
+* 
+*/
 $idAdd = array (
 	'manual' => array (
 		'sqlite' => 	array('INTEGER', 'TEXT', 'NOT NULL UNIQUE', ''), // SQLite-ID-Fields
@@ -14,10 +41,10 @@ $idAdd = array (
 
 
 
-/*
- * get the Table-Structure of all Databases
- * 
- */
+/**
+* get the Table-Structure of all Databases
+* 
+*/
 function getTableStructure()
 {
 	
@@ -203,11 +230,11 @@ function addColumn (&$queries, $name, $fname, $db, $type)
 		$queries[$db][$name][] = 'ALTER TABLE `' . $name . '` ADD COLUMN `' . $fname . '` ' . $datatypes[ $type ][ Configuration::$DB_TYPE[$db] ] . ';';
 	}
 }
-/*
- * 
- * 
- * 
- * */
+/**
+* 
+* 
+* 
+*/
 function deleteColumn (&$queries, $name, $fname, $db)
 {
 	global $tables, $reduced_tables;
@@ -222,7 +249,11 @@ function deleteColumn (&$queries, $name, $fname, $db)
 		$queries[$db][$name][] = 'ALTER TABLE `' . $name . '` DROP `' . $fname . '`;';
 	}
 }
-
+/**
+* 
+* 
+* 
+*/
 function deleteTable (&$queries, $name, $db)
 {
 	global $ppath, $fileHtmlOutput, $objects_to_delete;
@@ -262,11 +293,11 @@ function alterColumnType (&$queries, $name, $fname, $db)
 	}
 }
 
-/*
- * 
- * 
- * 
- * */
+/**
+* 
+* 
+* 
+*/
 function checkRelation (&$queries, $name, $fname, $index, $object, $db, $type)
 {
 	global $dbModel, $relations, $objects_to_rebuild;
@@ -315,7 +346,11 @@ function mapName ($a, $b, $add = 'map')
 }
 
 
-
+/**
+* 
+* 
+* 
+*/
 function checkHierarchy(&$queries, $name, $db, $type, &$tmp)
 {
 	global $newModel, $dbModel, $idAdd;
@@ -383,9 +418,9 @@ function forceTableRebuild($name, &$queries)
 }*/
 
 /**
- * 
- * 
- * */
+* 
+* 
+*/
 function text2array($str, $simple=false, $deep=false)
 {
 	
@@ -425,10 +460,10 @@ function text2array($str, $simple=false, $deep=false)
 
 
 
-/*
- * taken from: http://snipplr.com/view/13024
- * 
- * */
+/**
+* taken from: http://snipplr.com/view/13024
+* 
+*/
 function dumpMySqlTables($db, $queries)
 {
 	
@@ -493,25 +528,13 @@ SET SQL_MODE=\"NO_AUTO_VALUE_ON_ZERO\";
 }
 
 
-/*
- * 
- * 
- * 
- * */
-function L($str)
-{
-	global $LL;
-	$str = trim($str);
-	//file_put_contents('ll.txt', $str.PHP_EOL, FILE_APPEND);//chmod('ll.txt',0777);
-	return ($LL[$str] ? $LL[$str] : str_replace('_',' ',$str) );
-}
 
 
 /**
- * Indents a flat JSON string to make it more human-readable
- * @param string $json The original JSON string to process
- * @return string indented Version of the original JSON string
- * */
+* Indents a flat JSON string to make it more human-readable
+* @param string $json The original JSON string to process
+* @return string indented Version of the original JSON string
+*/
 function indentJson ($json)
 {
 
@@ -564,6 +587,11 @@ function indentJson ($json)
 	return $result;
 }
 
+/**
+* 
+* 
+* 
+*/
 function getBackupList()
 {
 	global $ppath;

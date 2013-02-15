@@ -24,9 +24,6 @@
 ************************************************************************************/
 
 require 'header.php';
-
-
-
 require_once($ppath . '/objects/class.'.$objectName.'.php');
 
 $treeType = $objects->{$objectName}->ttype;

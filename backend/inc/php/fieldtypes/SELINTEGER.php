@@ -18,11 +18,11 @@ function _SELINTEGER($arr)
 			// create the options
 			$str .= '<option ' . ($val==$arr['value'] ? 'selected="selected" ' : '') . ' value="'.$val.'">'.($lbl?$lbl:$val).'</option>';
 		}
-		return '<div><label>'.$arr['label'].'</label>'.$str.'</select></div>';
+		return '<div class="field"><label>'.$arr['label'].'</label>'.$str.'</select></div>';
 	}
 	
 	// Fallback
-	return '<div><label>'.$arr['label'].'</label><input type="number" name="'.$arr['name'].'" placeholder="'.$arr['placeholder'].'" value="'.$arr['value'].'" onkeyup="checkForNumber(this)" /></div>';
+	return '<div class="field"><label>'.$arr['label'].'</label><input type="number" name="'.$arr['name'].'" placeholder="'.$arr['placeholder'].'" value="'.$arr['value'].'" onkeyup="checkForNumber(this)" /></div>';
 
 }
 ?>

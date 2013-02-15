@@ -120,9 +120,14 @@ if(count($tags) > 0)
 echo '<select id="objectSelect" onchange="selectObject(this.value)">'.
 	'<option value="" data-htype=""> '.L('availabe_Objects')." </option>\n";
 
-foreach($objectOptions as $option)
+foreach($objectOptions as $group => $arr)
 {
-	echo '	<option value="'.$option['name'].'" data-htype="'.$option['htype'].'"> '.$option['label']." </option>\n";
+	echo '<optgroup label="'.(($group!='0')?' '.$group.'':'').'">';
+	foreach($arr as $option)
+	{
+		echo '	<option value="'.$option['name'].'" data-htype="'.$option['htype'].'"> '.$option['label'].'</option>';
+	}
+	echo '</optgroup>';
 }
 echo '</select>';
 

@@ -109,9 +109,13 @@ if(isset($user_wizards))
 <div id="home">
 	<ul class="list">
 	<?php
-	foreach($objectOptions as $option)
+	foreach($objectOptions as $group => $arr)
 	{
-		echo '<li><a id="object_'.$option['name'].'" data-label="'.$option['label'].'" data-htype="'.$option['htype'].'" data-fields="'.$option['addField'].'" href="javascript:selectObject(\''.$option['name'].'\',\''.$option['label'].'\',\''.$option['htype'].'\',\''.$option['addField'].'\')">'.$option['label'].'</a></li>';
+		if ($group != '0') echo '<li><strong>'.$group.'</strong></li>';
+		foreach($arr as $option)
+		{
+			echo '<li><a id="object_'.$option['name'].'" data-label="'.$option['label'].'" data-htype="'.$option['htype'].'" data-fields="'.$option['addField'].'" href="javascript:selectObject(\''.$option['name'].'\',\''.$option['label'].'\',\''.$option['htype'].'\',\''.$option['addField'].'\')">'.$option['label'].'</a></li>';
+		}
 	}
 	?>	
 	</ul>

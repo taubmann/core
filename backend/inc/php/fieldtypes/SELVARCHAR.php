@@ -9,9 +9,9 @@ function _SELVARCHAR($arr)
 			$str .= '<option '.($val==$arr['value']?'selected="selected" ':'').'value="'.htmlspecialchars($val).'">'.($lbl?$lbl:$val).'</option>';
 		}
 		$str .= '</select>';
-		return '<div><label>'.$arr['label'].'</label>'.$str.'</div>';
+		return '<div class="field"><label>'.$arr['label'].'</label>'.$str.'</div>';
 	}
 	// Fallback
-	return '<div><label>'.$arr['label'].'</label><input type="text" name="'.$arr['name'].'" placeholder="'.$arr['placeholder'].'" value="'.$arr['value'].'" /></div>';
+	return '<div class="field"><label>'.$arr['label'].'</label><input type="text" name="'.$arr['name'].'" placeholder="'.$arr['placeholder'].'" value="'.$arr['value'].'" /></div>';
 }
 ?>

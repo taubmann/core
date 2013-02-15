@@ -70,11 +70,11 @@ if (!isset($_SESSION[$projectName]) )
 										'sort'		=> array(),
 										'fields'	=> array()
 									);
-	echo 1;
+	
 	// load Model + Database
 	require_once $ppath . '/objects/__model.php';
 	require_once $ppath . '/objects/__database.php';
-	echo 1;
+	
 	// Array containing Hook-Names to be processed (should be filled in hooks.php)
 	$loginHooks = array();
 	include_once 'extensions/cms/hooks.php';
@@ -82,25 +82,30 @@ if (!isset($_SESSION[$projectName]) )
 	
 	$_SESSION[$projectName]['template'] = intval($_POST['template']);
 	
-	// save static Configurations in Session (may be overwritten by other Settings)
+	// define default Configurations in Session (may be overwritten by other Settings)
+	$config = array (
+		'backend_templates' => array('inc/php/tpl_desktop.php', 'inc/php/tpl_mobile.php'),
+		'theme' => 'humanity',
+		'autolog' => array(0)
+	);
+	
 	// collect some configuration-Settings from the "cms"-Extensions
-	$jj = array();
 	$configs = array (	'extensions/cms/config/config.php',
 						$ppath . '/extensions/cms/config/config.php'
 					);
 	
-	foreach ($configs as $config)
+	foreach ($configs as $cf)
 	{
-		if ($s = file_get_contents($config))
+		if ($s = file_get_contents($cf))
 		{
 			$arr = explode('EOD', $s);
 			if(count($arr)==3 && $j = json_decode($arr[1], true)) 
 			{
-				$jj = array_merge_recursive($jj, $j);
+				$config = array_merge_recursive($config, $j);
 			}
 		}
 	}
-	$_SESSION[$projectName]['config'] = $jj;
+	$_SESSION[$projectName]['config'] = $config;
 	
 	
 	// check if Super-Root
@@ -111,7 +116,7 @@ if (!isset($_SESSION[$projectName]) )
 				isset($_SESSION['captcha_answer']) && $_POST['name']==$_SESSION['captcha_answer']
 			)
 		 ) || 
-		 end($jj['autolog']) == 1
+		 end($config['autolog']) == 1
 		)
 	{
 		// define User as Super-Root (==2) and put some infs into the user-array 
@@ -198,7 +203,7 @@ $objectOptions = array();
 $objects = $_SESSION[$projectName]['objects'];
 $lang = $_SESSION[$projectName]['lang'];
 
-// load language-array (see function "L")
+// load language-array (used by Function "L")
 @include('inc/locale/'.$lang.'.php');
 
 // define some language-labels for JS (v.a. für Wizards)
@@ -215,44 +220,59 @@ $jsLangLabels = implode(',', $tmp);
 $tags = $tagsArr = array();
 
 
-// collect Objects (in this Tag-Group)
+// collect Objects
 foreach ($objects as $ok => $ov)
 {
-	if ( !isset($_GET['tag']) || in_array($_GET['tag'], $ov->tags->{$lang}) )
+	$option = array(
+					'name' => $ok, 
+					'label' => ((isset($ov->lang)&&isset($ov->lang->{$lang})) ? $ov->lang->{$lang} : $ok), 
+					'htype' => (isset($ov->ttype) ? $ov->ttype : '')
+				);
+	
+	// collect Objects in Tag-Groups
+	if (isset($ov->tags->{$lang}))
 	{
-		
-		// define Field-Labels (Fallback id)
-		if ( !isset($_SESSION[$projectName]['labels'][$ok]) )
+		foreach($ov->tags->{$lang} as $t)
 		{
-			$_SESSION[$projectName]['labels'][$ok] = array('id');// default
-			foreach ($ov->col as $fk => $fv)
+			if(!isset($objectOptions[$t[0]])) $objectOptions[$t[0]]=array();
+			$objectOptions[$t[0]][] = $option;
+		}
+		
+	}
+	else
+	{
+		$objectOptions[0][] = $option;
+	}
+	
+		
+	// define Field-Labels (Fallback id)
+	if ( !isset($_SESSION[$projectName]['labels'][$ok]) )
+	{
+		$_SESSION[$projectName]['labels'][$ok] = array('id');// default
+		foreach ($ov->col as $fk => $fv)
+		{
+			if (substr($fk,-2) != 'id' && (preg_match('/VARCHAR|TEXT/is', $fv->type) == 1))
 			{
-				if (substr($fk,-2) != 'id' && (preg_match('/VARCHAR|TEXT/is', $fv->type) == 1))
-				{
-					$_SESSION[$projectName]['labels'][$ok] = array($fk);
-					break;
-				}
+				$_SESSION[$projectName]['labels'][$ok] = array($fk);
+				break;
 			}
 		}
-		
-		if ( !isset($_SESSION[$projectName]['sort'][$ok]) )
-		{
-			$_SESSION[$projectName]['sort'][$ok] = array('id' => 'asc');
-		}
-		
-		
-		$objectOptions[] = array(
-									'name' => $ok, 
-									'label' => ((isset($ov->lang)&&isset($ov->lang->{$lang}))?$ov->lang->{$lang}:$ok), 
-									'htype' => (isset($ov->ttype)?$ov->ttype:'')
-								);
 	}
+	
+	if ( !isset($_SESSION[$projectName]['sort'][$ok]) )
+	{
+		$_SESSION[$projectName]['sort'][$ok] = array('id' => 'asc');
+	}
+	
 }
+
+ksort($objectOptions, SORT_LOCALE_STRING);
+
+//print_r($objectOptions);
 
 $user_wizards = array_merge($_SESSION[$projectName]['config']['wizards'], $_SESSION[$projectName]['special']['user']['wizards']);
 
-
-// include the Template
-include 'inc/php/tpl.' . $_SESSION[$projectName]['template'] . '.php';
+// load Template
+include $_SESSION[$projectName]['config']['backend_templates'][intval($_SESSION[$projectName]['template'])];
 
 ?>

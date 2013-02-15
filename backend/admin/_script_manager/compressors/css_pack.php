@@ -22,36 +22,14 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
-session_start();
-$projectName = preg_replace('/[^-\w]/', '', $_GET['project']);
-if($_SESSION[$projectName]['root']!==2) exit('no Rights to edit!');
+/**
+* CSS concatenation + compression + theming
+*/
 
-
-$path = '../../inc/css/';
-
+include '../header.php';
 include 'helper.php';
 
-/* to add a new Style:
- * 
- * 1. go to http://jqueryui.com/themeroller and select/create a new Style
- * 2. download your Style with all components (full package)
- * 3. create a new unique Style-Folder under ../../inc/css/ (Folder has to be writable!)
- * 4. copy from the package/css/ images and the main stylesheet AND rename it to "jquery-ui.css" (no Version-Numbers!)
- * 5. copy the Style-Hash from the Themeroller-URL into a File called "parameter.txt" in your Style-Folder
- *    (it is used to adapt some Values in the Base-CSS)
- * 6. Save / create a Thumbnail for the Style-Selector called "preview.png" and copy it to your Style-Folder
- * 7. run Admin Wizards/Script-Manager/CSS-Packer
- * 
- * Alternatives to ThemeRoller may be...
- * 
- * http://jqueryuithemegallery.just-page.de
- * http://jquit.com/builder
- * http://www.warfuric.com/taitems/demo.html
- * 
- * atm you need to declare these Variables 
- * ffDefault=&cornerRadius=&bgColorContent=&borderColorContent=&fcContent=&bgColorDefault=&bgImgOpacityDefault=&borderColorDefault=&fcDefault=&bgColorActive=&fcActive=&bgColorHighlight=&borderColorHighlight=&fcHighlight=&bgColorError=
-
-*/
+$path = $backend . '/inc/css/';
 
 $folders = glob($path.'*', GLOB_ONLYDIR);
 $styles = array();
@@ -79,11 +57,13 @@ echo implode('=&', $kw).'=';
 
 $html = '';
 
-foreach ($styles as $k => $v) {
+// loop all Style-Packages
+foreach ($styles as $k => $v)
+{
 	
 	
-	
-	if(!file_exists($path.$k.'/jquery-ui.css')) {
+	if(!file_exists($path.$k.'/jquery-ui.css'))
+	{
 		$html .= '<p style="color:red">' . $k . ' does not exist</p>';
 		continue;
 	}
@@ -98,25 +78,21 @@ foreach ($styles as $k => $v) {
 	$css .= file_get_contents($path.'styles.css') . "\n";
 	//$css .= file_get_contents('') . "\n";
 	
-	
-	
-	// generate output-string ( replacing placeholders with params)
+	// generate output-string (replacing placeholders with params)
 	$str = file_get_contents($path.$k.'/jquery-ui.css') . strtr($css, $params);
 	
-	if(!isset($_GET['nocompress'])) {
-		$str = preg_replace("/((?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:\/\/.*))/", '', $str); // remove comments
-		$str = preg_replace('/(\\t|\\r|\\n)/','', $str);
+	if(!isset($_GET['nocompress']))
+	{
+		$str = compress($str);
 	}
-	// clear comments + blank-lines
-	//$out = preg_replace("/((?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:\/\/.*))/", '', $out); // comments
-	//$out = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $out); // blank lines
-	
-	
 	// write css to file
-	if(file_put_contents($path.$k.'/style.css', $str)){
+	if(file_put_contents($path.$k.'/style.css', $str))
+	{
 		@chmod($path . $k . '/style.css', 0776);
-		$html .= '<p><a target="_blank" href="'.$path.$k . '/style.css">'.$k .'/style.css</a> saved</p>';
-	}else{
+		$html .= '<p><a target="_blank" href="'. relativePath(dirname(__FILE__),$path) . '/' . $k . '/style.css">'.$k .'/style.css</a> saved</p>';
+	}
+	else
+	{
 		$html .= '<p style="color:red">ERROR: <a target="_blank" href="'.$path.$k . '/style.css">'.$k .'/style.css</a> is not writable!!</p>';
 	}
 }

@@ -181,7 +181,7 @@ function processObject($name, $object, $db)
 			}
 			
 			//
-			if ($b = text2array($object['fields']['field'][$i]['tags']))
+			if ($b = text2array($object['fields']['field'][$i]['tags'], false, true) )
 			{
 				$tmp['col'][$fname]['tags'] = $b;
 			}
@@ -440,7 +440,7 @@ function text2array($str, $simple=false, $deep=false)
 			
 			if($deep)
 			{
-				//if(!isset($array[$k])){ $array[$k] = array(); }
+				if(!isset($array[$k])){ $array[$k] = array(); }
 				$array[$k][] = $lineArr;
 			}
 			else

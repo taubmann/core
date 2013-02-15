@@ -85,27 +85,43 @@ function checkForNumber(el) {
 	el.style.color = (isNaN(el.value)) ? '#f00' : '#000';
 };
 
-// fix this
-jQuery(function($){
-	$.datepicker.regional['de'] = {
+
+/**
+* localizing for Date/Time-Picker
+* @todo fix the boolean vars
+*/
+$(function($){
+	$.datepicker.regional[''] = {
 		closeText: _('close'),
 		prevText: _('back'),
 		nextText: _('next'),
 		currentText: _('today'),
-		monthNames: ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
-		monthNamesShort: ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],
-		dayNames: ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'],
-		dayNamesShort: ['So','Mo','Di','Mi','Do','Fr','Sa'],
-		dayNamesMin: ['So','Mo','Di','Mi','Do','Fr','Sa'],
-		weekHeader: _('Wo'),
+		monthNames: [_('January'),_('February'),_('March'),_('April'),_('May'),_('June'),_('July'),_('August'),_('September'),_('October'),_('November'),_('December')],
+		monthNamesShort: [_('Jan'),_('Feb'),_('Mar'),_('Apr'),_('May'),_('Jun'),_('Jul'),_('Aug'),_('Sept'),_('Oct'),_('Nov'),_('Dec')],
+		dayNames: [_('Sunday'),_('Monday'),_('Tuesday'),_('Wednesday'),_('Thursday'),_('Friday'),_('Saturday')],
+		dayNamesShort: [_('Sun'),_('Mon'),_('Tue'),_('Wed'),_('Thu'),_('Fri'),_('Sat')],
+		dayNamesMin: [_('Su'),_('Mo'),_('Tu'),_('We'),_('Th'),_('Fr'),_('Sa')],
+		weekHeader: _('Wk'),
 		dateFormat: _('dd.mm.yy'),
 		firstDay: 1,
 		isRTL: false,
 		showMonthAfterYear: false,
-		yearSuffix: ''};
-	$.datepicker.setDefaults($.datepicker.regional['de']);
+		yearSuffix: ''
+	};
+	
+	
+	$.timepicker.regional[''] = {
+	  timeOnlyTitle: _('choose_time'),
+	  timeText: _('Time'),
+	  hourText: _('Hour'),
+	  minuteText: _('Minute'),
+	  secondText: _('Second'),
+	  currentText: _('Now'),
+	  closeText: _('close'),
+	  ampm: false
+	};
 });
-
+	
 /**
 * transform all Button-Elements within an Container-Element
 * 
@@ -130,6 +146,7 @@ $(document).ready(function()
 {
 	// supress href-call on blind Links
 	$('body').on('click', 'a[href="#"]',function(e){e.preventDefault()});
+	// show waiter if ajax-call is loading
 	$('body').on({
 		ajaxStart: function() {
 			$(this).addClass('loading');
@@ -138,7 +155,7 @@ $(document).ready(function()
 			$(this).removeClass('loading');
 		}
 	});
-	
+	$('.wait').on('click', function(){$('body').removeClass('loading')});
 });
 // open a Help-File
 function openDoc(p)

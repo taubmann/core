@@ -462,6 +462,8 @@ class crud
 	*/
 	private function processLabel ($a, &$cnt, &$tabHeads)
 	{
+		if(!is_object($a)) return '';
+		
 		$arr = clone $a;
 		
 		//if (isset($arr->))

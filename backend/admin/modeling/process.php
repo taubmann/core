@@ -123,7 +123,7 @@ foreach ($xmlModel['object'] as $object)
 	
 	// prepare & convert Nodes (key, simple, deep)
 	$nodes = array(	array('lang',	false, false),
-					array('tags',	false, false),
+					array('tags',	false, true),
 					array('hooks',	false, true ),
 					array('url',	false, false),
 					array('vurl',	true,  false),

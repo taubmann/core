@@ -23,17 +23,16 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
 
-/*
- * Javascript concatenation + compression + translation
- * */
-session_start();
-error_reporting(0);
-$projectName = preg_replace('/\W/', '', $_GET['project']);
-if($_SESSION[$projectName]['root']!==2) exit('no Rights to edit!');
+/**
+* Javascript concatenation + compression + translation
+*/
+include '../header.php';
+include 'helper.php';
 
-$path     = '../../inc/';
+$path = $backend . '/inc/';
 $js_path  = $path . 'js/';
 $out_path = $path . 'locale/';
+$relpath = relativePath(dirname(__FILE__),$path) . '/locale/';
 
 if(!$_GET['lang'] || !file_exists($path.'locale/'.$_GET['lang'].'.php'))
 {
@@ -41,7 +40,7 @@ if(!$_GET['lang'] || !file_exists($path.'locale/'.$_GET['lang'].'.php'))
 }
 
 $LL = array();
-include($path.'locale/'.$_GET['lang'].'.php');
+include($path . 'locale/'.$_GET['lang'].'.php');
 
 function L($str)
 {
@@ -80,41 +79,20 @@ $src = array(
 $c = 0;
 foreach ($src as $aa)
 {
-	$out = '// AUTO-CREATED FILE (created at '.time().") do not edit!\n\n";
+	$out = '// AUTO-CREATED FILE (created at '.date('d.m.Y H:i:s',time()).") do not edit!\n\n";
 	
 	foreach($aa as $a)
 	{
 		
-		$str = file_get_contents($js_path . $a[0]);
+		if(!$str = file_get_contents($js_path . $a[0]))
+		{
+			exit($js_path . $a[0] . ' is missing!');
+		}
 		
 		// compress (sort of)
-		if ($a[1])
+		if ($a[1] && !isset($_GET['nocompress']))
 		{
-			//grab the first comment-block
-			$comment = array_shift(explode('*/', $str));
-			
-			$str = preg_replace("/((?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:\/\/.*))/", '', $str); // remove comments
-			
-			if(!isset($_GET['nocompress'])) {
-				$str = preg_replace('/(\\t|\\r|\\n)/','', $str); // remove tabs + line-feeds ( agressive Method ! )
-			}
-			//// temporary Methods ( less agressive )
-			//// $str = preg_replace('/(\\t)/','', $str); // remove only the tabs
-			//// $str = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "", $str); // remove blank lines
-			
-			// replace multiple blanks with one
-			$str = preg_replace('/( )+/', ' ', $str);
-			
-			// replace blanks/line-feeds between some characters
-			$str = str_replace(
-								array(	' = ',	') {',	'( ',	' )',	': ',	"}\n}",	";\n}"	), 
-								array(	'=',	'){',	'(',	')',	':',	'}}',	';}'	), 
-								$str);
-			
-			// put the previously grabbed comment at the top
-			if($a[3]) {
-				$str = "\n" . $comment . "*/\n\n" . $str;
-			}
+			$str = compress($str);
 		}
 		
 		// translate Languge-Calls found in the Code (the L-Word)
@@ -138,7 +116,7 @@ foreach ($src as $aa)
 	$c++;
 }
 
-	
+
 ?>
 
 <!DOCTYPE html>
@@ -155,7 +133,8 @@ a, a:visited{text-decoration:underline;color:#00f;}
 	<a href="javascript:history.back()">back</a>
 	<h2>JS Packed</h2>
 	<p>Labels were translated to: "<?php echo $_GET['lang'];?>".</p>
-	<p>Desktop: <a target="_blank" href="<?php echo $out_path.$_GET['lang'];?>0.js">File</a></p>
-	<p>Mobile:  <a target="_blank" href="<?php echo $out_path.$_GET['lang'];?>1.js">File</a></p>
+	
+	<p>Desktop: <a target="_blank" href="<?php echo $relpath.$_GET['lang'];?>0.js">File</a></p>
+	<p>Mobile:  <a target="_blank" href="<?php echo $relpath.$_GET['lang'];?>1.js">File</a></p>
 </body>
 </html>

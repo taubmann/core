@@ -57,7 +57,6 @@ function checkHash()
 			)
 		}, 1000);
 	};
-
 	window.setTimeout(checkHash, 3000);
 };
 
@@ -102,19 +101,19 @@ $(document).ready(function()
 	$.mask.definitions['~'] = '[+-]';//plus-minus
 	$.mask.definitions['h'] = '[A-Fa-f0-9]';//color-hash (= #hhhhhh )
 	
-	/*
-	* 
-	*/
+	/**
+	* xss
+	
 	$('body').bind('ajaxSend', function(elm, xhr, s)
 	{
 		if (s.type == "POST"||s.type == "GET") {
 		xhr.setRequestHeader('X-CSRF-Token', '3')}
-	});
+	});*/
 	
 	//$(this).bind("contextmenu", function(e) {e.preventDefault();});
 	
-	/* style Buttons
-	* 
+	/** 
+	* style Buttons
 	*/
 	$('button').each(function() { $(this).button( {icons:{ primary: 'ui-icon-'+$(this).attr('rel')}}); });
 	
@@ -129,36 +128,39 @@ $(document).ready(function()
 		//change: function(e, object){//alert(object.value);		}
 	}); */
 	
-	// css "einschalten" sonst flackereffekt bei mozilla
-	//$('#mainTheme').attr('href','inc/css/'+(store['theme']?store['theme']:theme)+'/style.css');
 	
-	// Spaltenbreite
-	function setColW()
+	
+	// Resizable Columns
+	var dw = $(document).width(),
+		w  = Math.floor((dw-50)/4),// 3-columns-grid 1/2/1
+		cw = (store['cw']) ? store['cw'] : [w, w*2, w];
+		ch = $(document).height()-70,// 
+		limitNumber = Math.floor((ch-50)/32);// how many Elements go int the window?
+	
+	
+	function getColWidth()
 	{
-		var cw = [ parseInt($('#colLeft').css('width')), parseInt($('#colMid').css('width')), parseInt($('#colRight').css('width')) ];
-		$('#colMid').css('left', (cw[0]+20)+'px');
-		$('#colRight').css('left', (cw[0]+cw[1]+30)+'px');
-		//$.storage({id : 'colWidth', value: cw})
-		store['cw'] = cw;
+		setColWidth([ parseInt($('#colLeft').css('width')), parseInt($('#colMid').css('width')), parseInt($('#colRight').css('width')) ]);
 	};
 	
+	function setColWidth(cw)
+	{
+		$('#colMid').css('left', (cw[0]+20)+'px');
+		$('#colRight').css('left', (cw[0]+cw[1]+30)+'px');
+		store['cw'] = cw;
+		// border:1px solid #f00;
+		$('<style>#colMid input{width:'+(cw[1]-220)+'px}#colRight a{width:'+(cw[2]-60)+'px}</style>').appendTo('head')
+	};
 	
-	// Resizable Spalten maxHeight:1300,maxWidth:850,minHeight:300,minWidth:200, 
+	$("#colLeft").resizable({stop:getColWidth});
+	$("#colMid").resizable({stop:getColWidth});
+	$("#colRight").resizable({stop:getColWidth});
 	
-	var dw = $(document).width(),
-		w  = Math.floor((dw-50)/4),// 4-columns-grid
-		cw = (store['cw']) ? store['cw'] : [w, w*2, w];
-		
-		// global variables
-		ch = $(document).height()-70,// 
-		limitNumber = Math.floor((ch-50)/32);// wie viele Listenelemente passen auf den Screen?
-	
-	$("#colLeft").resizable({stop:setColW});
-	$("#colMid").resizable({stop:setColW});
-	$("#colRight").resizable({stop:setColW});
 	$("#colLeft").css({'width':cw[0],'height':ch});
-	$("#colMid").css({'width':cw[1],'left':cw[0]+20,'height':ch});
-	$("#colRight").css({'width':cw[2],'left':cw[0]+cw[1]+30,'height':ch});
+	$("#colMid").css({'width':cw[1],'height':ch});
+	$("#colRight").css({'width':cw[2],'height':ch});
+	
+	setColWidth(cw);
 	
 	// content-wrapper auf höhe zwingen (wg. overflow)
 	$("#colLeftb").height(ch-50);
@@ -350,7 +352,6 @@ function getTreeList(id, treeType)
 };
 
 /**
-* 
 * name: showPagination
 * 
 */
@@ -377,7 +378,6 @@ function showPagination()
 }
 
 /**
-* 
 * name: setPagination
 * @param n
 * @return
@@ -388,9 +388,7 @@ function setPagination(n)
 	store[objectName]['offset']=limitNumber*n;getList();
 }
 
-// Haupt-Liste laden (wird automatisch aufgerufen)
 /**
-* 
 * name: getList
 * @param id
 * 
@@ -541,7 +539,7 @@ function getConnectedReferences(id, off)
 			//alert(data);
 			$('#colRightb').html(data);
 			styleButtons('colRightb');
-			$('#colRightb .lnk').click(function(e)
+			$('#colRightb .lnk').on('click',function(e)
 			{
 				objectName = $(this).data('object');
 				getList();
@@ -721,7 +719,7 @@ function getReferences (id, offs1, offs2)
 					$( "#dialog1" ).dialog();
 					
 					// add Entry + save Relations
-					$('#insertListItem').click(function()
+					$('#insertListItem').on('click',function()
 					{
 						$('#sublist').html( $('#sublist').html() + '<li id="l_'+ui.item.id+'" class="ui-state-default ui-selectee"><div onclick="'+lnk+'">'+ui.item.label+'</div></li>');
 						$(this).hide();
@@ -733,7 +731,7 @@ function getReferences (id, offs1, offs2)
 				minLength: 3
 			});
 			
-			$('#colRightb .lnk').click(function(e)
+			$('#colRightb .lnk').on('click',function(e)
 			{
 				objectName = $(this).data('object');
 				getList();
@@ -791,7 +789,8 @@ function prettify(id)
 			if(!isNaN(dat)) $(this).val(dat);
 		}
 	});
-	$('#'+id+' .slider').each(function() {
+	$('#'+id+' .slider').each(function()
+	{
 		var rl = $(this).attr('rel').split('-');
 		$(this).slider({
 			range: 'min',
@@ -807,16 +806,12 @@ function prettify(id)
 		icons: {primary: 'ui-icon-circle-close'},
 		text: false 
 	})
-	.click(function () {
+	.on('click',function () {
 		$(this).button('option', 'icons', {primary: this.checked ? 'ui-icon-circle-check':'ui-icon-circle-close'})
 	})
 	.filter(":checked").button({icons: {primary: "ui-icon-circle-check"}});
 
 };
-
-
-
-
 
 /**
 * saves Settings and redirects to index.php

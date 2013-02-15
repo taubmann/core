@@ -38,7 +38,6 @@ if(count($ids)<2) exit(L('less_than_2_IDs_given'));
 
 $ppath = '../../../projects/' . strtolower($projectName);
 require $ppath . '/objects/class.' . $objectName . '.php';
-@include('../locale/'.$lang.'.php');
 
 
 $obj = new $objectName();

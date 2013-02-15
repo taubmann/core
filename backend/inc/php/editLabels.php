@@ -32,8 +32,6 @@ if(isset($_GET['action']) && $_GET['action']=='saveOrder' && isset($_POST['lbls'
 	exit( L('labels_saved') );
 }
 
-include('../locale/'.$lang.'.php');
-
 
 ?>
 <!DOCTYPE html>
@@ -63,7 +61,7 @@ foreach($_SESSION[$projectName]['objects']->$objectName->col as $k => $v)
 {
 	if(substr($k,-2) != 'id' && substr($k,-4) != 'sort' && (preg_match('/HIDDEN/is', $v->type) != 1))
 	{
-		echo 'listItems["'.$k.'"]="'.(isset($v->lang->{$lang}) ? baseLabel($v->lang->{$lang}) : $k) . "\";\n";
+		echo 'listItems["'.$k.'"]="'.(isset($v->lang->{$lang}) ? $v->lang->{$lang}->label : $k) . "\";\n";
 	}
 }
 

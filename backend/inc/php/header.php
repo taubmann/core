@@ -24,23 +24,25 @@ $objects = $_SESSION[$projectName]['objects'];
 $db = intval($objects->{$objectName}->db);
 $theme = end($_SESSION[$projectName]['config']['theme']);
 
-//require_once($ppath.'/objects/__configuration.php');
-
 // Language-Labeling
 $lang = $_SESSION[$projectName]['lang'];
 $LL = array();
-function L($str) {
-	global $LL; return (isset($LL[$str]) ? $LL[$str] : str_replace('_', ' ', $str));
-}
-// clear special things (like tab-/accordionheadings and tooltips)
-function baseLabel($str) {
-	return array_pop(explode('||',array_pop(explode('--',array_shift(explode('##',$str))))));
+include(dirname(dirname(__FILE__)).'/locale/'.$lang.'.php');
+/**
+* translate String
+*/
+function L($str)
+{
+	global $LL;
+	if(isset($LL[$str]))
+	{
+		return $LL[$str];
+	}
+	else
+	{
+		//file_put_contents(dirname(__FILE__).'/ll.txt', $str.PHP_EOL, FILE_APPEND);chmod(dirname(__FILE__).'/ll.txt',0777); // export all Labels
+		return str_replace('_',' ',$str);
+	}
 }
 
-// autoload of classes if not included
-function object_autoloader($class) {
-	global $ppath;
-	$file = $ppath.'/objects/class.'.$class.'.php';
-	if (file_exists($file)){ require_once ($file); }else{ exit('class '.$file.' not found!'); }
-}
-spl_autoload_register('object_autoloader', true);
+

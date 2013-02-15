@@ -6,8 +6,6 @@ require 'header.php';
 
 header('Content-Type: text/plain; charset=utf-8');
 
-
-
 $ppath = '../../../projects/' . $projectName;
 include_once($ppath . '/objects/__database.php');
 

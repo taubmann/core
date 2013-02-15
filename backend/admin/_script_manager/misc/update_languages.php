@@ -3,12 +3,7 @@
  * 
  * extract availabe Language-Files to their locations (if location exists and is writable)
  * */
-session_start();
-$projectName = preg_replace('/\W/', '', $_GET['project']);
-if($_SESSION[$projectName]['root']!==2) exit('no Rights to edit!');
-
-$backend = '../../';
-$HTML = '';
+require '../header.php';
 
 
 // fix some access-problems of pclzip
@@ -21,11 +16,11 @@ function preExtractCallBack($p_event, &$p_header)
 	//print_r($info);
 	
 	
-	if(!$info['extension'])// it's a folder => do nothing
+	if(!$info['extension'])// it's a Folder => do nothing
 	{
 		return 0;
 	}
-	else // files inside *existing* folders are extracted ( return 1 )
+	else // Files inside *existing* Folders are extracted ( return 1 )
 	{
 		if(file_exists($info['dirname']))
 		{
@@ -56,7 +51,7 @@ if($_FILES['langfile'] && $_FILES['langfile']['name'] && array_pop(explode('.',s
 {
 	$zipPath = $_FILES['langfile']['tmp_name'];
 	
-	require('../../inc/php/pclzip.lib.php');
+	require($backend.'/inc/php/pclzip.lib.php');
 	$archive = new PclZip($zipPath);
 	
 	if ($archive->extract(	
@@ -71,7 +66,7 @@ if($_FILES['langfile'] && $_FILES['langfile']['name'] && array_pop(explode('.',s
 }
 else
 {
-	$HTML .= '<h2 class="rd">no valid Upload-File detected!</h2>';
+	$HTML .= '<h3 class="rd">no valid Upload-File detected!</h3>';
 }
 
 
@@ -113,9 +108,9 @@ else
 </head>
 
 <body>
-<a href="index.php?project=<?php echo $projectName;?>">back</a>
+<a href="../index.php?project=<?php echo $projectName;?>">&lArr; back</a>
 <hr />
-<h2>extract Language-Files</h2>
+<h3>extract Language-Files</h3>
 
 <?php echo $HTML;?>
 

@@ -25,14 +25,12 @@
 // comments partly in german - sorry!
 require 'header.php';
 
-include('../locale/'.$lang.'.php');
-
-
 if (isset($_GET['action']) && $_GET['action']=='saveOrder' && isset($_POST['order']))
 {
 	
 	$sort = array();
-	foreach($_POST['order'] as $item) {
+	foreach($_POST['order'] as $item)
+	{
 		$sort[ $item['name'] ] = $item['value'];
 	}
 	$_SESSION[$projectName]['sort'][$objectName] = $sort;
@@ -78,19 +76,18 @@ if (isset($_GET['action']) && $_GET['action']=='saveOrder' && isset($_POST['orde
 
 
 echo "listItems = [];\n";
-foreach($_SESSION[$projectName]['objects']->$objectName->col as $k => $v)
+foreach($objects->$objectName->col as $k => $v)
 {
-	//if(substr($k,-2) != 'id' && substr($k,-4) != 'sort' && $v->type != 'HIDDENINTEGER') { }
-	echo 'listItems["'.$k.'"]="'.(isset($v->lang->{$lang}) ? baseLabel($v->lang->{$lang}) : $k).'";';
+	echo 'listItems["'.$k.'"]="'.(isset($v->lang->{$lang}) ? $v->lang->{$lang}->label : $k).'";';
 }
 
 echo "\nsortBy = [];\n";
+
 foreach($_SESSION[$projectName]['sort'][$objectName] as $k => $v)
 {
 	echo 'sortBy["'.$k.'"]="'.$v.'";';
 }
 
-//$filterJS = '<script src="../../extensions/io/backend/filterselect.php?projectName='.$projectName.'&objectName='.$objectName.'"></script>';
 ?>
 
 </script>

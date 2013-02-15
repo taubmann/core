@@ -62,11 +62,15 @@ option
 	width: 500px;
 	z-index: 4;
 }
+#colMidb .field
+{
+	margin-top: 10px;
+}
 #colMidb label
 {
 	display: block;
 	float: left;
-	width: 150px;
+	width: 120px;
 }
 #colMidb .cb
 {

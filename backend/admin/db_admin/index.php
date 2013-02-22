@@ -4,8 +4,10 @@
 * simple Inclusion/Redirection of/to adminer.php
 */
 session_start();
-$projectName = @preg_replace('/[^a-z0-9_]/si', '', strtolower($_GET['project']));
-if(!isset($_SESSION[$projectName]['root'])) exit('you are not allowed to access this Service!');
+$projectName = preg_replace('/[^-\w]/', '', strtolower($_GET['project']));
+
+$level = ((substr(basename(dirname(__FILE__)),0,1)!=='_') ? 1 : 2);
+if (!$_SESSION[$projectName]['root'] >= $level) exit('you are not allowed to access this Service!');
 
 $ppath = '../../../projects/' . $projectName;
 require($ppath . '/objects/__configuration.php');

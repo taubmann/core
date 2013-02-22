@@ -32,8 +32,11 @@
 
 session_start();
 require '../../inc/php/functions.php';
-require('../super.php');
-$lang = browserLang(array('de','en'), 'en');
+
+require('../../inc/super.php');
+
+$lang = browserLang( glob('inc/locale/*.php') );
+
 $LL = array();
 @include 'inc/locale/'.$lang.'.php';
 
@@ -52,8 +55,9 @@ function hlp($what, $float=true)
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Project-Setup</title>
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<title>create a new Project</title>
+<meta charset="utf-8" />
+
 <script type="text/javascript" src="../../inc/js/jquery.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="inc/css/styles.css" />
@@ -64,8 +68,8 @@ function hlp($what, $float=true)
 <div id="wrapper">
 <?php
 
-// #### 1 #### no (correct) superpassword/captcha => draw login-form
-if (!isset($_POST['pass']) || crpt($_POST['pass']) !== $super)
+// #### 1 #### no (correct) super-password/captcha => draw login-form
+if (!isset($_POST['pass']) || crpt($_POST['pass'], $super[0]) !== $super[1])
 {
 	require 'inc/step1.php';
 }
@@ -97,16 +101,13 @@ if (!isset($_POST['generate_project']))
 	require 'inc/step3.php';
 }
 
-
-
-
 // #### 4 #### show the Success-Form
 if (isset($_POST['generate_project']))
 {
 	require 'inc/step4.php';
 }
 
-// ... this shouldnt happen
+// ... this shouldn't happen
 echo '<h3>'.L('nothing_to_do').'</h3>';
 ?>
 

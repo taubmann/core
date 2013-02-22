@@ -72,7 +72,7 @@ $html = '
 	';
 	foreach($user_wizards as $w)
 	{
-		$html .= '		<option value="'.$w['url'].'"> '.$w['label'].' </option>';
+		$html .= '		<option value="'.$w['url'].'"> '.L($w['name']).' </option>';
 	}
 	$html .= '</optgroup>
 	<optgroup id="objectWizards" label="'.L('object_wizards').'">

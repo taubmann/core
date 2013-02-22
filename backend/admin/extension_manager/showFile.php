@@ -60,11 +60,15 @@ $mode = array(
 
 $saved = false;
 
-if(file_exists($file)) {
-	$content = utf8_decode(file_get_contents($file));
+if (is_readable($file))
+{
+	//utf8_decode(
+	$content = file_get_contents($file);
 	$canSave = is_writable($file);
-}else {
-	exit('File "'.$file.'" not found!');
+}
+else
+{
+	exit('File "'.$file.'" not found/not readable!');
 }
 ;?>
 
@@ -110,11 +114,12 @@ else
 
 ?>
 
-<pre id="editor"><?php echo htmlentities($content);?></pre>
+<pre id="editor"><?php echo htmlentities($content, ENT_SUBSITUTE|ENT_HTML5)?></pre>
+
 <div id="overlay" style="display:none;" onclick="$('#overlay').hide()"></div>
 <div id="helpdesk" style="display:none">
 	<div>
-		<img style="float:right" src="../../wizards/syntax/inc/img/close.png" onclick="helpToggle()" />
+		<img style="float:right;cursor:pointer" src="../../wizards/syntax/inc/img/close.png" onclick="helpToggle()" />
 		<span style="font-size:10px" id="stats"></span>
 	</div>
 	<?php echo file_get_contents('../../wizards/syntax/inc/help.html');?>
@@ -125,7 +130,8 @@ else
 var editor;
 var mode = '<?php echo $mode[$mime];?>';
 
-window.onload = function() {
+window.onload = function()
+{
 	editor = ace.edit('editor');
 	editor.setTheme("ace/theme/chrome");
 	editor.getSession().setMode("ace/mode/<?php echo $mode[$mime];?>");

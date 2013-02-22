@@ -5,7 +5,9 @@ session_start();
 
 // project-name
 $projectName = preg_replace('/[^-\w]/', '', $_GET['project']);
-if(!$_SESSION[$projectName]['root']) exit('no Rights to edit!');
+$level = ((substr(basename(dirname(dirname(__FILE__))),0,1)!=='_') ? 1 : 2);
+if (!$_SESSION[$projectName]['root'] >= $level) exit('you are not allowed to access this Service!');
+
 
 // language
 $lang = 'en';

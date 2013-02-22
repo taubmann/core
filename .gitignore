@@ -1,7 +1,7 @@
 alt
 .htaccess
 projects/**/*
-backend/admin/super.php
+backend/inc/super.php
 backend/extensions/**/*
 backend/wizards/**/*
 

@@ -24,7 +24,7 @@ var GPW = {
 */
 complex : function (pwl)
 {
-	var charset = 'abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-', retVal = '';
+	var charset = 'abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_', retVal = '';
 	for (var i = 0, n = charset.length; i < pwl; ++i) {
 		retVal += charset.charAt(Math.floor(Math.random() * n));
 	}

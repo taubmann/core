@@ -32,10 +32,11 @@ session_regenerate_id();
 header ('Cache-Control: no-cache,must-revalidate', true);
 
 
-require('inc/php/functions.php');
+require_once 'inc/php/functions.php';
 
 // fix/sanitize GET-Parameter
-foreach($_GET as $k=>$v){ $_GET[str_replace('amp;','',$k)] = preg_replace('/\W/', '', $v); }
+foreach($_GET as $k=>$v){  $_GET[$k]  = preg_replace('/\W/', '', $v); }
+foreach($_POST as $k=>$v){ $_POST[$k] = preg_replace('/\W/', '', $v); }
 $projectName = preg_replace('/\W/', '', $_REQUEST['project']);
 
 if (isset($_POST['project']))
@@ -55,9 +56,10 @@ if (!file_exists($ppath . '/objects/__database.php'))
 // start the Verification-Process
 if (!isset($_SESSION[$projectName]) )
 {
-	echo $projectName;
-	// load the Super-Password-Hash
-	require_once 'admin/super.php';
+	//echo $projectName;
+	
+	// load the Credentials
+	require_once 'inc/super.php';
 	
 	// set the Check-Variable to false
 	$log = false;
@@ -82,14 +84,7 @@ if (!isset($_SESSION[$projectName]) )
 	
 	$_SESSION[$projectName]['template'] = intval($_POST['template']);
 	
-	// define default Configurations in Session (may be overwritten by other Settings)
-	$config = array (
-		'backend_templates' => array('inc/php/tpl_desktop.php', 'inc/php/tpl_mobile.php'),
-		'theme' => 'humanity',
-		'autolog' => array(0)
-	);
-	
-	// collect some configuration-Settings from the "cms"-Extensions
+	// collect some configuration-Settings from "cms"-Extensions
 	$configs = array (	'extensions/cms/config/config.php',
 						$ppath . '/extensions/cms/config/config.php'
 					);
@@ -108,9 +103,9 @@ if (!isset($_SESSION[$projectName]) )
 	$_SESSION[$projectName]['config'] = $config;
 	
 	
-	// check if Super-Root
+	// check for Super-Root
 	if ( (
-			crpt($_POST['pass']) === $super && 
+			crpt($_POST['pass'], $super[0]) === $super[1] && 
 			(
 				in_array($_SERVER['SERVER_NAME'], array('localhost','127.0.0.1')) ||
 				isset($_SESSION['captcha_answer']) && $_POST['name']==$_SESSION['captcha_answer']
@@ -162,7 +157,7 @@ if (!isset($_SESSION[$projectName]) )
 			{
 				$_SESSION[$projectName]['special']['user']['wizards'][] = 
 				array	(
-					'label' => L($f),
+					'name' => $f,
 					'url' => 'admin/' . $f . '/index.php?project=' . $projectName
 				);
 			}
@@ -215,9 +210,6 @@ foreach ($jsLangLabelArr as $v)
 	$tmp[] = $v.':\''.L($v).'\'';
 }
 $jsLangLabels = implode(',', $tmp);
-
-// Tag-Filter for Objects
-$tags = $tagsArr = array();
 
 
 // collect Objects
@@ -273,6 +265,6 @@ ksort($objectOptions, SORT_LOCALE_STRING);
 $user_wizards = array_merge($_SESSION[$projectName]['config']['wizards'], $_SESSION[$projectName]['special']['user']['wizards']);
 
 // load Template
-include $_SESSION[$projectName]['config']['backend_templates'][intval($_SESSION[$projectName]['template'])];
+include $_SESSION[$projectName]['config']['backend_templates'][$_SESSION[$projectName]['template']];
 
 ?>

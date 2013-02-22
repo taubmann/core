@@ -121,15 +121,15 @@ foreach ($xmlModel['object'] as $object)
 	
 	// transform XML-Object to JSON-Structure
 	
-	// prepare & convert Nodes (key, simple, deep)
-	$nodes = array(	array('lang',	false, false),
-					array('tags',	false, true),
-					array('hooks',	false, true ),
-					array('url',	false, false),
-					array('vurl',	true,  false),
-					array('ttype',	true,  false),
+	// prepare & convert Nodes (key, 	simple, deep)
+	$nodes = array(	array('lang',		false, false),
+					array('tags',		false, true),
+					array('hooks',		false, true ),
+					array('url',		false, false),
+					array('vurl',		true,  false),
+					array('ttype',		true,  false),
 					array('hidettype',	true,  false),
-					array('comment',true,  false)
+					array('comment',	true,  false)
 				  );
 	foreach($nodes as $a)
 	{

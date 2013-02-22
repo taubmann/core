@@ -25,12 +25,6 @@
 
 /*
  * some Global Functions
- * ATTENTION! IF THIS FILE IS ALTERED (saved) YOU HAVE TO RE-CREATE YOUR SUPER-PASSWORD !!!!
- * 
- * to do so, 
-   1. delete backend/admin/super.php,
-   2. go to Backend-Login or backend/admin/setup/setpw.php,
-   3. set Super-Password (again)
  * */
 
 // cms-kit Release-Number (main.min)
@@ -73,26 +67,26 @@ if(!function_exists('L'))
  * browserLang(array(language-files), default-language)
  * browserLang(array('dir/ar.php','dir/de.php','dir/en.php'), 'en');
  * */
-function browserLang($file_arr, $default)
+function browserLang($file_arr, $default='en')
 {
 	$al = strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 	$ua = strtolower($_SERVER['HTTP_USER_AGENT']);
 	$arr = array();
-	// we are searching for language-names in something like "bla/blubb/en.php"
-	foreach($file_arr as $f) $arr[] = substr($f, -6, 2);
+	// we are extracting language-names from something like "bla/blubb/en.php"
+	foreach ($file_arr as $f) $arr[] = substr(basename($f), 0, 2);
 	
 	// Try to detect Primary language if several languages are accepted.
-	foreach($arr as $k)
+	foreach ($arr as $k)
 	{
-		if(strpos($al, $k)===0 || strpos($al, $k)!==false)
+		if (strpos($al, $k)===0 || strpos($al, $k)!==false)
 		{
 			return $k;
 		}
 	}
 	// Try to detect any language if not yet detected.
-	foreach($arr as $k)
+	foreach ($arr as $k)
 	{
-		if(preg_match("/[\[\( ]{$k}[;,_\-\)]/",$ua))
+		if (preg_match("/[\[\( ]{$k}[;,_\-\)]/",$ua))
 		{
 			return $k;
 		}

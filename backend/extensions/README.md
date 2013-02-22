@@ -1,6 +1,6 @@
 # Extensions for cms-kit
 
-Extensions are Packages containing Functions, Configurations and Documentations for [cms-kit](//github.com/taubmann/cms-kit)
+Extensions are Packages containing Functions, Configurations and Documentations for [cms-kit](//github.com/cmskit/core)
 
 They are placed in
 
@@ -8,4 +8,3 @@ They are placed in
 * projects/YOUR_PROJECT_NAME/extensions/
 
 
-I put them into a separate Repo to keep the Structure clean and simple.

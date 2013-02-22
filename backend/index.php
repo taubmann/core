@@ -32,10 +32,8 @@ foreach($_GET as $k=>$v){ $_GET[str_replace('amp;','',$k)] = preg_replace('/\W/'
 $projects = glob('../projects/*', GLOB_ONLYDIR);
 
 // if not needed you can delete the following 2 Redirects
-if ( !file_exists('admin/super.php') ){ header('location: admin/_project_setup/superpw.php'); }// redirect to Superpassword-Input if not set
+if ( !file_exists('inc/super.php') ){ header('location: inc/php/setSuperpassword.php'); }// redirect to Superpassword-Input if not set
 if ( count($projects) == 0 ){ header('location: admin/_project_setup/index.php'); }// redirect to Project-Setup if no project
-
-
 
 if (isset($_GET['project']))
 {
@@ -67,7 +65,7 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 <!DOCTYPE html>
 <html lang="<?php echo $l;?>">
 <head>
-<title>cms-kit login</title>
+<title>cms-kit login <?php echo $projectName.' on '.$_SERVER['SERVER_NAME']?></title>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 
 <meta name="robots" content="none" />

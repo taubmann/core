@@ -26,7 +26,10 @@
 $backend = '../../';
 
 $projectName = preg_replace('/\W/', '', $_GET['project']);
-if(!isset($_SESSION[$projectName]['root'])) exit('no Rights to edit!');
+
+$level = ((substr(basename(dirname(dirname(__FILE__))),0,1)!=='_') ? 1 : 2);
+if (!$_SESSION[$projectName]['root'] >= $level) exit('you are not allowed to access this Service!');
+
 
 $ppath = realpath($backend . '../projects/' . strtolower($projectName)) . '/objects/';
 

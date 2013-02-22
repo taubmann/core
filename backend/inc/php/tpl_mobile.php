@@ -98,7 +98,7 @@ if(isset($user_wizards))
 	//$html = '<span><select id="globalWizard" onchange="openGlobalWizard(this)"><option value="">'.L('User_Wizards').'</option>';
 	foreach($user_wizards as $w)
 	{
-		echo '<li><a href="javascript:getFrame(template(\''.$w['url'].'\',window))"><span class="ui-icon ui-icon-gear"></span> '.$w['label'].'</a></li>';
+		echo '<li><a href="javascript:getFrame(template(\''.$w['url'].'\',window))"><span class="ui-icon ui-icon-gear"></span> '.L($w['name']).'</a></li>';
 	}
 }
 
@@ -106,6 +106,7 @@ if(isset($user_wizards))
 </ul>
 <ul id="objectWizards" class="list"></ul>
 </div>
+
 <div id="home">
 	<ul class="list">
 	<?php

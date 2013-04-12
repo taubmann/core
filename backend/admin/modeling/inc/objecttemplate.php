@@ -43,7 +43,7 @@ class ObjectGenerator
 	var $savePath; // where to save
 	
 	
-	function __construct($projectName, $objectName, $model, $types, $savepath, $version, $debug=false)
+	function __construct($projectName, $objectName, $model, $types, $savepath, $version, $get)
 	{
 		
 		// globalize Variables
@@ -53,12 +53,15 @@ class ObjectGenerator
 		$this->elementList 	= $model[$objectName];
 		$this->treeType 	= $model[$objectName]['ttype'];
 		$this->db			= $model[$objectName]['db'];
+		$this->manualId 	= ($model[$objectName]['inc']==1);
 		$this->types 		= $types;
 		$this->savePath 	= $savepath;
 		$this->version = $version;
-		$this->debug = $debug;
 		
-		$this->manualId 	= (Configuration::$DB_INCREMENT[$this->db] == 'manual') ? true : false; // manual/auto-increment
+		$this->debug = isset($get['debug']);
+		$this->nofilter = isset($get['nofilter']);
+		
+		//$this->manualId 	= (Configuration::$DB_INCREMENT[$this->db] == 'manual') ? true : false; // manual/auto-increment
 		
 		$this->defaultFunctionCalls = array();
 		
@@ -177,8 +180,14 @@ class ObjectGenerator
 		$this->str .="/**\n\t";
 		$this->str .="* @const integer DB (Database-Type: $db_type)\n\t";
 		$this->str .="*/\n\t";
-		$this->str.="const DB = $this->db;";
-		$this->str.="\n\t\n\t";
+		$this->str .="const DB = $this->db;";
+		$this->str .="\n\t\n\t";
+		
+		$this->str .="/**\n\t";
+		$this->str .="* @const integer INCREMENT\n\t";
+		$this->str .="*/\n\t";
+		$this->str .="const INCREMENT = ".$this->elementList['inc'].";";
+		$this->str .="\n\t\n\t";
 		
 		$this->str .="/**\n\t";
 		$this->str .="* @var object _INSTANCE_\n\t";
@@ -310,6 +319,186 @@ class ObjectGenerator
 		$this->str .= "\n\t}";
 	}
 	
+	function generateOutputMapper($obj, $indent)
+	{
+		
+		foreach ($this->elementList['col'] as $key => $attr)
+		{
+			if ($this->nofilter)
+			{
+				if ($attr['type']=='MODEL')
+				{
+					$this->str .= "\n".$indent."\$".$obj."->".$key." = json_decode(\$result->".$key.", true) ?: array();";
+				}
+				continue;
+			}
+			
+			if($key=='id' && $this->manualId){ $attr['type']='VARCHAR'; }
+			
+			if(isset($attr['filter']))
+			{
+				foreach($attr['filter'] as $filter => $add)
+				{
+					$f = "\n".$indent."\$".$obj."->".$key." = filter_var(\$result->".$key.", ".$filter . (isset($add)?', '.$add:'') . ");";
+				}
+				$this->str .= $f;
+			}
+			else
+			{
+			
+				switch($attr['type'])
+				{
+					case 'MODEL':
+						$this->str .= "\n".$indent;
+						$this->str .= "\n".$indent."\$".$obj."->".$key." = json_decode(\$result->".$key.", true) ?: array();";
+						//$this->str .= "\n".$indent."print_r(\$".$obj."->".$key.");";
+						if($this->debug)
+						{
+							$this->str .= "\n".$indent."switch(json_last_error())\n".$indent."{";
+							$this->str .= "\n".$indent."\tcase JSON_ERROR_DEPTH: trigger_error('JSON-Decode-Error in ".$this->objectName.", id '.$".$obj."->id.': Maximum stack depth exceeded', E_USER_ERROR); break;";
+							$this->str .= "\n".$indent."\tcase JSON_ERROR_CTRL_CHAR: trigger_error('JSON-Decode-Error in ".$this->objectName.", id '.$".$obj."->id.': Unexpected control character found', E_USER_ERROR); break;";
+							$this->str .= "\n".$indent."\tcase JSON_ERROR_SYNTAX: trigger_error('JSON-Decode-Error in ".$this->objectName.", id '.$".$obj."->id.': Syntax error, malformed JSON', E_USER_ERROR); break;";
+							$this->str .= "\n".$indent."}";
+						}
+						$this->str .= "\n".$indent;
+					break;
+					
+					/* if we need Output-Sanitation... 
+					case 'BOOL':
+					case 'INTEGER':
+					case 'SELINTEGER':
+					case 'HIDDENINTEGER':
+					case 'TIMESTAMP':
+						$this->str .= "\n".$indent."\$".$obj."->".$key." = intval(\$result->".$key.");";
+					break;
+					case 'FLOAT':
+						$this->str .= "\n".$indent."\$".$obj."->".$key." = floatval(\$result->".$key.");";
+					break;
+					*/
+					default:
+						$this->str .= "\n".$indent."\$".$obj."->".$key." = \$result->".$key.";";
+					break;
+				}// switch end
+				
+			}
+		}
+		$this->str .= "\n".$indent;
+	}
+	
+	//
+	
+	function generateInputMapper($obj, $indent)
+	{
+		foreach ($this->elementList['col'] as $key => $attr)
+		{
+			if ($this->nofilter)
+			{
+				if ($attr['type']=='MODEL')
+				{
+						$this->str .= "\n".$indent."\$".$obj."->".$key." = json_encode(\$".$obj."->".$key.");";
+						
+				}
+				continue;
+			}
+			if($key=='id' && $this->manualId){ $attr['type'] = 'VARCHAR'; }
+			
+			// see http://www.php.net/manual/de/filter.filters.sanitize.php
+			if(isset($attr['filter']))
+			{
+				foreach($attr['filter'] as $filter => $add)
+				{
+					$f = "\n".$indent."\$".$obj."->".$key." = filter_var(\$".$obj."->".$key.", " . $filter . (isset($add)?', '.$add:'') . ");";
+				}
+				$this->str .= $f;
+			}
+			else
+			{
+				switch($attr['type'])
+				{
+					case 'MODEL':
+						
+						$this->str .= "\n".$indent;
+						$this->str .= "\n".$indent."\$".$key." = @json_decode(\$result[0]->".$key.", true) ?: array();";
+						
+						// Input-Sanitation for JSON-Encoded Values
+						$this->str .= "\n".$indent."foreach (\$".$key." as \$k => \$v)\n".$indent."{";
+						$this->str .= "\n".$indent."\t// Data-Sanitation for JSON-Encoded Values";
+						$this->str .= "\n".$indent."\tswitch (@\$v['type'])\n".$indent."\t{";
+						
+						$this->str .= "\n".$indent."\t\tcase 'BOOL';";
+						$this->str .= "\n".$indent."\t\tcase 'INTEGER';";
+						$this->str .= "\n".$indent."\t\tcase 'SELINTEGER';";
+						$this->str .= "\n".$indent."\t\tcase 'HIDDENINTEGER';";
+						$this->str .= "\n".$indent."\t\tcase 'TIMESTAMP';";
+						$this->str .= "\n".$indent."\t\t\t\$".$obj."->".$key."[\$k]['value'] = intval(\$".$obj."->".$key."[\$k]['value']);";
+						$this->str .= "\n".$indent."\t\tbreak;";
+						
+						$this->str .= "\n".$indent."\t\tcase 'FLOAT';";
+						$this->str .= "\n".$indent."\t\t\t\$".$obj."->".$key."[\$k]['value'] = floatval(\$".$obj."->".$key."[\$k]['value']);";
+						$this->str .= "\n".$indent."\t\tbreak;";
+						
+						$this->str .= "\n".$indent."\t\tcase 'CRON';";
+						$this->str .= "\n".$indent."\t\tcase 'DATE';";
+						$this->str .= "\n".$indent."\t\tcase 'DATETIME';";
+						$this->str .= "\n".$indent."\t\tcase 'VARCHAR';";
+						$this->str .= "\n".$indent."\t\tcase 'WIZARDVARCHAR';";
+						$this->str .= "\n".$indent."\t\t\t\$".$obj."->".$key."[\$k]['value'] = filter_var(\$".$obj."->".$key."[\$k]['value'], FILTER_SANITIZE_STRING);";
+						$this->str .= "\n".$indent."\t\tbreak;";
+						
+						// how should we sanitize these?
+						//$this->str .= "\n".$indent."\t\tcase 'TEXT';";
+						//$this->str .= "\n".$indent."\t\tcase 'HIDDENTEXT';";
+						//$this->str .= "\n".$indent."\t\tcase 'WIZARDTEXT';";
+						//$this->str .= "\n".$indent."\t\tcase 'WIZARDBUTTON';";
+						
+						//$this->str .= "\n".$indent."\t\tbreak;";
+						
+						$this->str .= "\n".$indent."\t}";
+						$this->str .= "\n".$indent."}";
+						
+						$this->str .= "\n".$indent."\$".$key." = array_replace_recursive(\$".$key.", \$".$obj."->".$key.");";
+						$this->str .= "\n".$indent."\$".$obj."->".$key." = json_encode(\$".$key.");";
+						
+						if ($this->debug)
+						{
+							$this->str .= "\n".$indent."switch(json_last_error())\n".$indent."{";
+							$this->str .= "\n".$indent."\tcase JSON_ERROR_DEPTH: trigger_error('JSON-Encode-Error in ".$this->objectName.", id '.$".$obj."->id.': Maximum stack depth exceeded', E_USER_ERROR); break;";
+							$this->str .= "\n".$indent."\tcase JSON_ERROR_CTRL_CHAR: trigger_error('JSON-Encode-Error in ".$this->objectName.", id '.$".$obj."->id.': Unexpected control character found', E_USER_ERROR); break;";
+							$this->str .= "\n".$indent."\tcase JSON_ERROR_SYNTAX: trigger_error('JSON-Encode-Error in ".$this->objectName.", id '.$".$obj."->id.': Syntax error, malformed JSON', E_USER_ERROR); break;";
+							$this->str .= "\n".$indent."}";
+						}
+						$this->str .= "\n".$indent;
+					break;
+					case 'BOOL':
+					case 'INTEGER':
+					case 'SELINTEGER':
+					case 'HIDDENINTEGER':
+					case 'EXCLUDEDINTEGER':
+					case 'TIMESTAMP':
+						$this->str .= "\n".$indent."\$".$obj."->".$key." = intval(\$".$obj."->".$key.");";
+					break;
+					case 'FLOAT':
+						$this->str .= "\n".$indent."\$".$obj."->".$key." = floatval(\$".$obj."->".$key.");";
+					break;
+					case 'CRON';
+					case 'DATE';
+					case 'DATETIME';
+					case 'VARCHAR';
+					case 'WIZARDVARCHAR';
+						$this->str .= "\n".$indent."\$".$obj."->".$key." = filter_var(\$".$obj."->".$key.", FILTER_SANITIZE_STRING);";
+					break;
+					default:
+						$this->str .= "\n".$indent."\$".$obj."->".$key." = \$".$obj."->".$key.";";
+					break;
+				}// switch end
+
+			}// else end
+			
+		}// foreach end
+		
+		$this->str .= "\n".$indent;
+	}
+	
 	
 	// -------------------------------------------------------------
 	function CreateGetFunction()
@@ -331,10 +520,8 @@ class ObjectGenerator
 		$this->str .= "\n\t\t\t\$prepare->execute(array(':id'=>\$id));";//
 		$this->str .= "\n\t\t\t\$result = \$prepare->fetch();\n\t\t";
 		
-		foreach ($this->elementList['col'] as $key => $attr)
-		{
-			$this->str .= "\n\t\t\t\$this->".$key." = \$result->".$key.";";
-		}
+		$this->generateOutputMapper('this', "\t\t\t");
+		
 		$this->str .= "\n\t\n\t\t\treturn \$this;";
 		
 		$this->str .= "\n\t\t}";
@@ -452,15 +639,16 @@ class ObjectGenerator
 		
 		$this->str .= "\n\t\t\t";
 		//$this->str .= "\n\t\t\t\$thisObjectName = get_class(\$this);";
-		$this->str .= "\n\t\t\tforeach (\$list as \$key => \$lst)";
+		$this->str .= "\n\t\t\tforeach (\$list as \$key => \$result)";
 		$this->str .= "\n\t\t\t{";
 		$this->str .= "\n\t\t\t\t\$".$this->objectName." = new ".$this->objectName."();";// define new object
 		//$this->str .= "\n\t\t\t\t\$".$this->objectName." = new \$thisObjectName();";// define new object
 		//$this->str .= "\n\t\t\t\t\$".strtolower($this->objectName)." = \$thisObjectName::instance();";// define new object
-		$this->str .= "\n\t\t\t\tforeach (\$lst as \$key => \$val)";
-		$this->str .= "\n\t\t\t\t{";
-		$this->str .= "\n\t\t\t\t\t\$".$this->objectName."->\$key = \$val;";
-		$this->str .= "\n\t\t\t\t}";
+		//$this->str .= "\n\t\t\t\tforeach (\$lst as \$key => \$val)";
+		//$this->str .= "\n\t\t\t\t{";
+		//$this->str .= "\n\t\t\t\t\t\$".$this->objectName."->\$key = \$val;";
+		//$this->str .= "\n\t\t\t\t}";
+		$this->generateOutputMapper($this->objectName, "\t\t\t\t");
 		$this->str .= "\n\t\t\t\t\$".$this->objectName."List[] = \$".$this->objectName.";";
 		$this->str .= "\n\t\t\t}";
 		$this->str .= "\n\t\t\treturn \$".$this->objectName."List;";
@@ -1148,9 +1336,12 @@ class ObjectGenerator
 		{
 			$this->str .= "\tfunction Save ()\n\t{";
 		}
-		$this->str .= "\n\t\t\$prepare = DB::instance($this->db)->prepare('SELECT `id` FROM `".$n."` WHERE `id`=? LIMIT 1;');";
-		$this->str .= "\n\t\t\$prepare->execute(array(\$this->id));";//
-		$this->str .= "\n\t\t\$result = \$prepare->fetchAll();\n\t\t";
+		
+		$this->str .= "\n\t\t\$prepare0 = DB::instance($this->db)->prepare('SELECT * FROM `".$n."` WHERE `id`=:id LIMIT 1');";
+		$this->str .= "\n\t\t\$prepare0->execute(array(':id'=>".($this->manualId?'trim':'intval')."(\$this->id)));";//
+		$this->str .= "\n\t\ttry{\$result = \$prepare0->fetchAll();}catch(Exception \$e){\$result = array();}\n\t\t";
+		$this->str .= "\n\t\t\$prepare0->closeCursor();\n\t\t";
+		$this->generateInputMapper('this', "\t\t");
 		
 		$this->str .= "\n\t\tif (count(\$result) === 1)";
 		$this->str .= "\n\t\t{";
@@ -1187,16 +1378,25 @@ class ObjectGenerator
 			$tmp0[] = '`id`';
 			$tmp1[] = ":id";
 			$tmp2[] = "':id'=>\$mid";
-			$this->str .= "\n\t\t\t\$mid = DB::uid();";
+			$this->str .= "\n\t\t\t\$mid = (\$this->id > 0) ? \$this->id : DB::uid();";
+		}
+		else
+		{
+			$tmp0[] = '`id`';
+			$tmp1[] = ":id";
+			$tmp2[] = "':id'=>((\$this->id > 0) ? \$this->id : null)";
 		}
 		
 		
 		if($this->treeType=='Tree')
 		{
 			$this->str .= "\n\t\t\t";
-			$this->str .= "\n\t\t\t\$this->treeparentid = 0;";
-			$this->str .= "\n\t\t\t\$this->treeleft = intval(DB::instance($this->db)->query('SELECT MAX(`treeright`) AS m FROM `".$n."`')->fetch()->m) + 1;";
-			$this->str .= "\n\t\t\t\$this->treeright = \$this->treeleft + 1;";
+			//
+			$this->str .= "\n\t\t\tif (\$this->treeleft == 0)\n\t\t\t{";
+			$this->str .= "\n\t\t\t\t\$this->treeparentid = 0;";
+			$this->str .= "\n\t\t\t\t\$this->treeleft = intval(DB::instance($this->db)->query('SELECT MAX(`treeright`) AS m FROM `".$n."`')->fetch()->m) + 1;";
+			$this->str .= "\n\t\t\t\t\$this->treeright = \$this->treeleft + 1;";
+			$this->str .= "\n\t\t\t}";
 			$this->str .= "\n\t\t\t";
 		}
 		
@@ -1422,7 +1622,10 @@ class ObjectGenerator
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\tcatch (Exception \$e)";
 		$this->str .= "\n\t\t{";
-		if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+		if($this->debug)
+		{ 
+			$this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n";
+		}
 		$this->str .= "\n\t\t\treturn false;";
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\t";
@@ -1445,7 +1648,10 @@ class ObjectGenerator
 			$this->str .= "\n\t\t}";
 			$this->str .= "\n\t\tcatch (Exception \$e)";
 			$this->str .= "\n\t\t{";
-			if($this->debug){ $this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n"; }
+			if($this->debug)
+			{
+				$this->str .= "\n\t\t\ttrigger_error('ERROR in ".$this->objectName.":[['.\$e->getMessage().']]', E_USER_ERROR);\n";
+			}
 			$this->str .= "\n\t\t\treturn false;";
 			$this->str .= "\n\t\t}";
 			$this->str .= "\n\t\t";
@@ -1594,7 +1800,7 @@ class ObjectGenerator
 					// create the Mapping-Class
 					if($this->savePath)
 					{
-						new ObjectMap($this->projectName, $this->objectName, $key, $this->savePath, $this->manualId, $this->db, $this->debug);
+						new ObjectMap($this->projectName, $this->objectName, $key, $this->model, $this->savePath, $this->db, $this->debug);
 					}
 					
 				}
@@ -1837,7 +2043,6 @@ class ObjectGenerator
 											array('array $'.$siblingLower.'List'),
 											'');
 		
-		
 		$this->str .= "\tfunction Set".$sibling."List (&\$".$siblingLower."List)\n\t{";
 		
 		
@@ -1917,17 +2122,19 @@ class ObjectMap
 	}
 	
 	
-	function __construct ($projectName, $object1, $object2, $save, $manualId, $db, $version, $debug)
+	function __construct ($projectName, $object1, $object2, $model, $save, $db, $version, $debug)
 	{
 		$this->projectName = $projectName;
 		$this->debug = $debug;
+		
+		$this->model = $model;
+		
 		// enforce alphabetical Order of Object-Names
 		$arr = array($object1, $object2);
 		natcasesort($arr);
 		$this->object1 = array_shift($arr);
 		$this->object2 = array_shift($arr);
 		
-		$this->manualId  = $manualId;
 		$this->db = $db;
 		$this->version = $version;
 		$this->debug = $debug;
@@ -1935,7 +2142,6 @@ class ObjectMap
 		$this->savePath = $save;
 		
 		$this->BeginObject();
-		
 		
 		$this->CreateSingleton();
 		
@@ -1947,8 +2153,12 @@ class ObjectMap
 		
 		
 		$path = $this->savePath . 'class.' . strtolower($this->object1 . $this->object2) . 'map.php';
-		file_put_contents($path, $this->mstr);
-		chmod($path, 0766);
+		
+		if( !file_exists($path) || (time()-filemtime($path))>2000 )
+		{
+			file_put_contents($path, $this->mstr);
+			chmod($path, 0766);
+		}
 		
 		
 	}
@@ -1957,7 +2167,8 @@ class ObjectMap
 	function BeginObject()
 	{
 		
-		$t = (($this->manualId)?'string':'integer');
+		$t1 = (($this->model[$this->object1]['inc']==1)?'string':'integer');
+		$t2 = (($this->model[$this->object2]['inc']==1)?'string':'integer');
 		
 		$this->mstr  = "<?php\n";
 		$this->mstr .= $this->CreatePreface();
@@ -1976,11 +2187,11 @@ class ObjectMap
 
 		
 		$this->mstr .="\n\t\n\t/**\n\t";
-		$this->mstr .="* @var $t ".$this->object1."id\n\t";
+		$this->mstr .="* @var $t1 ".$this->object1."id\n\t";
 		$this->mstr .="*/\n\tpublic \$".$this->object1."id = '';";
 		
 		$this->mstr .="\n\t\n\t/**\n\t";
-		$this->mstr .="* @var $t ".$this->object2."id\n\t";
+		$this->mstr .="* @var $t2 ".$this->object2."id\n\t";
 		$this->mstr .="*/\n\tpublic \$".$this->object2."id = '';";
 		
 		$this->mstr .="\n\t\n\t/**\n\t";
@@ -2057,6 +2268,9 @@ class ObjectMap
 		$this->mstr .= $this->CreateComments("Physically saves the Mapping to the Database", '', '');
 		
 		$this->mstr .= "\tfunction Save()\n\t{";
+		
+		
+		
 		$this->mstr .= "\n\t\t\$query = 'SELECT `".$o1."id` FROM `".$on."map` WHERE `".$o1."id`=:".$o1."id AND `".$o2."id`=:".$o2."id LIMIT 1';";
 		
 		$this->mstr .= "\n\t\t\$prepare = DB::instance($this->db)->prepare(\$query);";

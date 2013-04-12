@@ -31,6 +31,8 @@ include 'helper.php';
 
 $path = $backend . '/inc/css/';
 
+$headstr = 'Stylesheets concatenated';
+
 $folders = glob($path.'*', GLOB_ONLYDIR);
 $styles = array();
 foreach ($folders as $folder)
@@ -75,6 +77,7 @@ foreach ($styles as $k => $v)
 	$css = "\n";
 	$css .= file_get_contents($path.'plugins/foldertree.css') . "\n";
 	$css .= file_get_contents($path.'plugins/jquery.ui.selectmenu.css') . "\n";
+	$css .= file_get_contents($path.'plugins/jqCron.css') . "\n";
 	$css .= file_get_contents($path.'styles.css') . "\n";
 	//$css .= file_get_contents('') . "\n";
 	
@@ -84,6 +87,7 @@ foreach ($styles as $k => $v)
 	if(!isset($_GET['nocompress']))
 	{
 		$str = compress($str);
+		$headstr = 'Stylesheets packed';
 	}
 	// write css to file
 	if(file_put_contents($path.$k.'/style.css', $str))
@@ -111,7 +115,7 @@ a, a:visited{text-decoration:underline;color:#00f;}
 </head>
 <body>
 	<a href="javascript:history.back()">back</a>
-	<h2>CSS Packed</h2>
+	<h2><?php echo $headstr;?></h2>
 	
 	<?php echo $html;?>
 </body>

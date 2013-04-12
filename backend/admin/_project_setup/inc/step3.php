@@ -24,13 +24,6 @@ foreach($pdoDrivers as $d)
 $html .= '</select>
 	'.hlp('dbtype', false).'
 	
-<select name="id[x]">
-	<option value="auto">'.L('Auto-Increment').'</option>
-	<option value="manual">'.L('Function-Generated').'</option>
-</select>
-	'.hlp('id', false).'
-	
-	
 <div id="divDbhost[[x]]" style="display:none">'.hlp('dbhost').' 
 	<span class="fr" id="putDbhost[[x]]" title="'.L('generate_localhost').'" style="display:none" onclick="$(\'#dbhost[[x]]\').val(\'localhost\')">&lArr;</span>
 	<label for="dbhost[x]">'.L('DB_Host').'</label>

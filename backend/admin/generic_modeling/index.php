@@ -280,6 +280,7 @@ $(function()
 				click: function()
 				{
 					var arr = $('#editform').serializeArray();
+					
 					var name = $('#editform').data('fieldname');
 					for(var i=0,j=arr.length; i<j; ++i)
 					{
@@ -299,6 +300,7 @@ $(function()
 							break;
 							
 							case 'lang':
+								
 								$.get('json_io.php',
 								{
 									action : 'process_label',
@@ -419,6 +421,7 @@ function showModel(data, name)
 	$('#saveFieldButton').on('click', function()
 	{
 		var str = JSON.stringify(model, null, '\t');
+		
 		var q = confirm('<?php echo L('save_Model_permanetly')?>?');
 		if(q)
 		{

@@ -5,15 +5,14 @@ session_start();
 
 // project-name
 $projectName = preg_replace('/[^-\w]/', '', $_GET['project']);
-$level = ((substr(basename(dirname(dirname(__FILE__))),0,1)!=='_') ? 1 : 2);
+$level = ((substr(basename(dirname(__DIR__)),0,1)!=='_') ? 1 : 2);
 if (!$_SESSION[$projectName]['root'] >= $level) exit('you are not allowed to access this Service!');
-
 
 // language
 $lang = 'en';
 if(isset($_SESSION[$projectName]['lang']))
 {
-	@include dirname(__FILE__) . '/locale/'.$_SESSION[$projectName]['lang'].'.php';
+	@include __DIR__ . '/locale/'.$_SESSION[$projectName]['lang'].'.php';
 	$lang = $_SESSION[$projectName]['lang'];
 }
 

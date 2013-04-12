@@ -71,7 +71,7 @@ canvas
 .object
 {
 	position: absolute;
-	width: 200px;
+	width: 220px;
 }
 .object p {
 	padding: 7px;
@@ -198,6 +198,13 @@ ${obj}
 	</p>
 	{{/if}}
 	<p>
+		<label><?php echo L('Increment')?>:</label>
+		<select name="increment" onchange="alert('<?php echo L('changing_Increment_needs_probably_adaption_of_existing_DB_Schemes')?>')">
+			<option value="0"><?php echo L('Auto_Increment')?></option>
+			<option {{if obj.increment==1}} selected="selected" {{/if}}value="1"><?php echo L('Timestamp')?></option>
+		</select>
+	</p>
+	<p>
 		<label><?php echo L('Language_Labels')?>:</label>
 		<textarea name="lang">{{if obj['lang']}}${unesc(obj['lang'])}{{/if}}</textarea>
 	</p>
@@ -265,6 +272,10 @@ ${obj}
 				<option {{if field['datatype']==$value[0]}}selected="selected"{{/if}} value="${$value[0]}" style="border-left:3px solid ${$value[1]}">${dtypeLabel[$value[0]]} ( ${$value[0]} )</option>
 			{{/each}}
 		</select>
+	</p>
+	<p>
+		<label><?php echo L('Filter')?>:</label>
+		<input type="text" value="{{if field['filter']}}${unesc(field['filter'])}{{/if}}" name="filter" id="field_filter" />
 	</p>
 	<p>
 		<label><?php echo L('Default_Value')?>:</label>
@@ -404,33 +415,18 @@ $(function()
 	canvas = document.getElementById('bezier');
 	ctx = canvas.getContext('2d');
 	
-	$.get('xml_io.php?project=<?php echo $projectName?>', function(xml)
+	$.get('xml_io.php?project=<?php echo $projectName?>', 
+	function(xml)
 	{
 		processXML(xml);
 	});
-	/*
-	$.getJSON('rules/datatypes.json', function(data)
-	{
-		
-		
-		$.each(data, function(key, val) {
-			datatype[key] = fieldtypecolor[val.type];
-			datatypes.push([key, fieldtypecolor[val.type]]);
-			datatype_defaults[key] = val.default;
-		});
-		//alert(JSON.stringify(datatype))
 	
-		
-		
-	});*/
 	
 	
 	// Menu-Buttons
 	$('#menu_new_object').on('click', function(){
 		addObject();
 	});
-	
-		
 	
 	$('#menu_export').on('click', function()
 	{
@@ -442,6 +438,18 @@ $(function()
 		head.appendChild(lnk);
 		
 		$('#dialog_SaveButton').hide();
+		
+		// fix if id is missing
+		$.each(objects, function(index, item)
+		{
+			if(item[0]['fields']['field'][0]["@name"] != 'id')
+			{
+				var t={};
+				t["@name"] = "id";
+				t["datatype"] = "INTEGER";
+				item[0]['fields']['field'].unshift(t);
+			}
+		});
 		
 		// create a local Copy of objects
 		var J = $.extend(true, {}, objects);
@@ -471,6 +479,7 @@ $(function()
 						replace(/\<object \/\>/g,'').
 						replace(/\<field \/\>/g,'').
 						replace(/\<lang \/\>/g,'').
+						replace(/\<filter \/\>/g,'').
 						replace(/\<default \/\>/g,'').
 						replace(/\<add \/\>/g,'').
 						replace(/\<tags \/\>/g,'').
@@ -778,6 +787,7 @@ function addObject(objectname, x, y)
 		objects.object[l]['fields']['field'][0]["datatype"] = "INTEGER";
 		
 		path[objectname] = [l, []];
+		path[objectname][1]['id'] = 0;
 	}
 	
 	
@@ -826,7 +836,8 @@ function addObject(objectname, x, y)
 	});
 	
 	// edit Object-Function
-	$('#'+objectname+' p .ui-icon-pencil:first').on('click', function() {
+	$('#'+objectname+' p .ui-icon-pencil:first').on('click', function()
+	{
 		
 		//alert(JSON.stringify(objects.object[i]));
 		$('#objectEditTemplate').tmpl({
@@ -883,7 +894,7 @@ function addObject(objectname, x, y)
 		}
 	});
 	
-	// delete object
+	// delete Object
 	$('#'+objectname+' p .ui-icon-trash:first').on('click', function() {
 		var q = confirm('<?php echo L('delete_%s')?>?'.replace('%s', objectname));
 		if(q)
@@ -928,19 +939,34 @@ function addObject(objectname, x, y)
 	});
 	
 	// make List-Elements sortable
-	$('#'+objectname+'>ul').sortable( {
+	$('#'+objectname+'>ul').sortable(
+	{
 		items: 'li:not(.id_col)',
 		handle: 'span',
 		update: function(event, ui)
 		{
+			//serialize the List (returns IDs)
 			var order = $(this).sortable('toArray');
-				order.unshift(objectname+'-____-id');//add id because its not within sortable-array
-			var index = path[objectname][0], tmpn = [], tmpo = [];
+				order.unshift(objectname+'-____-id');//add ID because its not within the sortable-array
+				
+			var index = path[objectname][0],
+				tmpn = [],// field-names
+				tmpo = [];// tmp-object
 			
+			// get the field-name
 			for(var i=0,j=order.length; i<j; ++i) { tmpn.push(order[i].split('-____-').pop()); }
-			for(var i=0,j=tmpn.length;  i<j; ++i) { tmpo.push( objects.object[index]['fields']['field'][ path[objectname][1][tmpn[i]] ] ); }
+			
+			// get the old index-numbers from the path and re-order the tmp-object
+			for(var i=0,j=tmpn.length;  i<j; ++i) {
+				
+				//var ix = path[objectname][1][tmpn[i]] || 0;// if there is a new created object id is undefined
+				//tmpo.push( objects.object[index]['fields']['field'][ ix ] ); 
+				tmpo.push( objects.object[index]['fields']['field'][ path[objectname][1][tmpn[i]] ] );
+			}
+			// re-order the path itself
 			for(var i=0,j=tmpn.length;  i<j; ++i) { path[objectname][1][tmpn[i]] = i; }
 			
+			// assign tmp-object to the official object
 			objects.object[index]['fields']['field'] = tmpo;
 		}
 	});
@@ -984,7 +1010,7 @@ function addField (objectname, fieldname, col, norefresh)
 	
 	if(!norefresh) ul.sortable('refresh');
 	
-	// Edit Field-Function
+	// edit Field-Function
 	$('#'+objectname+'-____-'+fieldname+' .ui-icon-pencil:first').on('click', function()
 	{
 		var i0 = path[objectname][0], 
@@ -1058,8 +1084,8 @@ function removeField (objectname,fieldname)
 {
 	$('#'+objectname+'-____-'+fieldname).remove();
 	var i0 = path[objectname][0], i1 = path[objectname][1][fieldname];
-	objects.object[i0]['fields']['field'][i1] = null;// "remove" element from object-array
-	path[ objectname ][1][ fieldname ] = false;// "remove" element from path
+	objects.object[i0]['fields']['field'][i1] = null;// "remove" Element from Object-array
+	path[ objectname ][1][ fieldname ] = false;// "remove" Element from path
 };
 
 function toggleConnection(from, to, type) {
@@ -1083,14 +1109,14 @@ function toggleConnection(from, to, type) {
 		if(o)
 		{
 			relations.splice(match, 1);
-			removeField(from, to+'id');// remove parentid-field if exists
+			removeField(from, to+'id');// remove parentid-Field if exists
 			clearLines();
 			drawLines();
 		}
 	}
 	else
 	{
-		// add the relation
+		// add the Relation
 		relations.push([from, to, type]);
 		// if its child-parent-Relation
 		if(type==1)
@@ -1157,8 +1183,9 @@ function drawLines()
 	}
 };
 
+// clear the canvas
 function clearLines() {
-	// clear the canvas
+	
 	ctx.save();
 	ctx.setTransform(1, 0, 0, 1, 0, 0);
 	ctx.clearRect(0, 0, canvas.width, canvas.height);

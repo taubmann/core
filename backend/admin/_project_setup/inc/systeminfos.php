@@ -56,6 +56,13 @@ function systemInfos()
 	$driver = PDO::getAvailableDrivers();
 	$ok['pdo'] = array((count($driver)>0), implode(', ', $driver));
 	
+	// DOM-Extension
+	$dom_extension = extension_loaded('dom');
+	$ok['dom'] = array($dom_extension,($dom_extension?'loaded':'not loaded'));
+	
+	// GD
+	$gd = gd_info();
+	$ok['gd'] = array(isset($gd['GD Version']), $gd['GD Version']);
 	
 	// Safe mode
 	$safe_mode = ini_get('safe_mode');
@@ -86,8 +93,8 @@ function systemInfos()
 	
 	
 	
-	//print_r($ok);
 	
+	//print_r($ok);
 	foreach($ok as $k => $v){
 		$html .= '<p class="si '.($v[0]?'si_ok':'si_err').'"><b>'.L($k).'</b> '.$v[1].'</p>';
 	}
@@ -95,7 +102,7 @@ function systemInfos()
 	$html .= '<h4>'.L('Directory_Check').'</h4>';
 	$folders = array(
 		'projects',
-		'backend/admin',
+		'backend/inc',
 		'backend/extensions',
 		'backend/wizards',
 	);

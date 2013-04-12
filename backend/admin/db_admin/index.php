@@ -71,6 +71,7 @@ button{
 	width: 200px;
 	cursor: pointer;
 }
+
 </style>
 
 </head>
@@ -85,8 +86,7 @@ $html = '<h4>choose Database</h4>
 
 for($i=0; $i<$cnt; $i++) 
 {
-	
-	$html .= '<form id="frm" method="post" action="adminer_frames.php">';
+	$html .= '<form id="frm" method="post" action="dbm.php">';
 	
 	$html .= createHiddenFields($i);
 	$html .= '<button 
@@ -102,8 +102,10 @@ for($i=0; $i<$cnt; $i++)
 
 if($cnt == 1)
 {
-	$html .= '<script>document.getElementById("frm").submit()</script>';
+	//$html .= '<script>document.getElementById("frm").submit()</script>';
 }
+
+$html .= '<p><a href="importXml.php?project='.$projectName.'">XML-Import</a></p>';
 
 echo $html;
 

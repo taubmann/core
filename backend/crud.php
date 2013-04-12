@@ -61,12 +61,12 @@ foreach ($_POST as $k => $v)
 	switch (substr($k, 0, 2))
 	{
 	
-	// base64-encode Content 
+		// base64-encode Content 
 		case 'e_':
 			$_POST[$k] = base64_encode($v);
 		break;
 	
-		// encrypt Content (XOR or Blowfish)
+		// encrypt Content (Blowfish) OR prevent replacing encrypted Content
 		case 'c_':
 			if (isset($_SESSION[$projectName]['config']['crypt'][$objectName][$k]))
 			{
@@ -83,49 +83,12 @@ foreach ($_POST as $k => $v)
 		
 	}
 	
-	// save Data from a Generic Structure-Inputs back into JSON-Field
-	if ($objects->{$objectName}->col->{$k}->type == 'MODEL')
-	{
-		$temp = json_decode(utf8_encode($v), true);
-		
-		// if something happened, we should know it
-		switch (json_last_error())
-		{
-			case JSON_ERROR_DEPTH:		trigger_error('JSON-Error in '.$k.': Maximum stack depth exceeded', E_USER_ERROR); break;
-			case JSON_ERROR_CTRL_CHAR:	trigger_error('JSON-Error in '.$k.': Unexpected control character found', E_USER_ERROR); break;
-			case JSON_ERROR_SYNTAX:		trigger_error('JSON-Error in '.$k.': Syntax error, malformed JSON', E_USER_ERROR); break;
-		}
-		
-		// if there is a Shadow-Table, populate Values of all generic Fields
-		$p2 = false;
-		if (isset($objects->{$objectName.'shadow'}))
-		{
-			$p1 = DB::instance($objectDB)->prepare('DELETE FROM `'.$objectName.'shadow` WHERE `'.$objectName.'id` = ?');
-			$p1->execute(array($objectId));
-			$p2 = DB::instance($objectDB)->prepare('INSERT INTO `'.$objectName.'shadow` (`'.$objectName.'id`, `name`, `value`) VALUES (?, ?, ?)');
-		}
-		
-		foreach ($temp as $jk => $jv)
-		{
-			if ($jk !== 'MODEL')
-			{
-				$temp[$jk]['value'] = $_POST[$k.'___'.$jk];
-				// write to shadow-table
-				if($p2)
-				{
-					$p2->execute(array($objectId, $jk, $_POST[$k.'__'.$jk]));
-				}
-			}
-		}
-		$_POST[$k] = json_encode($temp);
-	}
-	
 }
 
 
 if (isset($objects->{$objectName}->hooks->PRE) || isset($objects->{$objectName}->hooks->PST))
 {
-	$loginHooks = array();//we need a dummy here
+	$loginHooks = array();//we need a Dummy here
 	include('extensions/cms/hooks.php');
 	include($ppath . '/extensions/cms/hooks.php');
 }
@@ -177,5 +140,10 @@ callHooks('PST');
 
 echo $output;
 
+// rough tests
+//print_r($objects->$objectName->hooks);
+//print_r($c->disallow);
+//print_r($objects->$objectName->acl);
+//print_r($_SESSION);
 //echo memory_get_peak_usage();
 ?>

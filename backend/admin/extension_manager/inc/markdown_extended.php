@@ -2,9 +2,22 @@
 require_once('markdown.php');
 define( 'MARKDOWNEXTRAEXTENDED_VERSION',  "0.3" );
 
-function MarkdownExtended($text, $default_claases = array()){
-  $parser = new MarkdownExtraExtended_Parser($default_claases);
-  return $parser->transform($text);
+function MarkdownExtended($text, $default_claases = array())
+{
+	
+	// load external markdown-snippets into the document
+	// {@import snips/.test.md}
+	$text = preg_replace_callback('/\{\@import([^}]+)\}/','loadMDs', $text);
+
+	$parser = new MarkdownExtraExtended_Parser($default_claases);
+	return $parser->transform($text);
+}
+
+function loadMDs ($matches)
+{
+	$p = dirname($_GET['file']).DIRECTORY_SEPARATOR.trim($matches['1']);
+	if(file_exists($p)) return file_get_contents($p);
+	return '***"' .$p . '" not found!***';
 }
 
 class MarkdownExtraExtended_Parser extends MarkdownExtra_Parser {

@@ -77,11 +77,14 @@ switch ($action)
 		}
 	break;
 	case 'process_label':
-		require '../modeling/inc/includes.php';
+		
+		include 'inc/process_label.php';
+		
 		if($arr = json_decode($_GET['str']))
 		{
 			echo json_encode(processLabel($arr));
 		}
+		
 	break;
 	
 	case 'saveonlyjson': // super-root: only change the JSON-File
@@ -107,6 +110,11 @@ switch ($action)
 			case JSON_ERROR_SYNTAX: 	exit('JSON-Error in '.$_GET['file'].': Syntax error, malformed JSON'); break;
 		}
 		
+		if ($new === $old)
+		{
+			exit(L('absolutely_nothing_changed'));
+		}
+		
 		// strip/adapt the arrays if no fullscan required (only values stored in DB)
 		if(substr($_GET['file'],0,1) != '_')
 		{
@@ -116,10 +124,11 @@ switch ($action)
 			$old['MODEL'] = ' '.$_GET['file'];
 		}
 		
-		if ($new === $old && $action !== 'dbreplace')
+		if ($new === $old)
 		{
-			exit(L('absolutely_nothing_changed'));
+			$action = 'saveonlyjson';
 		}
+		
 		
 		$updated = 0;
 		if ($action !== 'saveonlyjson')
@@ -196,7 +205,7 @@ switch ($action)
 						}
 					}
 				}
-			}
+			}//foreach END
 			
 			// create a Backup of the old Model
 			$backup = $bp1 .'.php';

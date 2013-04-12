@@ -70,24 +70,23 @@ class crud
 	public $inspect = array();// not used atm
 	
 	
-	// create LI-Tags for Reference-Lists objectname, id|label, no dragging
 	/**
-	* 
+	* create LI-Tags for Reference-Lists objectname, id|label, no dragging
 	* 
 	* @return 
  
 	*/
-	protected function strLi ($n, $str, $nodrag=false)
+	protected function strLi ($n, $id, $lbl, $nodrag=false)
 	{
 		$s = explode('|', $str);
-		return 	'<li id="l_'.$s[0].'" class="ui-state-default ui-selectee">'.
-				($nodrag?'':'<span style="float:left;margin-right:10px" class="ui-icon ui-icon-arrow-2-n-s"></span>').
-				'<a title="id: '.$s[0].'" class="lnk" data-object="'.$n.'" data-id="'.$s[0].'" href="#">'.
-				htmlspecialchars($s[1]). //'('.$s[0].') '.
+		return 	'<li id="l_'.$id.'" class="ui-state-default ui-selectee">' .
+				($nodrag?'':'<span style="float:left;margin-right:10px" class="ui-icon ui-icon-arrow-2-n-s"></span>') .
+				'<a title="id: '.$id.'" class="lnk" data-object="'.$n.'" data-id="'.$id.'" href="#">' .
+				((strlen(trim($lbl))>0)?substr(trim(strip_tags($lbl)),0,100):'[...]') .
 				'</a></li>';
 	}
 	
-	//
+	
 	/**
 	* 
 	* 
@@ -99,9 +98,9 @@ class crud
 		return preg_replace('/[^a-z0-9_]/si', '', $str);
 	}
 	
-	// Language
+	
 	/**
-	* 
+	* Language
 	* 
 	* @return 
  
@@ -132,7 +131,6 @@ class crud
 	* 
 	* 
 	* @return 
- 
 	*/
 	public function exportList()
 	{
@@ -171,7 +169,6 @@ class crud
 	* 
 	* 
 	* @return 
- 
 	*/
 	public function getPagination()
 	{
@@ -190,7 +187,6 @@ class crud
 	* 
 	* 
 	* @return 
- 
 	*/
 	public function getList ()
 	{
@@ -217,7 +213,6 @@ class crud
 	* 
 	* 
 	* @return 
- 
 	*/
 	private function strButton($ico, $lbl=false, $action=false, $enabled=true)
 	{
@@ -228,7 +223,6 @@ class crud
 	* 
 	* 
 	* @return 
- 
 	*/
 	public function strWizardButton($name, $add)
 	{
@@ -247,7 +241,6 @@ class crud
 	* 
 	* 
 	* @return 
- 
 	*/
 	public function wizardButton($name, $add)
 	{
@@ -259,7 +252,6 @@ class crud
 	* 
 	* 
 	* @return 
- 
 	*/
 	private function getListString ($returnRaw=false)
 	{
@@ -284,11 +276,12 @@ class crud
 				$this->idsInList[] = $i->id;
 				$str2 .= '<li title="id: '.$i->id.'" class="ui-state-default ui-selectee" rel="'.$i->id.'">';
 				// List-Label
+				$l = '';
 				foreach ($this->objectFields as $v)
 				{
-					$str2 .= ' ' . $i->$v;
+					$l .=  $i->$v . ' ';
 				}
-				$str2 .= '</li>';
+				$str2 .= substr(trim(strip_tags($l)),0,100) . '</li>';
 			}
 			$c++;
 		}
@@ -315,26 +308,20 @@ class crud
 		
 		// Button-Bar
 		$str .= '<div id="mainlistHead"><!--lb1-->';
-		//$this->strButton('',false,'');
 		// back-Button
-		//$str .= '<button ' . (($this->offset > 0) ? '' : ' disabled="disabled" ') . ' rel="arrowthick-1-w" onclick="store[objectName][\'offset\']-=limitNumber;getList()" title="'.$this->L('prev').'">'.$lbl[0].'</button>';
 		$str .= $this->strButton('arrowthick-1-w',false,'store[objectName][\'offset\']-=limitNumber;getList()',($this->offset > 0));
 		// pagination-Button
-		//$str .= '<button ' . (($this->offset > 0 || $c > $this->limit) ? '' : ' disabled="disabled" ') . ' rel="arrowthick-2-e-w" onclick="showPagination()" title="'.$this->L('pagination').'">'.$lbl[1].'</button>';
 		$str .= $this->strButton('arrowthick-2-e-w', false, 'showPagination()', ($this->offset > 0 || $c > $this->limit));
 		// next-Button
-		//$str .= '<button ' . (($c > $this->limit) ? '' : ' disabled="disabled" ') . ' rel="arrowthick-1-e" onclick="store[objectName][\'offset\']+=limitNumber;getList()" title="'.$this->L('next').'">'.$lbl[2].'</button>';
 		$str .= $this->strButton('arrowthick-1-e',false,'store[objectName][\'offset\']+=limitNumber;getList()',($c > $this->limit));
 		$str .= '&nbsp;';
 		
 		// new-Button
 		if(!isset($this->disallow['newbutton'])) $str .= '<button rel="plus" onclick="createContent()" title="'.$this->L('new_entry').'">'.$this->L('new_entry').'</button>';
-		
 		// sort-Button
 		if(!isset($this->disallow['sortbutton'])) $str .= '<button rel="shuffle" onclick="getFrame(\'inc/php/editList.php?projectName='.$this->projectName.'&objectName='.$this->objectName.'\')" title="'.$this->L('sort').'">'.$this->L('sort').'</button>';
 		
 		$str .= '<!--lb2--><div id="pagination"></div></div>';
-		
 		
 		
 		return $str . $str2;
@@ -345,7 +332,6 @@ class crud
 	* 
 	* 
 	* @return 
- 
 	*/
 	public function getTreeHead()
 	{
@@ -367,7 +353,6 @@ class crud
 	* 
 	* 
 	* @return 
- 
 	*/
 	public function getTreePath()
 	{
@@ -508,7 +493,7 @@ class crud
 					);
 	}
 	
-	private function arrayToObject($d)
+	public function arrayToObject($d)
 	{
 		if (is_array($d))
 		{
@@ -520,6 +505,20 @@ class crud
 		}
 	}
 	
+	
+	public function objectToArray($data)
+	{
+		if (is_array($data) || is_object($data))
+		{
+			$result = array();
+			foreach ($data as $key => $value)
+			{
+				$result[$key] = $this->objectToArray($value);
+			}
+			return $result;
+		}
+		return $data;
+	}
 	/**
 	* 
 	* 
@@ -659,13 +658,18 @@ class crud
 			// if a Generic Structure is detected
 			if ($fv->type == 'MODEL')
 			{
-				if ($temp = json_decode($item->$fk, true))
-				{
-					
 					// load an external Model if declared
-					if (isset($temp['MODEL']) && $php = file_get_contents($this->ppath.'/objects/generic/'.trim($temp['MODEL']).'.php'))
+					$temp = $item->$fk;
+					
+					// temporary fix
+					$temp['MODEL'] = array('type'=>'HIDDENTEXT','value'=>(is_string($temp['MODEL'])?$temp['MODEL']:$temp['MODEL']['value']));// : array('type'=>'HIDDENTEXT','value'=>);
+					
+					// merge Data with external Model
+					//echo $this->ppath.'/objects/generic/'.$temp['MODEL']['value'].'.php';
+					if (isset($temp['MODEL']) && file_exists($this->ppath.'/objects/generic/'.trim($temp['MODEL']['value']).'.php'))
 					{
-						if($tpl = json_decode(substr($php, 13), true))
+						$php = file_get_contents($this->ppath.'/objects/generic/'.trim($temp['MODEL']['value']).'.php');
+						if ($tpl = json_decode(substr($php, 13), true))
 						{
 							$temp = array_replace_recursive($tpl, $temp);
 						}
@@ -692,11 +696,11 @@ class crud
 								$jlbl = $arr['lbl']->label;
 								if (isset($arr['lbl']->placeholder)) $placeholder = $arr['lbl']->placeholder;
 							}
-								
+							
 							$str1 .= call_user_func(
 													'_'.$jv->type,
 													array( 
-															'name' => $fk.'___'.$jk,
+															'name' => $fk.'['.$jk.'][value]',
 															'label' => $jlbl,
 															'placeholder' => $placeholder,
 															'value' => $jv->value, 
@@ -709,15 +713,7 @@ class crud
 							$str1 .= '<p>Content-Type "'.$jv['type'].'" does not exist!</p>';
 						}
 					}
-				}
-				
-				// if something happened, we should know it
-				switch(json_last_error())
-				{
-					case JSON_ERROR_DEPTH:		trigger_error('JSON-Error in '.$fk.', id '.$this->objectId.': Maximum stack depth exceeded', E_USER_ERROR); break;
-					case JSON_ERROR_CTRL_CHAR:	trigger_error('JSON-Error in '.$fk.', id '.$this->objectId.': Unexpected control character found', E_USER_ERROR); break;
-					case JSON_ERROR_SYNTAX:		trigger_error('JSON-Error in '.$fk.', id '.$this->objectId.': Syntax error, malformed JSON', E_USER_ERROR); break;
-				}
+					
 				
 			}// Generic Model END
 			
@@ -746,7 +742,6 @@ class crud
 		$str2 .= '
 <script>
 // <!--js-->
-
 </script>';
 		
 		return $str0 . $strp0 . $str1 . $strp1 . $str2;
@@ -800,7 +795,7 @@ class crud
 		
 		if ($id = $obj->Save())
 		{
-			return $id; // return ID as Success-Message
+			return $id; // return ID as "Success-Message"
 		}
 		else
 		{
@@ -879,7 +874,6 @@ class crud
 	* 
 	* 
 	* @return 
- 
 	*/
 	public function multiValue()
 	{
@@ -908,7 +902,6 @@ class crud
 	* 
 	* 
 	* @return 
- 
 	*/
 	public function multiDelete()
 	{
@@ -944,7 +937,7 @@ class crud
 		
 		
 		// loop all Relations
-		if(isset($this->objects->{$this->objectName}->rel))
+		if (isset($this->objects->{$this->objectName}->rel))
 		{
 			foreach ($this->objects->{$this->objectName}->rel as $rk => $rt)
 			{
@@ -985,7 +978,7 @@ class crud
 					$relList = (($myItem->id) ? array($myItem) : array());
 				}
 				// define Header
-				$head = '<div><span style="font-weight:bold;padding:15px">' .
+				$head = '<div><div class="ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all"><span style="font-weight:bold;padding:15px">' .
 						(isset($this->objects->$rk->lang->{$this->lang}) ? $this->objects->$rk->lang->{$this->lang} : $rk) .
 						'</span>';
 				
@@ -993,6 +986,7 @@ class crud
 				if($this->offset>0) {
 					$head .= '<button rel="arrowthick-1-w" title="'.$this->L('prev').'" onclick="getConnectedReferences(\''.$this->objectId.'\','.($this->offset-$this->limit).')">.</button>';
 				}
+				
 				
 				$str .= '<ul class="ilist rlist">';
 				$labels = $_SESSION[$this->projectName]['labels'][$rk];
@@ -1015,10 +1009,11 @@ class crud
 					
 					$c++;
 					if($c<$this->limit) {
-						$str .= $this->strLi($rk, $relEl->id . '|' . $nn, true);
+						$str .= $this->strLi($rk, $relEl->id, $nn, true);
 					}
 				}
 				$str .= '</ul>';
+				$head .= '</div>';
 				$out .= $head . $str;
 			}// foreach Relations END
 			
@@ -1132,11 +1127,13 @@ class crud
 							$nn .= $i->$n . ' ';
 						}
 						
-						if(strlen(trim($nn))==0) $nn = '[...]';
+						//if(strlen(trim($nn))==0) $nn = '[...]';
 						
-						$str1 .= $this->strLi($this->referenceName, 
-								$i->id . '|' . $nn . 
-								(($pId && strlen($i->$pId) > 0) ? '(!)' : '') );//('.$i->$pId.')
+						$str1 .= $this->strLi(
+												$this->referenceName, 
+												$i->id,
+												$nn . (($pId && strlen($i->$pId) > 0) ? '(!)' : '') 
+											 );//('.$i->$pId.')
 						
 						$relIds[] = $i->id;
 					}
@@ -1192,8 +1189,8 @@ class crud
 				// id | name [if child, parent id]
 				$str2 .= $this->strLi(
 								$this->referenceName, 
-								$i->id . '|' . $nn . 
-								((isset($i->$pId) && strlen($i->$pId) > 0) ? '(!)' : '') 
+								$i->id,
+								$nn . ((isset($i->$pId) && strlen($i->$pId) > 0) ? '(!)' : '') 
 						);//('.$i->$pId.')
 			}
 			$all_cnt++;
@@ -1235,8 +1232,33 @@ class crud
 	/**
 	* 
 	* 
+	* @return bool
+	*/
+	public function addReference()
+	{
+		// cancel if Relation dosent exist
+		if(!isset($this->objects->{$this->objectName}->rel->{$this->referenceName})) 
+		{
+			exit('[[' . $this->L('error') . ' ' . $this->L('relation_dosent_exist'). ']]');
+		}
+		
+		require_once($this->ppath.'/objects/class.'.$this->referenceName.'.php');
+		
+		$obj = new $this->objectName();
+		$item = $obj->Get($this->objectId);
+		$ref = new $this->referenceName();
+		$refitem = $ref->Get($this->referenceId);
+		
+		$action = ($this->objects->{$this->objectName}->rel->{$this->referenceName} == 'p') ? 'Set'.$this->referenceName : 'Add'.$this->referenceName;
+		
+		$item->$action($refitem);
+		return $item->Save();
+	}
+	
+	/**
+	* 
+	* 
 	* @return 
- 
 	*/
 	public function saveReferences()
 	{
@@ -1252,6 +1274,7 @@ class crud
 		
 		// parse ID-String => $l
 		parse_str ($_POST['order']);
+		
 		// if the posted List is empty
 		if(!isset($l)){ $l=array(); }
 		

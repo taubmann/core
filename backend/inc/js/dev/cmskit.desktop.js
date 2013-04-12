@@ -17,16 +17,21 @@ function checkHash()
 		g = [];
 	if(h.length>0)
 	{
+		store['lastPage']=h;
 		var p = h.split('&');
+		
 		for(var i=0,j=p.length;i<j;++i)
 		{
 			var a = p[i].split('=');
-			if(a[1]) g[a[0]]=a[1];
+			if(a[1])
+			{
+				g[a[0]]=a[1];
+			}
 		}
 	}
 	if(!g['object'])
 	{
-		$('#colLeftb').html('')
+		$('#colLeftb').html('');
 	};
 	if(g['object'] && g['object']!=objectName)
 	{
@@ -94,13 +99,26 @@ function init(name, id)
 	getList(id);	
 };
 
+function getColWidth()
+{
+	setColWidth([ parseInt($('#colLeft').css('width')), parseInt($('#colMid').css('width')), parseInt($('#colRight').css('width')) ]);
+};
+
+function setColWidth(cw)
+{
+	$('#colMid').css('left', (cw[0]+20)+'px');
+	$('#colRight').css('left', (cw[0]+cw[1]+30)+'px');
+	store['cw'] = cw;
+	// border:1px solid #f00;
+	$('<style>#colMid input{width:'+(cw[1]-220)+'px}#colRight a{width:'+(cw[2]-60)+'px}</style>').appendTo('head')
+};
 
 $(document).ready(function()
 {
 	// Rules for Masked Input
 	$.mask.definitions['~'] = '[+-]';//plus-minus
 	$.mask.definitions['h'] = '[A-Fa-f0-9]';//color-hash (= #hhhhhh )
-	
+	//alert(JSON.stringify(store));
 	/**
 	* xss
 	
@@ -138,19 +156,6 @@ $(document).ready(function()
 		limitNumber = Math.floor((ch-50)/32);// how many Elements go int the window?
 	
 	
-	function getColWidth()
-	{
-		setColWidth([ parseInt($('#colLeft').css('width')), parseInt($('#colMid').css('width')), parseInt($('#colRight').css('width')) ]);
-	};
-	
-	function setColWidth(cw)
-	{
-		$('#colMid').css('left', (cw[0]+20)+'px');
-		$('#colRight').css('left', (cw[0]+cw[1]+30)+'px');
-		store['cw'] = cw;
-		// border:1px solid #f00;
-		$('<style>#colMid input{width:'+(cw[1]-220)+'px}#colRight a{width:'+(cw[2]-60)+'px}</style>').appendTo('head')
-	};
 	
 	$("#colLeft").resizable({stop:getColWidth});
 	$("#colMid").resizable({stop:getColWidth});
@@ -167,7 +172,7 @@ $(document).ready(function()
 	$("#colMidb").height(ch);
 	$("#colRightb").height(ch-10);
 	
-	// hide logo on small screens
+	// hide Logo on small screens
 	if(dw<850) $("#logo").hide();
 	
 	
@@ -176,7 +181,6 @@ $(document).ready(function()
 	if(store['fnts']) {
 		$('html').css('font-size', store['fnts']);
 	}
-	
 	
 	window.setTimeout(checkHash, 500);
 	
@@ -214,7 +218,7 @@ function getPlainList(id)
 			objectName: objectName, 
 			objectId: id, 
 			limit: limitNumber, 
-			offset: (store[objectName]['offset'] ? parseInt(store[objectName]['offset']) : 0)
+			offset: (store[objectName] ? parseInt(store[objectName]['offset']) : 0)
 		}, 
 		function(data)
 		{
@@ -332,18 +336,21 @@ function getTreeList(id, treeType)
 					{
 						if($(e.target).data('id')) getContent($(e.target).data('id'));
 					});
-					var myd = $(this).data('id').toString();
-					// if the Entry is in the Tree-Path (= Parent-Element), (try to) open the Branch
-					if( $.inArray(myd, store[objectName]['stat']) > -1 )
-					{
-						$(this).parent().find(".ui-icon-circle-plus").trigger('click');
-					}
-					// highlight the actual Entry
-					if( myd == id )
-					{
-						$(this).addClass('sel');
-					}
 					
+					if ($(this).data('id'))
+					{
+						var myd = $(this).data('id').toString();
+						// if the Entry is in the Tree-Path (= Parent-Element), (try to) open the Branch
+						if( $.inArray(myd, store[objectName]['stat']) > -1 )
+						{
+							$(this).parent().find(".ui-icon-circle-plus").trigger('click');
+						}
+						// highlight the actual Entry
+						if( myd == id )
+						{
+							$(this).addClass('sel');
+						}
+					}
 				})
 			}
 		})
@@ -396,12 +403,15 @@ function setPagination(n)
 function getList(id)
 {
 	
-	// autocomplete-searchbox
+	// autocomplete-Searchbox
 	$('#searchbox').autocomplete({
 		source: 'inc/php/search.php?projectName='+projectName+'&objectName='+objectName,
 		minLength: 3,
+		response: function(){
+			$('body').removeClass('loading')
+		},
 		select: function(event,ui)
-		{ 
+		{
 			getContent(ui.item.id);
 			return false;
 		}
@@ -496,7 +506,7 @@ function getContent(id)
 		$('#colMidb input[data-mask]').each(function(){
 			$(this).mask($(this).data('mask'))
 		});
-		// bind a Input-Mask to this Field
+		// make this Field readonly
 		$('#colMidb *[data-readonly]').each(function(){
 			$(this).attr('readonly','readonly')
 		});
@@ -508,10 +518,33 @@ function getContent(id)
 			$(this).remove();
 		});
 		
+		// prepare Time-Frames
+		$('#colMidb input[data-timeframe]').each(function()
+		{
+			$(this).attr('id','tf_'+$(this).attr('name')).after($(secToTimeframe($(this).val(), $(this).attr('name'), $(this).data('timeframe')) )).css({'position':'absolute','left':'-1000px'});
+		});
+		$('#colMidb .timeframe').on('click', function()
+		{
+			var val = parseInt($(this).find('em').text()),//
+			main = $('#tf_'+$(this).data('field')),
+			mult = parseInt($(this).data('mult'));
+			var c = prompt(_('change')+' '+$(this).text(), val);
+			if(c)
+			{
+				$(this).find('em').text(c);
+				var old = val * mult,
+					neu = c * mult;
+					main.val(parseInt(main.val()) + neu - old);
+			}
+		});
 	});
 	
 	getConnectedReferences(id);
 };
+
+
+
+
 
 /**
 * loads all References asocciated to the Entry
@@ -582,12 +615,22 @@ function saveContent(id)
 */
 function createContent()
 {
-	$.get('crud.php', { action: 'createContent', projectName: projectName, objectName: objectName}, function(data) {
+	$.get('crud.php',
+	{ 
+		action: 'createContent', 
+		projectName: projectName, 
+		objectName: objectName
+	}, 
+	function(data) 
+	{
 		$('#colRightb').html('');
-		if(data.substr(0,1)=='_') {
+		if(data.substr(0,2)=='[[')
+		{
 			message(data.substr(1));
 			return false;
-		}else {
+		}
+		else
+		{
 			objectId = data;
 			window.location.hash = '#object='+objectName+'&id='+data;
 			getContent(data);
@@ -771,22 +814,27 @@ function prettify(id)
 		showSecond:true
 	});
 	
+	$('#'+id+' .cron').jqCron();
+	
+	
 	$('#'+id+' .timestamp').datetimepicker(
 	{
-		dateFormat:'mm dd yy',
+		dateFormat:'yy-mm-dd',
 		timeFormat:'h:m:s',
 		showSecond:true, 
-		beforeShow: function(input, inst) 
-		{
-			var ts = parseInt($(input).val()),
-				d = new Date((ts>0) ? ts*1000 : new Date().getTime()),
-				str = (d.getMonth()+1)+' '+d.getDate()+' '+d.getFullYear()+' '+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds();
-			$(input).val(str);
-		},
+		
 		onClose: function(dateText, inst) 
 		{
-			var dat = Math.floor(Date.parse(dateText)/1000);
-			if(!isNaN(dat)) $(this).val(dat);
+			var a = dateText.split(' ');
+			if(!a[1]) return;
+			a[0] = a[0].split('-'),a[1] = a[1].split(':');
+			var d = new Date(a[0][0],a[0][1]-1,a[0][2],a[1][0],a[1][1],a[1][2]).getTime();
+			
+			if(!isNaN(d))
+			{
+				
+				$('#input_'+$(this).attr('id')).val(d/1000);
+			}
 		}
 	});
 	$('#'+id+' .slider').each(function()
@@ -824,7 +872,7 @@ function logout()
 	// there is a real user
 	if(userId != 0)
 	{
-		$.post('extensions/user/wizards/settings/save.php?projectName='+projectName, 
+		$.post('extensions/user/settings/save.php?projectName='+projectName, 
 		{ 
 			id: userId, 
 			json: JSON.stringify(store) 
@@ -960,12 +1008,14 @@ function getWizard(id, type, add)
 	};
 })();
 
-// capture save-shortcut ctrl+s
-$(window).keypress(function(event) 
+
+$(document).bind('keydown', function(e)
 {
-	if (!(event.which == 115 && event.ctrlKey) && !(event.which == 19)) return true;
-	var id = $('#saveButton').attr('alt');
-	if(id) saveContent(id);
-	event.preventDefault();
-	return false;
+	if ((e.keyCode == 83 && (navigator.platform.match('Mac') ? e.metaKey : e.ctrlKey)) || (e.which == 115 && e.ctrlKey) || (e.which == 19))
+	{
+		var id = $('#saveButton').attr('alt');
+		if(id) saveContent(id);
+		e.preventDefault();
+	}
 });
+

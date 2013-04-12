@@ -30,6 +30,7 @@ error_reporting(0);
 
 // decode encoded filepath - useful for translation-services or robust links
 // e.g. http://yourdomain.com/backend/admin/extension_manager/showDoc.php?&e=...
+
 // your encoded path is shown in the page-source
 if(isset($_GET['e'])) $_GET['file'] = base64_decode($_GET['e']);
 
@@ -60,6 +61,8 @@ if($mime!='md' && $mime!='txt') {
 	img{border:0px none;}
 	pre{padding:10px;margin:10px;border:1px dotted #bbb;}
 	.footnotes{font-size:.8em;}
+	a{color:#33c;text-decoration:none}
+	a[href^="http"]{color:#3d3;}
 </style>
 <style media="print">
 	#innertoc{display:none;}

@@ -39,7 +39,8 @@ function getExtensionList($projectName, $m, $mainpath)
 		{
 			$n = basename($dir);
 			$pluginNames[] = $n;
-			$html .= '<button type="button" onclick="location=\'?m=' . $m . '&project=' . $projectName . '&ext=' . $n . '\'">' . str_replace('_',' ',$n) . '</button>';
+			$highlight = (isset($_GET['ext']) && $_GET['ext']==$n) ? ' style="font-weight:bold" ' : '';
+			$html .= '<button '.$highlight.'type="button" onclick="location=\'?m=' . $m . '&project=' . $projectName . '&ext=' . $n . '\'">' . str_replace('_',' ',$n) . '</button>';
 		}
 	}
 	$html .= '</div>';

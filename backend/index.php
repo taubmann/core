@@ -35,16 +35,13 @@ $projects = glob('../projects/*', GLOB_ONLYDIR);
 if ( !file_exists('inc/super.php') ){ header('location: inc/php/setSuperpassword.php'); }// redirect to Superpassword-Input if not set
 if ( count($projects) == 0 ){ header('location: admin/_project_setup/index.php'); }// redirect to Project-Setup if no project
 
+$logout = false;
 if (isset($_GET['project']))
 {
 	$projectName = $_GET['project'];
 	if(isset($_SESSION[$projectName]))
 	{
-		$_SESSION['logout'] = $projectName;
-	}
-	else
-	{
-		unset($_SESSION['logout']);
+		$logout = true;
 	}
 	
 	$_SESSION[$projectName] = null;
@@ -65,20 +62,16 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 <!DOCTYPE html>
 <html lang="<?php echo $l;?>">
 <head>
-<title>cms-kit login <?php echo $projectName.' on '.$_SERVER['SERVER_NAME']?></title>
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
+<title><?php echo $projectName.' backend-login on '.$_SERVER['SERVER_NAME']?></title>
+<meta charset="utf-8" />
 <meta name="robots" content="none" />
-
 <meta http-equiv="cache-control" content="max-age=0" />
 <meta http-equiv="cache-control" content="no-cache" />
 <meta http-equiv="expires" content="0" />
 <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
 <meta http-equiv="pragma" content="no-cache" />
-
 <meta http-equiv="content-script-type" content="text/javascript">
 <meta http-equiv="content-style-type" content="text/css">
-
 <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
 
 <script src="inc/js/jquery.min.js"></script>
@@ -93,10 +86,13 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 	#msg{background:#fcc;color:#333;border-color:#ccc;display:none;}
 	#msg span{cursor:pointer;}
 	input, button, select {background:#fff;border:1px solid #333;padding:5px;margin:3px 0px;}
-	input, button, #error, #msg {-moz-border-radius:5px;-webkit-border-radius:5px;-khtml-border-radius:5px;border-radius:5px;}
+	input, button, select, #error, #msg {border-radius:5px;}
 	button{cursor:pointer;}
-	input[type=text], input[type=password], select {width:158px;}
+	button span{display:inline-block;width:16px;height:16px;background-image:url("inc/css/smoothness/images/ui-icons_222222_256x240.png");}
+	input[type=text], input[type=password], select {-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;width:158px;}
 	#captcha{position:absolute;height:30px;z-index:10;cursor:pointer;}
+	#reset_button, #register_button{display:none}
+	
 </style>
 
 </head>
@@ -116,8 +112,7 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 ?>
 
 <div id="msg">
-	<img src="inc/login/spinner-mini.gif" />
-	please wait!
+	<img src="inc/login/spinner-mini.gif" /> <?php echo L('please_wait');?>
 	<hr />
 </div>
 
@@ -130,39 +125,37 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 	<input type="hidden" id="template" name="template" value="0" />
 
 	<?php
-
 	echo '	'.L('login').'<br />';
-
+	// you can decide wether to show a selectbox showing all your Projects OR a simple input-field
 	if (count($projects)==1)
 	{
-		echo '	<input type="hidden" name="project" value="'.basename($projects[0]).'" />';
+		echo '	<input type="hidden" id="project" name="project" value="'.basename($projects[0]).'" />';
 	}
 	else
 	{
-		// you can decide wether to show a selectbox showing all your Projects OR a simple input-field
-
-		/* Selectbox showing available Projects 
+		/* Selectbox showing all available Projects */
+		if (in_array($_SERVER['SERVER_NAME'], array('localhost','127.0.0.1')))
+		{
 			echo '	<select name="project" id="project"><option value="">'.L('project_name').'</option>';
 			foreach($projects as $p){ $n=basename($p);echo '		<option '.($n==$projectName?'selected="selected" ':'').'value="'.$n.'">'.L($n).'</option>'; }
 			echo '	</select>';
-		*/
+		}
+		else
+		{
+			/* simple Input-Field */
+			echo '
+			<p>
+				<label for="project">'.L('project_name').'</label>
+				<input type="text" id="project" name="project" placeholder="'.L('project_name').'" value="'.$projectName.'" /><br />
+			</p>';
 
-		/* simple Input-Field */
-		echo '
-		<p>
-			<label for="project">'.L('project_name').'</label>
-			<input type="text" id="project" name="project" placeholder="'.L('project_name').'" value="'.$projectName.'" /><br />
-		</p>';
-		
+		}
+
 	}
 	?>
 	<p>
 		<label for="name"><?php echo L('user_name');?></label>
 		<input type="text" id="name" name="name" placeholder="<?php echo L('user_name');?>" />
-	</p>
-	<p style="display:none" id="mailline">
-		<label for="mail"><?php echo L('mail');?></label>
-		<input type="text" id="mail" name="mail" placeholder="<?php echo L('mail');?>" />
 	</p>
 	<p id="passline">
 		<label for="pass"><?php echo L('password');?></label>
@@ -171,45 +164,34 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 	
 	<p>
 		<button type="submit" title="login" style="float:right;margin-right:-10px;">
-			<img src="inc/login/0_ok.png" />
+			<span style="background-position: -64px -144px"></span>
 		</button>
-		<!-- Password-Reminder 
-		<button type="button" title="<?php echo L('forgot_password');?>" onclick="setForgotten()">
-			<img src="inc/login/0_mail.png" />
+		
+		<button id="register_button" type="button" title="<?php echo L('register');?>">
+			<span style="background-position: -144px -96px"></span>
 		</button>
-		-->
-		<button type="button" title="<?php echo L('bookmark');?>" onclick="setHash()">
-			<img src="inc/login/0_bm.png" />
+		
+		<button id="reset_button" type="button" title="<?php echo L('forgot_password');?>">
+			<span style="background-position: -80px -96px"></span>
+		</button>
+		
+		<button id="sethash_button" type="button" title="<?php echo L('bookmark');?>">
+			<span style="background-position: -224px -96px"></span>
 		</button>
 	</p>
+	<p id="additional_buttons"></p>
 </form>
 
-<img onclick="this.src='inc/php/captcha.php?x='+Math.random()" id="captcha" src="inc/login/blank.png" />
+<img id="captcha" src="inc/login/blank.png" />
 
-<script>
-	
-top.window.name = null;//
-$('#form').show();//
+<script type="text/javascript">
+
 var msgNo = 0;//
-
-
-// activate "forgot-password"-Mode (not used atm)
-function setForgotten() {
-	var q = confirm('<?php echo L('to_request_access_enter_your_credentials');?>');
-	if(q)
-	{
-		$('#passline').hide();
-		$('#mailline').show();
-		$('#form').attr('action', 'extensions/user/wizards/remember/index.php');
-	}
-}
-// save username+password as Bookmark-Url
-function setHash() {
-	window.location = '?project='+$('#pname').val()+'#name='+$('#name').val()+'&pass='+$('#pass').val();
-}
+var logout = <?php echo ($logout?'true':'false');?>;// 
 
 // show processing for Logout-Hooks
-function msg(str) {
+function msg(str)
+{
 	var b = $('#msg');
 	b.show();
 	if(!str) return;
@@ -221,55 +203,85 @@ function msg(str) {
 	}
 }
 
-// hide label-elements if placeholders are avalable
-if('placeholder' in document.createElement('input')) {
-	$('label').hide();
-}
-
-
-// "bookmarkable" credentials (Hashes are invisible for the Server!)
-var h = window.location.hash.substr(1);
-if(h.length>0) {
-	var p = h.split('&');
-	for(var i=0,j=p.length; i<j; ++i) {
-		var a = p[i].split('='), el=$('#'+a[0]);
-		if(el) el.val(a[1]);
-	}
-}else {// clear inputs if there is no hash
-	window.setTimeout(function() {
-		$('#pass').val('');
-		$('#mail').val('');
-	}, 1000);
-}
-
-// warn User if activated capsLock
-$('#pass').keypress(function(e)
+function loadProjectJs(name)
 {
-    var s = String.fromCharCode( e.which );
-    if ( s.toUpperCase() === s && s.toLowerCase() !== s && !e.shiftKey ) {
-        $('#msg').html('<?php echo L('capsLock_is_active');?>');
-        $('#msg').show();
-    }else {
-		$('#msg').hide();
+	if(name.length>2)
+	{
+		project = name;
+		$.getScript('../projects/'+name+'/extensions/cms/login.js');
+	}
+}
+
+$(document).ready(function()
+{
+	project = $('#project').val();// get the Project-Name if set by $_GET
+	top.window.name = null;// clear the window.name (Storage for User-Settings)
+	$('#form').show();// show the main Form (hidden if JS is deactivated)
+	
+	// hide Labels if html5-Placeholders are available
+	if('placeholder' in document.createElement('input')){ $('label').hide() }
+	
+	// Listener to get a new Captcha-Image
+	$('#captcha').on('click', function(){ $(this).attr('src', 'inc/php/captcha.php?x='+Math.random()) });
+	
+	// "bookmarkable" Credentials (Hashes are invisible for the Server)
+	h = window.location.hash.substr(1);
+	if(h.length>0)
+	{
+		var p = h.split('&');
+		for(var i=0,j=p.length; i<j; ++i)
+		{
+			var a = p[i].split('='), el=$('#'+a[0]);
+			if(el) el.val(a[1]);
+		}
+	}
+	else// clear inputs if there is no hash
+	{
+		window.setTimeout(function()
+		{
+			$('#pass').val('');
+			$('#mail').val('');
+		}, 1000);
+	}
+	// Listener to save Credentials as Bookmark-Url
+	$('#sethash_button').on('click', function(){ window.location = '?project='+$('#project').val()+'#name='+$('#name').val()+'&pass='+$('#pass').val() })
+
+	// warn the User if capsLock is activated
+	$('#pass').on('keypress', function(e)
+	{
+		var s = String.fromCharCode( e.which );
+		if ( s.toUpperCase() === s && s.toLowerCase() !== s && !e.shiftKey )
+		{
+			$('#msg').html('<?php echo L('capsLock_is_active');?>');
+			$('#msg').show();
+		}
+		else
+		{
+			$('#msg').hide();
+		}
+	});
+	
+	// (re)load the additional Functions of the Project
+	$('#project').on('blur', function(){ loadProjectJs($(this).val()) });
+	loadProjectJs(project);
+	
+	// detect Touchscreen-Devices
+	if (('ontouchstart' in document.documentElement) || $('#template').val()==1)
+	{
+		$('#template').val('1');
+	}
+	else // fetch Background-Image for Desktop-Devices
+	{
+		$.getScript('inc/js/jquery.backstretch.js',function(){
+			var now = new Date();
+			$.getScript('inc/login/x_of_the_day.php?t='+now.getFullYear()+'_'+now.getMonth()+'_'+now.getDay());
+		});
 	}
 });
 
-// detect Touchscreen-Devices
-if(('ontouchstart' in document.documentElement) || $('#template').val()==1) {
-	$('#template').val('1');
-}else {// fetch Background-Image for Desktop-Devices
-	document.writeln('<script src="inc/js/jquery.backstretch.js"><\/script>');
-	var now = new Date();
-	document.writeln('<script src="inc/login/x_of_the_day.php?t='+now.getFullYear()+'_'+now.getMonth()+'_'+now.getDay()+'"><\/script>');
-}
 
 </script>
 
-<?php 
-	if(isset($_SESSION['logout'])) {
-		@include '../projects/'.$_SESSION['logout'].'/ext/all/logout.php';
-	}
-?>
 
 </body>
 </html>

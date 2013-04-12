@@ -1,5 +1,8 @@
 <?php
 function _MODEL($arr) {
-	return '<input type="hidden" name="'.$arr['name'].'" value="'.htmlspecialchars($arr['value']).'" />';
+	//return '<textarea>'.json_encode($arr['value']).'</textarea>';// show model
+	return '';
+	
+	//return '<input type="text" name="'.$arr['name'].'" value="'.json_encode($arr['value']).'" />';
 }
 ?>

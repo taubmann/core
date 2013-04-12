@@ -24,15 +24,17 @@
 * 
 *********************************************************************************/
 
+
 // show a Message instead of alert (string, error, timeout)
 function message(str, err, out) {
 	var id = 'x'+Math.random().toString().substring(2);
+	if(str.substr(0,2)=='[['){err=true,str=str.substring(2,str.length-2)}
 	var h = '<div id="'+id+'" class="ui-widget"><div class="ui-state-'+(err?'error':'highlight')+' ui-corner-all" style="padding:0 .7em"><p><span class="ui-icon ui-icon-'+(err?'alert':'info')+'" style="float:left;margin-right:.3em;"></span>'+str+'</p></div></div>';
 	$('#messagebox').append(h);
 	window.setTimeout(function(){$('#'+id).slideUp()}, (out?out:3000));
 };
 
-// Dummy-Translation for Development ( do NOT remove the space between "_" and "(". All _-Calls are replaced by the Compressor)
+// Dummy-Translation for Development ( do NOT remove the space between "_" and "(". All _-Calls are replaced normally by the Compressor)
 function _ (str) {
 	if(window.LL && window.LL[str]) return window.LL[str];
 	return str.replace(/_/g, ' ');
@@ -61,7 +63,7 @@ function getget(){
 	}
 })(jQuery);
 
-function array_diff (a, b) {
+function array_diff(a, b) {
 	return jQuery.grep(a, function(n,i) {
 		return b.indexOf(n) < 0;
 	});
@@ -142,21 +144,41 @@ function styleButtons(id)
 	}
 )};
 
+function secToTimeframe (sec, name, show)
+{
+	var years = Math.floor(sec / 31556926);
+	sec %= 31556926;
+	var months = Math.round(sec / 2629743);
+	sec %= 2629743;
+	var days = Math.floor(sec / 86400);
+	sec %= 86400;
+	var hours = Math.floor(sec / 3600);
+	sec %= 3600;
+	var minutes = Math.floor(sec / 60);
+	sec %= 60;
+	var  str = '';
+	if(/year/.test(show)) str += '<span class="timeframe" data-mult="31556926" data-field="'+name+'"> ' + _('Years') + ': <em>' + years.toString() + '</em></span>';
+	if(/month/.test(show)) str += '<span class="timeframe" data-mult="2629743" data-field="'+name+'">' + _('Months') + ': <em>' + months.toString()  + '</em></span>';
+	if(/day/.test(show)) str += '<span class="timeframe" data-mult="86400" data-field="'+name+'">' + _('Days') + ': <em>' + days.toString()  + '</em></span>';
+	if(/hour/.test(show)) str += '<span class="timeframe" data-mult="3600" data-field="'+name+'">' + _('Hours') + ': <em>' + hours.toString()  + '</em></span>';
+	if(/minute/.test(show)) str += '<span class="timeframe" data-mult="60" data-field="'+name+'">' + _('Minutes') + ': <em>' + minutes.toString()  + '</em></span>';
+	if(/second/.test(show)) str += '<span class="timeframe" data-mult="1" data-field="'+name+'">' + _('Seconds') + ': <em>' + sec.toString()  + '</em></span>';
+	
+	return str;
+};
+
 $(document).ready(function()
 {
 	// supress href-call on blind Links
 	$('body').on('click', 'a[href="#"]',function(e){e.preventDefault()});
-	// show waiter if ajax-call is loading
-	$('body').on({
-		ajaxStart: function() {
-			$(this).addClass('loading');
-		},
-		ajaxStop: function() {
-			$(this).removeClass('loading');
-		}
-	});
-	$('.wait').on('click', function(){$('body').removeClass('loading')});
+	
+	$.ajaxSetup({ cache:false });
+	// show a waiter if Ajax-Call is loading
+	$(document).ajaxStart(function(){$('body').addClass('loading')});
+	$(document).ajaxStop(function(){$('body').removeClass('loading')});
+	
 });
+
 // open a Help-File
 function openDoc(p)
 {
@@ -164,5 +186,4 @@ function openDoc(p)
 };
 
 $(window).unload(function(){window.name=JSON.stringify(store)});
-
 

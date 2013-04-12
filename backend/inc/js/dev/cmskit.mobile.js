@@ -134,7 +134,7 @@ function activateTab(index, label)
 	$('#wrapper').tabs(
 	{
 		disabled: d, 
-		selected: index// 1.9 selected>activated ??
+		selected: index// 1.9 selected>active ??
 	});
 }
 
@@ -426,6 +426,38 @@ function getContent(id)
 		$('#accordion').accordion({collapsible:true});
 		$('#tabs').tabs();
 		prettify('colMidb');
+		
+		// make this Field readonly
+		$('#colMidb *[data-readonly]').each(function(){
+			$(this).attr('readonly','readonly')
+		});
+		// change type="..." (e.g. for HTML5 checks)
+		$('#colMidb input[data-type]').each(function(){
+			var newEl = $(this).clone();
+			newEl.attr("type", $(this).data('type'));
+			newEl.insertBefore($(this));
+			$(this).remove();
+		});
+		
+		// prepare Time-Frames
+		$('#colMidb input[data-timeframe]').each(function()
+		{
+			$(this).attr('id','tf_'+$(this).attr('name')).after($(secToTimeframe($(this).val(), $(this).attr('name'), $(this).data('timeframe')) )).css({'position':'absolute','left':'-1000px'});
+		});
+		$('#colMidb .timeframe').on('click', function()
+		{
+			var val = parseInt($(this).find('em').text()),//
+			main = $('#tf_'+$(this).data('field')),
+			mult = parseInt($(this).data('mult'));
+			var c = prompt(_('change')+' '+$(this).text(), val);
+			if(c)
+			{
+				$(this).find('em').text(c);
+				var old = val * mult,
+					neu = c * mult;
+					main.val(parseInt(main.val()) + neu - old);
+			}
+		});
 		
 		$('#referenceSelect').appendTo('#relSel');
 		

@@ -34,6 +34,8 @@ $js_path  = $path . 'js/';
 $out_path = $path . 'locale/';
 $relpath = relativePath(dirname(__FILE__),$path) . '/locale/';
 
+$headstr = 'Javascript concatenated';
+
 if(!$_GET['lang'] || !file_exists($path.'locale/'.$_GET['lang'].'.php'))
 {
 	$_GET['lang'] = 'en';
@@ -62,6 +64,7 @@ $src = array(
 				array('dev/jquery.autosize.min.js', false, false, true),
 				array('jquery.foldertree.js', true, false, true),
 				array('dev/jquery-ui-timepicker.js', true, true, true),
+				array('jqCron.js', true, true, true),
 			  ),
 			
 			// Mobile-Version
@@ -72,6 +75,7 @@ $src = array(
 				array('jquery.foldertree.js', true, false, true),
 				array('dev/mobiscroll.min.js', false, false, true),
 				array('jquery.ui.touchpunch.js',false, false, true),
+				array('jqCron.js', true, true, true),
 			  ),
 		);
 
@@ -93,6 +97,7 @@ foreach ($src as $aa)
 		if ($a[1] && !isset($_GET['nocompress']))
 		{
 			$str = compress($str);
+			$headstr = 'Javascript packed';
 		}
 		
 		// translate Languge-Calls found in the Code (the L-Word)
@@ -131,7 +136,7 @@ a, a:visited{text-decoration:underline;color:#00f;}
 </head>
 <body>
 	<a href="javascript:history.back()">back</a>
-	<h2>JS Packed</h2>
+	<h2><?php echo $headstr;?></h2>
 	<p>Labels were translated to: "<?php echo $_GET['lang'];?>".</p>
 	
 	<p>Desktop: <a target="_blank" href="<?php echo $relpath.$_GET['lang'];?>0.js">File</a></p>

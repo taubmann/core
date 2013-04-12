@@ -1,7 +1,7 @@
 <?php
-//super-simple captcha to protect against brute-force password-guessing
+//super-simple captcha to protect against brute-force attacks
 session_start();
-$ch = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+$ch = '23456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';// 0/1 look like O/l
 $s = '';
 for($i=0; $i < 5; $i++) $s .= $ch[mt_rand(0, strlen($ch)-1)];
 $_SESSION['captcha_answer'] = $s;

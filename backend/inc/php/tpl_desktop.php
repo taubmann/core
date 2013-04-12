@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="<?php echo $lang;?>">
 <head>
-<title>cms-kit-backend: <?php echo $projectName;?></title>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title><?php echo $projectName;?>-backend</title>
+<meta charset="utf-8" />
 
 <!-- prevent browser-caching -->
 <meta http-equiv="cache-control" content="max-age=0" />
@@ -29,8 +29,6 @@
 	if(store['lastPage']){ window.location.hash=store['lastPage'] }
 	
 </script>
-
-<?php echo $loginHeadHtml;?>
 
 <link rel="icon" type="image/png" href="inc/css/icon.png" />
 
@@ -97,22 +95,6 @@ echo '<button type="button" id="logoutButton" rel="power" onclick="logout()">'.L
 if(file_exists($ppath.'/objects/logo.png'))
 {
 	echo '<img id="logo" style="height:27px;float:left;margin:0 10px 0 0;" src="'.$ppath.'/objects/logo.png" />';
-}
-
-// draw Tag-Selector if needed
-if(count($tags) > 0)
-{
-	echo '<span>
-<select id="tagSelect" onchange="location=\'backend.php?project='.$projectName.'&tag=\'+this.value">
-	<option value=""> '.L('available_Tags')." </option>\n";
-	
-	foreach($tags as $tag)
-	{
-		echo '		<option value="'.$tag['name'].'"'.($tag['selected']?' selected="selected"':'').'"> '.$tag['name']." </option>\n";
-	}
-	
-	echo '</select>
-</span>';
 }
 
 

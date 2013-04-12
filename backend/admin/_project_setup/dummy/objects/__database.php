@@ -77,7 +77,7 @@ class DB
 				}
 				catch (PDOException $e)
 				{
-					exit('Error connecting Database: ' . $e->getMessage());
+					exit('[[Error connecting Database: ' . $e->getMessage() . ']]');
 				}
 		}
 		return self::$db[$i];

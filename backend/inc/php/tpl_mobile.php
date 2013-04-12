@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="<?php echo $lang;?>">
 <head>
-<title>cms-kit-backend: <?php echo $projectName;?></title>
+<title><?php echo $projectName;?>-backend</title>
 <meta charset="utf-8" />
 
 <meta name="robots" content="none" />

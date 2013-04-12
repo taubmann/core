@@ -23,20 +23,22 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ************************************************************************************/
 // 
+
 /**
 * 
 * 
 * 
 */
 $idAdd = array (
-	'manual' => array (
+	array (
+		'sqlite' => 	array('INTEGER', 'INTEGER', 'PRIMARY KEY ASC', ''), // SQLite-ID-Fields
+		'mysql' => 		array('INT (11)', 'INT (11)',  'NOT NULL AUTO_INCREMENT PRIMARY KEY', '') // MySql-ID-Fields
+	),
+	array (
 		'sqlite' => 	array('INTEGER', 'TEXT', 'NOT NULL UNIQUE', ''), // SQLite-ID-Fields
 		'mysql' => 		array('INT (11)', 'VARCHAR (25)', 'NOT NULL UNIQUE', '') // MySql-ID-Fields
 	),
-	'auto' => array (
-		'sqlite' => 	array('INTEGER', 'INTEGER', 'PRIMARY KEY ASC', ''), // SQLite-ID-Fields
-		'mysql' => 		array('INT (11)', 'INT (11)',  'NOT NULL AUTO_INCREMENT PRIMARY KEY', '') // MySql-ID-Fields
-	)
+	
 );
 
 
@@ -99,10 +101,16 @@ function getTableStructure()
  * 
  * 
  * */
-function processObject($name, $object, $db)
+function processObject ($name, $object, $db, $increment)
 {
-	global $dbModel, $datatypes, $queries, $tables;
+	global $dbModel, $datatypes, $queries, $tables, $errorHtmlOutput;
 	
+	// every table needs an ID!!
+	if ($object['fields']['field'][0]['@attributes']['name'] != 'id')
+	{
+		$errorHtmlOutput[] = 'ID is missing in "'.$name.'"';
+		array_unshift($object['fields']['field'], array('@attributes'=>array('name'=>'id'),'datatype'=>'INTEGER'));
+	}
 	
 	$queries[$db][$name] = array();
 	
@@ -115,25 +123,28 @@ function processObject($name, $object, $db)
 	
 	if ( !isset($dbModel[$db][$name]) )
 	{ 
-		addTable($queries, $name, $db);
+		addTable($queries, $name, $db, $increment);
 	}
 	
-	
-	// check within id-Field (for siblings)
-	checkRelation ($queries, $name, 'id', 0, $object, $db, 's');
-	
-	// fix if we have only one Field ??????
+	// warn user if we have only one Field ??????
 	if ( !isset($object['fields']['field'][0]['@attributes']['name']) )
 	{
-		echo 'ONLY ONE FIELD???';
+		echo '<p>ONLY ONE FIELD IN "'.$name.'"!!</p>';
 	}
 	
 	// loop the other Fields
-	for ( $i=1; $i<count($object['fields']['field']); $i++ )
+	for ( $i=0; $i<count($object['fields']['field']); $i++ )
 	{
 		if ( $fname = $object['fields']['field'][$i]['@attributes']['name'] )
 		{
-			// if the Column dosent exist
+			if ($fname == 'id')
+			{
+				// check within id-Field for siblings
+				checkRelation ($queries, $name, 'id', 0, $object, $db, $increment, 's');
+				continue;
+			}
+			
+			// if the Column dosen't exist
 			if ( !isset($dbModel[$db][$name][$fname]) )
 			{
 				addColumn ($queries, $name, $fname, $db, $object['fields']['field'][$i]['datatype']);
@@ -144,17 +155,17 @@ function processObject($name, $object, $db)
 				$oldColumnType = $dbModel[$db][$name][$fname];//$datatypes[  ][ Configuration::$DB_TYPE[$db] ];
 				$newColumnType = $datatypes[ $object['fields']['field'][$i]['datatype'] ][ Configuration::$DB_TYPE[$db] ];
 				
-				if( ($oldColumnType != $newColumnType) && substr($fname, -2) != 'id')
+				if ($oldColumnType != $newColumnType)
 				{
 					//echo $name.' / '.$newColumnType;
 					
 				}
 			}
 			
-			if(substr($fname, -2) == 'id' && $object['fields']['field'][$i]['datatype'] == 'INTEGER')
+			if ($fname != 'id' && substr($fname, -2) == 'id' && $object['fields']['field'][$i]['datatype'] == 'INTEGER')
 			{
 				// check within xxid-Fields (for parents)
-				checkRelation ($queries, $name, $fname, $i, $object, $db, 'p');
+				checkRelation ($queries, $name, $fname, $i, $object, $db, $increment, 'p');
 			}
 			
 			// add some Credentials to the JSON-Object ////////////////////////////////////////////////
@@ -164,12 +175,18 @@ function processObject($name, $object, $db)
 			$tmp['col'][$fname] = array	('type' => $object['fields']['field'][$i]['datatype']);
 			
 			//
+			if ($b = text2array($object['fields']['field'][$i]['filter']))
+			{
+				$tmp['col'][$fname]['filter'] = $b;
+			}
+			
+			//
 			if ($b = text2array($object['fields']['field'][$i]['add']))
 			{
 				$tmp['col'][$fname]['add'] = $b;
 			}
 			//
-			if(isset($object['fields']['field'][$i]['default']))
+			if (isset($object['fields']['field'][$i]['default']))
 			{
 				$tmp['col'][$fname]['default'] = trim( urldecode($object['fields']['field'][$i]['default']) );
 				
@@ -192,8 +209,6 @@ function processObject($name, $object, $db)
 				$tmp['col'][$fname]['comment'] = $b;
 			}
 			
-			
-			
 		}
 	
 	}
@@ -209,10 +224,11 @@ function processObject($name, $object, $db)
  * 
  * 
  * */
-function addTable (&$queries, $name, $db)
+function addTable (&$queries, $name, $db, $increment)
 {
 	global $idAdd;
-	$add = $idAdd[ Configuration::$DB_INCREMENT[$db] ][ Configuration::$DB_TYPE[$db] ];
+	$add = $idAdd[ $increment ][ Configuration::$DB_TYPE[$db] ];
+	
 	$queries[$db][$name][] = 'CREATE TABLE IF NOT EXISTS `' . $name . '` (`id` ' . $add[1] . ' ' . $add[2] . ')' . $add[3] . ';';
 }
 
@@ -298,12 +314,13 @@ function alterColumnType (&$queries, $name, $fname, $db)
 * 
 * 
 */
-function checkRelation (&$queries, $name, $fname, $index, $object, $db, $type)
+function checkRelation (&$queries, $name, $fname, $index, $object, $db, $increment, $type)
 {
 	global $dbModel, $relations, $objects_to_rebuild;
 	global $datatypes, $idAdd;
 	
-	$add = $idAdd[ Configuration::$DB_INCREMENT[$db] ][ Configuration::$DB_TYPE[$db] ];
+	
+	$add = $idAdd[ $increment ][ Configuration::$DB_TYPE[$db] ];
 	
 	if ( $rel = $object['fields']['field'][$index]['relation'] )
 	{
@@ -312,11 +329,6 @@ function checkRelation (&$queries, $name, $fname, $index, $object, $db, $type)
 		{
 			$rl = (isset($r['@attributes']['object']) ? $r['@attributes']['object'] : $r['object']);
 			$map = mapName($name, $rl);
-			
-			/*if ($type=='p' && !isset($dbModel[$db][$name][$rl.'id']) ) //!isset($tables[$name][$rl.'id'])
-			{
-				//$queries[$db][$name][] = 'ALTER TABLE `' . $name . '` ADD COLUMN `' . $rl . 'id` ' . $add[1] . ';';
-			}*/
 			
 			if ( $type=='s' && !isset($dbModel[$db][$map]) )
 			{
@@ -351,7 +363,7 @@ function mapName ($a, $b, $add = 'map')
 * 
 * 
 */
-function checkHierarchy(&$queries, $name, $db, $type, &$tmp)
+function checkHierarchy (&$queries, $name, $db, $increment, $type, &$tmp)
 {
 	global $newModel, $dbModel, $idAdd;
 	
@@ -361,7 +373,7 @@ function checkHierarchy(&$queries, $name, $db, $type, &$tmp)
 	{
 		case 'Tree':
 			// add columns 
-			$id_type = ((Configuration::$DB_INCREMENT[$db]=='manual')?'EXCLUDEDVARCHAR':'EXCLUDEDINTEGER');
+			$id_type = (($increment==1)?'EXCLUDEDVARCHAR':'EXCLUDEDINTEGER');
 			
 			if(!isset($dbModel[$db][$name]['treeparentid']))
 			{
@@ -380,18 +392,20 @@ function checkHierarchy(&$queries, $name, $db, $type, &$tmp)
 		case 'Graph':
 			if(!isset($dbModel[$db][$name.'matrix'])) 
 			{
-				$add = $idAdd[ Configuration::$DB_INCREMENT[$db] ][ Configuration::$DB_TYPE[$db] ];
+				$add = $idAdd[ $increment ][ Configuration::$DB_TYPE[$db] ];
 				$queries[$db][$name][] = 'CREATE TABLE IF NOT EXISTS `' . $name . 'matrix` (`pid` ' . $add[1] . ', `id` ' . $add[1] . ', `hops` ' . $add[0] . ', `sort` ' . $add[0] . ');';
 			}
 		break;
 	}
 	
 	// remove Tables/Columns if...
+	// ...we are no Graph anymore
 	if (in_array($type, array('List','Tree')) && isset($dbModel[$db][$name.'matrix']))
 	{
 		$queries[$db][$name][] = 'DROP TABLE IF EXISTS `' . $name . 'matrix`;';
 	}
-	if (in_array($type, array('List','Tree')) && isset($dbModel[$db][$name]['treeparentid']))
+	// we are no Tree anymore
+	if (in_array($type, array('List','Graph')) && isset($dbModel[$db][$name]['treeparentid']))
 	{
 		deleteColumn ($queries, $name, 'treeparentid', 	$db);
 		deleteColumn ($queries, $name, 'treeleft', 		$db);
@@ -427,18 +441,18 @@ function text2array($str, $simple=false, $deep=false)
 	if ( (isset($str) && !empty($str) && ($str !== '__EMPTY_STRING_') || $str === '0') )
 	{
 		//echo $str."\n";
-		if($simple) return urldecode(strval($str));
+		if ($simple) return urldecode(strval($str));
 		
 		$lines = explode(PHP_EOL, urldecode($str));
 		$array = array();
-		foreach($lines as $line)
+		foreach ($lines as $line)
 		{
 			$lineArr = explode(':', trim($line));
 			$k = array_shift($lineArr);
 			
 			//if(!isset($lineArr[0])) return null;
 			
-			if($deep)
+			if ($deep)
 			{
 				if(!isset($array[$k])){ $array[$k] = array(); }
 				$array[$k][] = $lineArr;
@@ -464,7 +478,7 @@ function text2array($str, $simple=false, $deep=false)
 * taken from: http://snipplr.com/view/13024
 * 
 */
-function dumpMySqlTables($db, $queries)
+function dumpMySqlTables ($db, $queries)
 {
 	
 	$sDatabase = Configuration::$DB_DATABASE[$db];
@@ -558,10 +572,13 @@ function indentJson ($json)
 			$outOfQuotes = !$outOfQuotes;
 		
 		// If this character is the end of an element, output a new line and indent the next line.
-		} else if(($char == '}' || $char == ']') && $outOfQuotes) {
+		}
+		else if (($char == '}' || $char == ']') && $outOfQuotes)
+		{
 			$result .= $newLine;
 			$pos --;
-			for ($j=0; $j<$pos; $j++) {
+			for ($j=0; $j<$pos; $j++)
+			{
 				$result .= $indentStr;
 			}
 		}
@@ -572,11 +589,13 @@ function indentJson ($json)
 		// If the last character was the beginning of an element, output a new line and indent the next line.
 		if (($char == ',' || $char == '{' || $char == '[') && $outOfQuotes) {
 			$result .= $newLine;
-			if ($char == '{' || $char == '[') {
+			if ($char == '{' || $char == '[')
+			{
 				$pos ++;
 			}
 			
-			for ($j = 0; $j < $pos; $j++) {
+			for ($j = 0; $j < $pos; $j++)
+			{
 				$result .= $indentStr;
 			}
 		}
@@ -599,11 +618,11 @@ function getBackupList()
 	$html = '';
 	
 	$bac_files = glob($ppath . 'backup/*.zip');
-	foreach($bac_files as $bac_file)
+	foreach ($bac_files as $bac_file)
 	{
 		$name = basename($bac_file);
 		$st = array_shift(explode('_', $name));
-		if(is_numeric($st)) $html .= '<option value="'.$name.'">' . date("d m Y H:i:s", intval($st)) . '</option>';
+		if (is_numeric($st)) $html .= '<option value="'.$name.'">' . date("d m Y H:i:s", intval($st)) . '</option>';
 	}
 	
 	return $html;

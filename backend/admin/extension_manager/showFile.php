@@ -32,7 +32,7 @@ require 'inc/path.php';
 
 if(!file_exists('../../wizards/syntax/src/ace.js')) exit('Syntax-Wizard is missing :-(');
 
-$file = (isset($_GET['int']) ? '../..' : '../../../projects/'.$_GET['project']) . '/extensions/'.$_GET['ext'].'/'.$_GET['file'];
+//$file = realpath((isset($_GET['int']) ? '../..' : '../../../projects/'.$_GET['project']) . '/extensions/'.$_GET['ext'].'/'.$_GET['file']);
 
 // check if the File is inside a Folder called "ext"
 /*
@@ -40,7 +40,7 @@ if( !in_array('extensions', explode(DIRECTORY_SEPARATOR, realpath(dirname($file)
 	exit('file is not located in a Extension-Folder!');
 }*/
 
-$file = $mainpath[2] . $_GET['ext'] . '/' . $_GET['file'];
+$file = realpath($mainpath[2] . $_GET['ext'] . '/' . $_GET['file']);
 
 $mime = array_pop(explode('.', $_GET['file']));
 
@@ -64,6 +64,7 @@ if (is_readable($file))
 {
 	//utf8_decode(
 	$content = file_get_contents($file);
+	if(strlen(trim($content))==0) exit($file . ' seems to be empty!');
 	$canSave = is_writable($file);
 }
 else
@@ -96,12 +97,12 @@ else
 <?php
 $readonly = '';
 
-// draw save-button only if allowed (project-folder OR super-root)
+// draw save-button only if allowed (Project-Folder OR super-root)
 if($m < 1 || $_SESSION[$projectName]['root'] == 2)
 {
 	// draw active save-button if file is writable or to create one
 	if($canSave || $_GET['create']) {
-		echo '<img src="../../wizards/syntax/inc/img/save.png" id="bsave" onclick="save()" title="'.L('save').'" />';
+		echo '<img src="../../wizards/syntax/inc/img/save.png" id="bsave" onclick="save()" title="'.L('save').' '.$file.'" />';
 	}else {
 		echo '<img src="../../wizards/syntax/inc/img/nosave.png" id="bsave" title="'.L('file_is_not_writable').'" />';
 		$readonly = 'editor.setReadOnly(true);';
@@ -111,10 +112,10 @@ else
 {
 	$readonly = 'editor.setReadOnly(true);';
 }
-
+//, ENT_SUBSITUTE|ENT_HTML5
 ?>
 
-<pre id="editor"><?php echo htmlentities($content, ENT_SUBSITUTE|ENT_HTML5)?></pre>
+<pre id="editor"><?php echo htmlspecialchars($content)?></pre>
 
 <div id="overlay" style="display:none;" onclick="$('#overlay').hide()"></div>
 <div id="helpdesk" style="display:none">
@@ -129,6 +130,7 @@ else
 
 var editor;
 var mode = '<?php echo $mode[$mime];?>';
+var fpath = '<?php echo $file;?>';
 
 window.onload = function()
 {

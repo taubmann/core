@@ -38,9 +38,9 @@ $_SESSION['extensionedit'] = 1;
 
 
 
-/*
- * show available Extensions
- * */
+/**
+* show available Extensions
+*/
 
 $pluginNames = array();
 
@@ -63,9 +63,9 @@ $html .= '<div id="accordion">';
 
 $html .= getExtensionList($projectName, $m, $mainpath);
 
-/*
- * show Extension-Information-Bar
- * */
+/**
+* show Extension-Information-Bar
+*/
 
 if(isset($_GET['ext'])) 
 {
@@ -119,6 +119,9 @@ if(isset($_GET['ext']))
 	
 	$html .= '</div>';
 	// Accordion END
+	
+	// load the Overview
+	$html .= '<script>frameTo(\'showDirtree.php?project='.$projectName.'&m='.$m.'&ext='.(isset($_GET['ext'])?$_GET['ext']:'').'\')</script>';
 
 } ////////////// if($_GET['ext']) END ////////////////////
 
@@ -192,13 +195,12 @@ $(window).resize(function() {
 
 </head>
 <body>
+<iframe id="frame" src="about:blank"></iframe>
 
 <div id="menu">
 <?php echo $infohtml .$html;?>
 
 </div>
-
-<iframe id="frame" src="about:blank"></iframe>
 
 </body>
 </html>

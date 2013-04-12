@@ -95,14 +95,10 @@ option
 	color: #fcHighlight;
 	display: block;
 	left: 0;
-	moz-border-radius: cornerRadius;
-	moz-border-radius-topleft: 0;
 	padding: 10px;
 	position: absolute;
 	text-align: left;
 	top: 20px;
-	webkit-border-radius: cornerRadius;
-	webkit-border-top-left-radius: 0;
 	width: 200px;
 	z-index: 601;
 }
@@ -115,9 +111,6 @@ option
 #colLeft, #colMid, #colRight
 {
 	border-radius: cornerRadius;
-	khtml-border-radius: cornerRadius;
-	moz-border-radius: cornerRadius;
-	webkit-border-radius: cornerRadius;
 }
 #colLeftb, #colMidb, #colRightb
 {
@@ -221,6 +214,17 @@ option
 {
 	font-size: 90%;
 }
+
+.timeframe
+{
+	cursor: pointer;
+	border: 1px solid #borderColorDefault;
+	border-radius: cornerRadius;
+	color: #fcDefault;
+	padding: 4px;
+	margin-right: 5px;
+}
+
 .slider
 {
 	margin: 5px 0;

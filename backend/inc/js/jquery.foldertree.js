@@ -16,7 +16,7 @@
 		if( o.loadMessage == undefined ) o.loadMessage = 'Loading...';
 		
 		// define Dummy-Function
-		if( o.statCheck == undefined ) o.statCheck = function(id,stat){};
+		if( o.statCheck == undefined ) o.statCheck = function(id,stat){alert(2)};
 		
 		// builds the Tree in a list of html-elemenets
 		return this.each(function()

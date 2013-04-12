@@ -11,7 +11,9 @@ include_once($ppath . '/objects/__database.php');
 
 // secure search-string (taken from $_REQUEST, not $_GET)
 $strip_this = "/[^äöüßÄÖÜa-z0-9\\040\\.\\-\\_\\,\\:\\!\\%\\*\\@\\?]/i";
-$term = preg_replace($strip_this, '', mb_strtolower($_REQUEST['term']));
+
+$term = function_exists('mb_strtolower') ? mb_strtolower($_REQUEST['term']) : strtolower($_REQUEST['term']);
+$term = preg_replace($strip_this, '', $term);
 
 //exit('[{"label":"'.$_REQUEST['term'].'"}]');
 

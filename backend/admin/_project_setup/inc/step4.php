@@ -76,7 +76,6 @@ final class Configuration
 	public static $DB_PORT 		= array(\''.implode("','", $_POST['dbport']).'\');
 	public static $DB_USER 		= array(\''.implode("','", $_POST['dbuser']).'\');
 	public static $DB_PASSWORD 	= array(\''.implode("','", $_POST['dbpass']).'\');
-	public static $DB_INCREMENT = array(\''.implode("','", $_POST['id']).'\');
 }
 ?>
 ';

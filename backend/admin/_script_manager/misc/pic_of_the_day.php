@@ -15,11 +15,9 @@
 */
 require '../header.php';
 
-$mypath = $backend.'/inc/login/';
+$savePath = $backend.'/inc/login/';
 
-$relpath = relativePath(dirname(__FILE__), $path);
-
-if(!is_writable($mypath.'login_src.php')) exit('login_src.php is not writable!');
+if(!is_writable($savePath.'login_src.php')) exit('login_src.php is not writable!');
 
 $get = '?project='.$projectName;
 
@@ -49,7 +47,7 @@ $out[] = "	array (
 	}
 	
 	$str = '<?'."php\n\n\$loginpics = array(\n" . implode(",\n", $out) . "\n);\n";
-	file_put_contents($mypath.'login_src.php', $str);
+	file_put_contents($savePath.'login_src.php', $str);
 	$msg = '<h3 style="color:green">List saved</h3>';
 }
 
@@ -86,14 +84,14 @@ div{
 
 <p>
 	Add Infos below and save. 
-	First Block is always empty to add a new Item. 
-	To remove an Item simply clear all Fields and save.
+	The first Block is always empty to add a new Item. 
+	To remove an Item simply clear all Fields via [x] and save.
 </p>
 
 <form action="pic_of_the_day.php<?php echo $get?>" method="post">
 <?php
 
-include $mypath.'login_src.php';
+include $savePath.'login_src.php';
 
 // calculate the actual Image-Number
 $bgNo = (date('z') % count($loginpics))+1;
@@ -148,7 +146,7 @@ foreach($loginpics as $loginpic)
 
 <button type="submit" >save</button>
 </form>
-<script src="<?php echo $relpath?>/inc/js/jquery.min.js"></script>
+<script src="<?php echo relativePath(__DIR__, $backend.'/inc/js')?>/jquery.min.js"></script>
 <script>
 
 // highlight actual Inmage

@@ -27,15 +27,15 @@
 $backend = '../../';
 
 $projectName = preg_replace('/\W/', '', $_GET['project']);
-$level = ((substr(basename(dirname(dirname(__FILE__))),0,1)!=='_') ? 1 : 2);
+$level = ((substr(basename(dirname(__DIR__)),0,1)!=='_') ? 1 : 2);
 if (!$_SESSION[$projectName]['root'] >= $level) exit('you are not allowed to access this Service!');
 
 $ppath = realpath($backend . '../projects/' . strtolower($projectName)) . '/objects/';
 
 $lang = $_SESSION[$projectName]['lang'];
 $LL = array();
-@include dirname(__FILE__) . '/locale/'.$lang.'.php';
-
+@include __DIR__ . '/locale/'.$lang.'.php';
+include __DIR__ . '/process_label.php';
 /**
 * 
 */
@@ -53,66 +53,3 @@ function L($str)
 	}
 }
 
-/**
-* 
-*/
-function processLabel ($arr)
-{
-	$out = array();
-	
-	foreach ($arr as $k => $str)
-	{
-		
-		$out[$k] = array();	
-		/*
-							'tooltip' => false,
-							'doc' => false,
-							'placeholder' => false,
-							'tabhead' => false,
-							'accordionhead' => false,
-						);*/
-		
-		// Documentation-File <in Tag-Brackets>
-		if (preg_match('/\<([^\)]+)\>/', $str, $doc))
-		{
-			$str = trim(preg_replace('/\s*\<[^)]*\>/', '', $str));
-			$out[$k]['doc'] = $doc[1];
-		}
-		
-		// Tooltip (in Brackets)
-		if (preg_match('/\(([^\)]+)\)/', $str, $ttip))
-		{
-			$str = trim(preg_replace('/\s*\([^)]*\)/', '', $str));
-			$out[$k]['tooltip'] = $ttip[1];
-		}
-		
-		// Placeholder [in square Brackets]
-		if (preg_match('/\[(.*?)\]/', $str, $pa))
-		{
-			$str = trim(preg_replace('/\[(.*?)\]/', '', $str));
-			$out[$k]['placeholder'] = $pa[1];
-		}
-		
-		// Accordion-Limiter "--"
-		$arr = explode('--', $str);
-		if (count($arr) === 2)
-		{
-			$str = trim($arr[1]);
-			$out[$k]['accordionhead'] = trim($arr[0]);
-		}
-		
-		// Tab-Limiter "||"
-		$arr = explode('||', $str);
-		if (count($arr) === 2)
-		{
-			$str = trim($arr[1]);
-			$out[$k]['tabhead'] = trim($arr[0]);
-		}
-		
-		// define the pure Label
-		$out[$k]['label'] = $str;
-		
-	}
-	
-	return $out;
-}

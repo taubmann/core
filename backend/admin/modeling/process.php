@@ -39,6 +39,12 @@ $queries 		= array(); // array of DB-Queries
 $tables 		= array(); // array to hold existing Column-Names
 $reduced_tables = array(); // array to hold Tables with dropped columns for sqlite
 
+$dsettings = array(
+		// get, default_on, label
+		array('debug', 'debug_mode'),
+		array('nofilter', 'no_filter')
+	);
+
 require 'inc/includes.php';
 
 foreach(	array(
@@ -67,10 +73,10 @@ if(!is_writable($ppath)) exit('Folder "objects" is not writable!');
 
 // INCLUDES
 
-
+//Configuration::$DB_INCREMENT[$db]
 
 // OBJECTS
-$datatypes 		= json_decode(file_get_contents('rules/datatypes.json'), true);// load Datatypes
+$datatypes 		= json_decode(file_get_contents('../../inc/js/rules/datatypes.json'), true);// load Datatypes
 $dbModel 		= getTableStructure(); //
 $jsonModel		= json_decode(json_encode($objects), true);
 $xmlModel		= json_decode(json_encode(simplexml_load_string($model)), true);
@@ -92,6 +98,7 @@ $z = $archive->add($ppath . '/__modelxml.php', PCLZIP_OPT_REMOVE_PATH, $ppath);
 // Query-Array for HTML-Output
 $queryHtmlOutput 	= array();
 $fileHtmlOutput 	= array();
+$errorHtmlOutput	= array();
 
 // fix it, if we have only one Object
 if ( !isset($xmlModel['object'][0]['@attributes']['name']) )
@@ -100,11 +107,11 @@ if ( !isset($xmlModel['object'][0]['@attributes']['name']) )
 }
 
 
-/*
- * 
- * 
- * 
- * */
+/**
+* 
+* 
+* 
+*/
 foreach ($xmlModel['object'] as $object)
 {
 	
@@ -115,14 +122,15 @@ foreach ($xmlModel['object'] as $object)
 	$name = strtolower($object['@attributes']['name']);
 	
 	// die if invalid Object-Name!
-	if(!preg_match("#^[\w]+$#", $name)) { 
+	if(!preg_match("#^[\w]+$#", $name))
+	{ 
 		exit('Object-Name: "'.$name.'" is not valid!');
 	}
 	
-	// transform XML-Object to JSON-Structure
 	
 	// prepare & convert Nodes (key, 	simple, deep)
-	$nodes = array(	array('lang',		false, false),
+	$nodes = array(	
+					array('lang',		false, false),
 					array('tags',		false, true),
 					array('hooks',		false, true ),
 					array('url',		false, false),
@@ -140,15 +148,17 @@ foreach ($xmlModel['object'] as $object)
 	}
 	
 	// test the Tables 
-	// define Database-Index
-	$tmp['db'] = intval($object['db']);
+	
+	$tmp['db']  = intval($object['db']);// define Database-Index
+	$tmp['inc'] = intval($object['increment']);// define Database-Increment
+	
 	if(!isset($queries[$tmp['db']])) $queries[$tmp['db']] = array();
 	
 	// test & process Fields
-	$tmp['col'] = processObject ($name, $object, $tmp['db']);
+	$tmp['col'] = processObject ($name, $object, $tmp['db'], $tmp['inc']);
 	
 	// test Hierarchy
-	checkHierarchy($queries, $name, $tmp['db'], $tmp['ttype'], $tmp);
+	checkHierarchy ($queries, $name, $tmp['db'], $tmp['inc'], $tmp['ttype'], $tmp);
 	
 	
 	// assign temporary Object to the new Model
@@ -198,7 +208,8 @@ foreach ($jsonModel as $old_name => $old_object)
 										array_keys($newModel[$old_name]['col'])
 										  );
 		}
-		foreach ($columnsToDelete as $d) {
+		foreach ($columnsToDelete as $d)
+		{
 			deleteColumn ($queries, $old_name, $d, $old_object['db']);
 		}
 	}
@@ -282,7 +293,7 @@ foreach ($queries as $i => $db_queries)
 		{
 			
 			// call Object-Generator ($name, $model, $types, $savepath)
-			new ObjectGenerator($projectName, $name, $newModel, $datatypes, $ppath, $KITVERSION, isset($_GET['debug']));
+			new ObjectGenerator($projectName, $name, $newModel, $datatypes, $ppath, $KITVERSION, $_GET);
 			
 			$fileHtmlOutput[] = '<div class="grn">' . L('PHP_Class') . ' "<strong>' . $name . '</strong>" ' . 
 								(file_exists($ppath .'class.'.$name.'.php') ? 
@@ -357,7 +368,7 @@ body {
 	left: 10px;
 }
 
-fieldset { 
+#process_settings, fieldset { 
 	border: 2px solid #ccc; 
 	border-radius: 6px; 
 	background: white;
@@ -414,6 +425,20 @@ fieldset div {
 
 */
 
+#process_settings {
+	position: absolute;
+	top: 50px;
+	z-index: 2;
+	padding: 5px;
+}
+.ui-buttonset {
+	display: inline-block;
+}
+
+.errors p{
+		color: red;
+}
+
 </style>
 <!--[if lt IE 9]>
 	<style type="text/css" title="text/css">
@@ -439,38 +464,48 @@ function deleteBackups(el)
 	}
 }
 
+function rebuildObjects()
+{
+	var cb = document.getElementById('process_settings').getElementsByTagName('input');
+	var g = [];
+	for(var i=0; i<cb.length; ++i)
+	{
+		if(cb[i].checked) g.push(cb[i].id+'=1');
+	}
+	window.location = 'process.php?rebuild_objects=1&project=<?php echo $projectName;?>&'+g.join('&');
+}
+
+function toggle (id)
+{
+	var el = document.getElementById(id);
+	el.style.display = (el.style.display=='none') ? 'block' : 'none';
+}
 </script>
 </head>
 <body>
 
 
 <div id="controls" class="ui-widget-header ui-corner-all">
-	<!--
+	<div class="ui-buttonset">
 	<button
-		onclick="window.location='index.php?project=<?php echo $projectName;?>'"
-		class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" 
-		role="button" 
-		aria-disabled="false">
-			<span class="ui-button-icon-primary ui-icon ui-icon-arrowreturnthick-1-w"></span>
-			<span class="ui-button-text"><?php echo L('Data_Modeling');?></span>
-	</button>
-	-->
-	<button
-		onclick="window.location='process.php?rebuild_objects=1&project=<?php echo $projectName;?>';"
-		class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary"  
+		onclick="rebuildObjects()"
+		class="ui-button ui-widget ui-state-default ui-corner-left ui-button-text-icon-primary"  
 		role="button" 
 		aria-disabled="false">
 			<span class="ui-button-icon-primary ui-icon ui-icon-refresh"></span>
 			<span class="ui-button-text"><?php echo L('Rebuild_Objects');?></span>
 	</button>
-	<button
-		onclick="window.location='process.php?rebuild_objects=1&debug=1&project=<?php echo $projectName;?>';"
-		class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary"  
+	<button 
+		onclick="toggle('process_settings')"
+		class="ui-button ui-widget ui-state-default ui-button-icon-only ui-corner-right" 
 		role="button" 
-		aria-disabled="false">
-			<span class="ui-button-icon-primary ui-icon ui-icon-refresh"></span>
-			<span class="ui-button-text"><?php echo L('Rebuild_Objects');?> ( DEBUG )</span>
+		aria-disabled="false" 
+		title="Settings">
+		<span class="ui-button-icon-primary ui-icon ui-icon-triangle-1-s"></span>
+		<span class="ui-button-text">Settings</span>
 	</button>
+	</div>
+	
 	<button
 		onclick="window.open('../file_manager/index.php?project=<?php echo $projectName;?>','fm')"
 		class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" 
@@ -489,7 +524,15 @@ function deleteBackups(el)
 			<span class="ui-button-icon-primary ui-icon ui-icon-calculator"></span>
 			<span class="ui-button-text"><?php echo L('db_admin');?></span>
 	</button>
+</div>
+<div id="process_settings" style="display:none">
+<?php
 	
+	foreach($dsettings as $s)
+	{
+		echo '<p><input type="checkbox" id="'.$s[0].'" ' . (isset($_GET[$s[0]]) ? 'checked="checked"':'') . ' /> '.L($s[1]).'</p>';
+	}
+?>
 </div>
 	
 <form id="working_area">
@@ -510,7 +553,7 @@ echo '
 
 <fieldset id="sql-fieldset">
 	<legend>2. '.L('SQL_Queries').'</legend>
-' . implode("\n", $queryHtmlOutput) . '
+' . (count($queryHtmlOutput) ? implode("\n", $queryHtmlOutput) : L('no_SQL_Queries')) . '
 </fieldset>
 
 <fieldset>
@@ -518,6 +561,14 @@ echo '
 ' . implode("\n", $fileHtmlOutput) . 
 '</fieldset>
 ';
+
+if(count($errorHtmlOutput) > 0)
+{
+	echo '<div class="errors"><p>';
+	echo implode('</p><p>', $errorHtmlOutput);
+	echo '</p></div';
+}
+
 ?>
 	
 </form>

@@ -26,7 +26,8 @@
 * Backend-Functions
 */
 session_start();
-error_reporting(0);
+//error_reporting(0);
+error_reporting(E_ALL);
 session_regenerate_id();
 
 header ('Cache-Control: no-cache,must-revalidate', true);
@@ -138,12 +139,13 @@ if (!isset($_SESSION[$projectName]) )
 	// (try to) call Login-Hooks
 	foreach ($loginHooks as $hook)
 	{
-		echo $hook;
+		
 		if (function_exists($hook))
 		{
 			call_user_func($hook);
 		}
 	}
+	
 	
 	// collect Admin-Wizards
 	if (isset($_SESSION[$projectName]['root']))
@@ -238,22 +240,25 @@ foreach ($objects as $ok => $ov)
 	
 		
 	// define Field-Labels (Fallback id)
-	if ( !isset($_SESSION[$projectName]['labels'][$ok]) )
-	{
+	//if ( !isset($_SESSION[$projectName]['labels'][$ok]) ){
 		$_SESSION[$projectName]['labels'][$ok] = array('id');// default
 		foreach ($ov->col as $fk => $fv)
 		{
-			if (substr($fk,-2) != 'id' && (preg_match('/VARCHAR|TEXT/is', $fv->type) == 1))
+			if (
+				substr($fk,-2) != 'id' && // ignore id-Fields
+				!in_array(substr($fk,0,2), array('__','c_','e_')) && // ignore Fields beginning with...
+				strpos($fv->type, 'CHAR') // take only (Var)char-Fields
+				)
 			{
 				$_SESSION[$projectName]['labels'][$ok] = array($fk);
 				break;
 			}
 		}
-	}
+	//}
 	
 	if ( !isset($_SESSION[$projectName]['sort'][$ok]) )
 	{
-		$_SESSION[$projectName]['sort'][$ok] = array('id' => 'asc');
+		$_SESSION[$projectName]['sort'][$ok] = ($option['htype']=='Tree') ? array('treeleft' => 'asc') : array('id' => 'asc');
 	}
 	
 }
@@ -265,6 +270,7 @@ ksort($objectOptions, SORT_LOCALE_STRING);
 $user_wizards = array_merge($_SESSION[$projectName]['config']['wizards'], $_SESSION[$projectName]['special']['user']['wizards']);
 
 // load Template
-include $_SESSION[$projectName]['config']['backend_templates'][$_SESSION[$projectName]['template']];
+$ti = (isset($_GET['template'])) ? intval($_GET['template']) : $_SESSION[$projectName]['template'];
+include $_SESSION[$projectName]['config']['backend_templates'][$ti];
 
 ?>

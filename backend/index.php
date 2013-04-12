@@ -32,8 +32,8 @@ foreach($_GET as $k=>$v){ $_GET[str_replace('amp;','',$k)] = preg_replace('/\W/'
 $projects = glob('../projects/*', GLOB_ONLYDIR);
 
 // if not needed you can delete the following 2 Redirects
-if ( !file_exists('inc/super.php') ){ header('location: inc/php/setSuperpassword.php'); }// redirect to Superpassword-Input if not set
-if ( count($projects) == 0 ){ header('location: admin/_project_setup/index.php'); }// redirect to Project-Setup if no project
+if ( !file_exists('inc/super.php') ){ header('location: inc/php/setSuperpassword.php'); } // redirect to Superpassword-Input if not set
+if ( count($projects) == 0 ){ header('location: admin/_project_setup/index.php'); }	// redirect to Project-Setup if no project
 
 $logout = false;
 if (isset($_GET['project']))

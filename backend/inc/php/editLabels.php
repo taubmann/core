@@ -57,11 +57,11 @@ if(isset($_GET['action']) && $_GET['action']=='saveOrder' && isset($_POST['lbls'
 $listItems = array();
 echo "listItems=[];\n";
 
-foreach($_SESSION[$projectName]['objects']->$objectName->col as $k => $v)
+foreach($objects[$objectName]['col'] as $k => $v)
 {
-	if(substr($k,-2) != 'id' && substr($k,-4) != 'sort' && (preg_match('/HIDDEN/is', $v->type) != 1))
+	if(substr($k,-2) != 'id' && substr($k,-4) != 'sort' && (preg_match('/HIDDEN/is', $v['type']) != 1))
 	{
-		echo 'listItems["'.$k.'"]="'.(isset($v->lang->{$lang}) ? $v->lang->{$lang}->label : $k) . "\";\n";
+		echo 'listItems["'.$k.'"]="'.(isset($v['lang'][$lang]) ? $v['lang'][$lang]['label'] : $k) . "\";\n";
 	}
 }
 

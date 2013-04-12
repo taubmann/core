@@ -76,9 +76,9 @@ if (isset($_GET['action']) && $_GET['action']=='saveOrder' && isset($_POST['orde
 
 
 echo "listItems = [];\n";
-foreach($objects->$objectName->col as $k => $v)
+foreach($objects[$objectName]['col'] as $k => $v)
 {
-	echo 'listItems["'.$k.'"]="'.(isset($v->lang->{$lang}) ? $v->lang->{$lang}->label : $k).'";';
+	echo 'listItems["'.$k.'"]="'.(isset($v['lang'][$lang]) ? $v['lang'][$lang]['label'] : $k).'";';
 }
 
 echo "\nsortBy = [];\n";

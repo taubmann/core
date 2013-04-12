@@ -46,7 +46,7 @@ if( !isset($_SESSION[$projectName]['user_agent']) || $_SESSION[$projectName]['us
 
 $c = new crud();
 
-$objectDB = intval($objects->{$objectName}->db);
+$objectDB = intval($objects[$objectName]['db']);
 
 $objectId 			 = (isset($_GET['objectId']) ? $_GET['objectId'] : null);
 $objectFields 		 = $_SESSION[$projectName]['labels'][$objectName];
@@ -86,7 +86,7 @@ foreach ($_POST as $k => $v)
 }
 
 
-if (isset($objects->{$objectName}->hooks->PRE) || isset($objects->{$objectName}->hooks->PST))
+if (isset($objects[$objectName]['hooks']['PRE']) || isset($objects[$objectName]['hooks']['PST']))
 {
 	$loginHooks = array();//we need a Dummy here
 	include('extensions/cms/hooks.php');
@@ -106,9 +106,9 @@ $c->dbi = $objectDB;
 $c->referenceName = $referenceName;
 $c->referenceId = $referenceId;
 $c->referenceFields = $referenceFields;
-$c->limit =		(isset($_GET['limit'])  ? intval($_GET['limit']) : 0);
-$c->offset =	(isset($_GET['offset']) ? intval($_GET['offset']) : 0);
-$c->mobile =	(isset($_GET['mobile']) ? intval($_GET['mobile']) : 0);
+$c->limit  = (isset($_GET['limit'])  ? intval($_GET['limit']) : 0);
+$c->offset = (isset($_GET['offset']) ? intval($_GET['offset']) : 0);
+$c->mobile = (isset($_GET['mobile']) ? intval($_GET['mobile']) : 0);
 $c->sortBy = $_SESSION[$projectName]['sort'][$objectName];
 
 
@@ -117,13 +117,13 @@ function callHooks ($when)
 {
 	global $objects, $objectName;
 	
-	if (@is_array($objects->$objectName->hooks->{$when}))
+	if (@is_array($objects[$objectName]['hooks'][$when]))
 	{
-		foreach ($objects->$objectName->hooks->{$when} as $hookarr)
+		foreach ($objects[$objectName]['hooks'][$when] as $hookarr)
 		{
 			if (function_exists($hookarr[0]))
 			{
-				call_user_func( $hookarr[0], (isset($hookarr[1]) ? explode(',',$hookarr[1]) : null) );
+				call_user_func( $hookarr[0], (isset($hookarr[1]) ? explode(',', $hookarr[1]) : null) );
 			}
 		}
 	}

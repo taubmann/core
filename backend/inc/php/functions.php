@@ -28,11 +28,11 @@
  * */
 
 // cms-kit Release-Number (main.min)
-$KITVERSION = 0.8;
+$KITVERSION = 0.9;
 
-/* 
- * encrypt Passwords
- */
+/**
+* encrypt Passwords
+*/
 function crpt($pass, $salt=false)
 {
 	// if not set get filemtime as salt

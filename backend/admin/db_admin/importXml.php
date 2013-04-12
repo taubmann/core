@@ -62,7 +62,7 @@ function endElement($parser, $type)
 	{
 		$str = trim($str);
 		echo $elname . ' (' . strlen($str) . '), ';
-		if(isset($objects->{$objname}->col->{$elname}->type) && $objects->{$objname}->col->{$elname}->type == 'MODEL')
+		if(isset($objects[$objname]['col'][$elname]['type']) && $objects[$objname]['col'][$elname]['type'] == 'MODEL')
 		{
 			$str = json_decode($str, true);
 		}

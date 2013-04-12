@@ -78,7 +78,7 @@ if(!is_writable($ppath)) exit('Folder "objects" is not writable!');
 // OBJECTS
 $datatypes 		= json_decode(file_get_contents('../../inc/js/rules/datatypes.json'), true);// load Datatypes
 $dbModel 		= getTableStructure(); //
-$jsonModel		= json_decode(json_encode($objects), true);
+$jsonModel		= $objects;//json_decode(json_encode($objects), true);
 $xmlModel		= json_decode(json_encode(simplexml_load_string($model)), true);
 $newModel 		= array();
 
@@ -328,7 +328,7 @@ $stringified_objects = <<<EOD
 $jsonstr1 = json_encode($newModel);
 $jsonstr2 = '
 EOD;
-$objects = json_decode($stringified_objects);
+$objects = json_decode($stringified_objects, true);
 ?>
 ';
 file_put_contents( $ppath."__model.php", $jsonstr0 . indentJson($jsonstr1) . $jsonstr2 );
@@ -338,7 +338,7 @@ chmod($ppath . "__model.php", 0777);
 chmod($zipPath, 0777);
 
 // register new Model for instant Adaption of Backend-Settings
-$_SESSION[$projectName]['objects'] = json_decode($jsonstr1);
+$_SESSION[$projectName]['objects'] = json_decode($jsonstr1, true);
 
 ?>
 <!DOCTYPE html>
@@ -523,6 +523,15 @@ function toggle (id)
 		aria-disabled="false">
 			<span class="ui-button-icon-primary ui-icon ui-icon-calculator"></span>
 			<span class="ui-button-text"><?php echo L('db_admin');?></span>
+	</button>
+	<button
+		onclick="top.location.reload()"
+		class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only"
+		title="reload"
+		role="button"
+		aria-disabled="false">
+			<span class="ui-button-icon-primary ui-icon ui-icon-refresh"></span>
+			<span class="ui-button-text">reload</span>
 	</button>
 </div>
 <div id="process_settings" style="display:none">

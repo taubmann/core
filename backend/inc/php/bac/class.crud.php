@@ -147,7 +147,7 @@ class crud
 		{
 			$xml = "\t<row>\n";
 			$csv = array();
-			foreach ($this->objects[$this->objectName]['col'] as $k => $v)
+			foreach ($this->objects->{$this->objectName}->col as $k => $v)
 			{
 				$value = str_replace( array('"',"\t","\r","\n") , array('""',' ','',' ') , $i->$k);
 				$value = '"' . trim($value) . '"';
@@ -231,7 +231,7 @@ class crud
 		'" rel="' .
 		(isset($add->icon) ? $add->icon : 'gear') .
 		'" onclick="getWizard(\'input_'.$name.'\',\''.$add['wizard'].'\'' .
-		(isset($add['param']) ? ',\''.$add['param'].'\'' : '') .
+		(isset($add['param'])?',\''.$add['param'].'\'':'') .
 		')" type="button">' .
 		(isset($add['label']) ? $add['label'] : 'Wizard') . 
 		'</button>';
@@ -292,9 +292,9 @@ class crud
 			
 		$str = '<span id="objectWizardHtml">';
 		// fill Object-Wizards
-		if(isset($this->objects[$this->objectName]['url']))
+		if(isset($this->objects->{$this->objectName}->url))
 		{
-			$ua = $this->objects[$this->objectName]['url'];
+			$ua = $this->objects->{$this->objectName}->url;
 			foreach ($ua as $label => $link)
 			{
 				
@@ -447,22 +447,21 @@ class crud
 	*/
 	private function processLabel ($a, &$cnt, &$tabHeads)
 	{
-		if(!is_array($a)) return '';
+		if(!is_object($a)) return '';
 		
-		$arr = $a;//clone $a;
-		$str1 = $strp1 = '';
+		$arr = clone $a;
 		
-		
-		if (isset($arr['accordionhead']))
+		//if (isset($arr->))
+		if (isset($arr->accordionhead))
 		{
 			$str1 = 	(($cnt>0)
 						? '</div>'
-						: '<div id="accordion">').'<h3><a href="#">' . $arr['accordionhead'] . '</a></h3><div>';
+						: '<div id="accordion">').'<h3><a href="#">' . $arr->accordionhead . '</a></h3><div>';
 			$strp1 = '</div>';
 			$cnt++;
 		}
 		
-		if (isset($arr['tabhead']))
+		if (isset($arr->tabhead))
 		{
 			if($cnt == 0)
 			{
@@ -472,26 +471,26 @@ class crud
 						? '</div>'
 						: '<div id="tabs">###TABSHEAD###') . '<div id="tabs-' . $cnt . '">';
 			$strp1 = '</div>';
-			$tabHeads[] = '<li><a href="#tabs-' . $cnt . '">' . $arr['tabhead'] . '</a></li>';
+			$tabHeads[] = '<li><a href="#tabs-' . $cnt . '">' . $arr->tabhead . '</a></li>';
 			$cnt++;
 		}
 		
 		//crappy
-		if (isset($arr['doc']))
+		if (isset($arr->doc))
 		{
-			$arr['label'] = '<u onclick="openDoc(\'' .  str_replace(array('LANG','PROJECT'), array($this->lang, $this->projectName), $arr['doc']) . '\')">' . $arr['label'] . '</u>';
+			$arr->label = '<u onclick="openDoc(\'' .  str_replace(array('LANG','PROJECT'), array($this->lang, $this->projectName), $arr->doc) . '\')">' . $arr->label . '</u>';
 		}
 		
-		if (isset($arr['tooltip']))
+		if (isset($arr->tooltip))
 		{
-			$arr['label'] = '<a href="#">' . $arr['label'] . '<span>' . $arr['tooltip'] . '</span></a>';
+			$arr->label = '<a href="#">' . $arr->label . '<span>' . $arr->tooltip . '</span></a>';
 		}
 		
 		return array (
 						'lbl' => $arr,
 						'str1' => $str1,
 						'strp1' => $strp1,
-					 );
+					);
 	}
 	
 	public function arrayToObject($d)
@@ -514,7 +513,7 @@ class crud
 			$result = array();
 			foreach ($data as $key => $value)
 			{
-				$result[$key] = $this->objectToArray($value);
+				$result[$key] = $this->object_to_array($value);
 			}
 			return $result;
 		}
@@ -539,12 +538,12 @@ class crud
 		
 		
 		// collect Relations
-		if(isset($this->objects[$this->objectName]['rel']))
+		if(isset($this->objects->{$this->objectName}->rel))
 		{
-			foreach ($this->objects[$this->objectName]['rel'] as $rk => $rt)
+			foreach ($this->objects->{$this->objectName}->rel as $rk => $rt)
 			{
 				
-				$str0 .= '<option class="relType'.$rt.'" value="'.$rk.'">'.(isset($this->objects[$rk]['lang'][$this->lang]) ? $this->objects[$rk]['lang'][$this->lang] : $rk).'</option>';
+				$str0 .= '<option class="relType'.$rt.'" value="'.$rk.'">'.(isset($this->objects->$rk->lang->{$this->lang}) ? $this->objects->$rk->lang->{$this->lang} : $rk).'</option>';
 			}
 		}
 		
@@ -555,17 +554,17 @@ class crud
 			$str0 = '<select'.$hide .' id="referenceSelect" onchange="getReferences(\''.$this->objectId.'\',0)"><option value="" class="relType">'.$this->L('relations_to_this_entry').'</option>'.$str0.'</select>';
 		}
 		
-		if ( isset($this->objects[$this->objectName]['vurl']) && !isset($this->disallow['previewbutton']) )
+		if ( isset($this->objects->{$this->objectName}->vurl) && !isset($this->disallow['previewbutton']) )
 		{
-			if(count($this->objects[$this->objectName]['vurl'])==1)
+			if(count($this->objects->{$this->objectName}->vurl)==1)
 			{
-				$str0 .= ' <button type="button" rel="extlink" onclick="getFrame(\''. str_replace('ID', $this->objectId, $this->objects[$this->objectName]['vurl'][0]) . '\')">'.$this->L('preview').'</button>';
+				$str0 .= ' <button type="button" rel="extlink" onclick="getFrame(\''. str_replace('ID', $this->objectId, $this->objects->{$this->objectName}->vurl[0]) . '\')">'.$this->L('preview').'</button>';
 			}
 			else
 			{
 				$str0 .= '<select onchange="if(this.value.length>0){getFrame(this.value)}"><option value="">'.L('preview').'</option>';
 				$c = 1;
-				foreach($this->objects[$this->objectName]['vurl'] as $v)
+				foreach($this->objects->{$this->objectName}->vurl as $v)
 				{
 					$h = explode(' ', $v);
 					$str0 .= '<option value="'.$v[0].'">'.($v[1]?$v[1]:L('preview').' '.$c).'</option>';
@@ -582,7 +581,7 @@ class crud
 		
 		$cnt = 0;
 		$tabHeads = null;
-		$col = $this->objects[$this->objectName]['col'];
+		$col = $this->objects->{$this->objectName}->col;
 		
 		// loop the Fields
 		foreach($col as $fk => $fv)
@@ -594,22 +593,22 @@ class crud
 			}
 			
 			// load the Field-Template
-			include_once('fieldtypes/' . $fv['type'] . '.php');
+			include_once('fieldtypes/'.$fv->type.'.php');
 			
 			
 			$lbl = $fk;
 			$placeholder = '';
 			
 			// translated Labels
-			if (isset($fv['lang'][$this->lang]['label']))
+			if (isset($fv->lang->{$this->lang}->label))
 			{
-				$a = $this->processLabel( $fv['lang'][$this->lang], $cnt, $tabHeads );
+				$a = $this->processLabel( $fv->lang->{$this->lang}, $cnt, $tabHeads );
 				
 				$str1 .= $a['str1'];
 				$strp .= $a['strp'];
 				
-				$lbl = $a['lbl']['label'];
-				if(isset($a['lbl']['placeholder'])) $placeholder = $a['lbl']['placeholder'];
+				$lbl = $a['lbl']->label;
+				if(isset($a['lbl']->placeholder)) $placeholder = $a['lbl']->placeholder;
 				
 			}//if lang END
 			
@@ -630,7 +629,7 @@ class crud
 					// objectname, fieldname, entry_id, password
 					$key  = md5($this->objectName . $fk .  $_SESSION[$this->projectName]['config']['crypt'][$this->objectName][$fk]);
 					$key2 .= md5($key2 . $key);
-					$type  = substr($fv['type'], -4);
+					$type  = substr($fv->type, -4);
 					//$item->$fk =	($type=='CHAR') ?
 					//				X_OR::decrypt($item->$fk, $key2) :
 					$item->$fk =	Blowfish::decrypt($item->$fk, $key2, md5(Configuration::$DB_PASSWORD[0]));
@@ -644,7 +643,7 @@ class crud
 			
 			// call the function array(label, fieldname, content, addition-array)
 			$str1 .= call_user_func(
-									'_'.$fv['type'],
+									'_'.$fv->type,
 									array(
 											'name' => $fk,
 											'label' => $lbl,
@@ -657,7 +656,7 @@ class crud
 			$str1 .= '<!--e_'.$fk.'-->';
 			
 			// if a Generic Structure is detected
-			if ($fv['type'] == 'MODEL')
+			if ($fv->type == 'MODEL')
 			{
 					// load an external Model if declared
 					$temp = $item->$fk;
@@ -675,37 +674,37 @@ class crud
 							$temp = array_replace_recursive($tpl, $temp);
 						}
 					}
-					//$temp = $this->arrayToObject($temp);
+					$temp = $this->arrayToObject($temp);
 					
 					foreach ($temp as $jk => $jv)
 					{
 						// skip invalid fields
-						if (!isset($jv['type']) || !isset($jv['value'])){ continue; }
+						if (!isset($jv->type) || !isset($jv->value)){ continue; }
 						
 						
-						include_once ('fieldtypes/' . $jv['type'] . '.php');
-						if ( function_exists('_'.$jv['type']) )
+						include_once ('fieldtypes/'.$jv->type.'.php');
+						if ( function_exists('_'.$jv->type) )
 						{
 							$jlbl = $jk;
 							$placeholder = '';
-							if (isset($jv['lang'][$this->lang]))
+							if (isset($jv->lang->{$this->lang}))
 							{
-								$arr = $this->processLabel( $jv['lang'][$this->lang], $cnt, $tabHeads );
+								$arr = $this->processLabel( $jv->lang->{$this->lang}, $cnt, $tabHeads );
 								
 								$str1 .= $arr['str1'];
 								$strp .= $arr['strp'];
-								$jlbl = $arr['lbl']['label'];
-								if (isset($arr['lbl']['placeholder'])) $placeholder = $arr['lbl']['placeholder'];
+								$jlbl = $arr['lbl']->label;
+								if (isset($arr['lbl']->placeholder)) $placeholder = $arr['lbl']->placeholder;
 							}
 							
 							$str1 .= call_user_func(
-													'_'.$jv['type'],
+													'_'.$jv->type,
 													array( 
 															'name' => $fk.'['.$jk.'][value]',
 															'label' => $jlbl,
 															'placeholder' => $placeholder,
-															'value' => $jv['value'],
-															'add' => ( isset($jv['add']) ? $jv['add'] : array() )
+															'value' => $jv->value, 
+															'add' => ( isset($jv->add) ? $jv->add : array() ) 
 														)
 													);
 						}
@@ -843,7 +842,7 @@ class crud
 				<select class="selectbox" id="multiFieldSelect" onchange="$(\'#multiField\').html(this.value);prettify(\'multiField\');">
 				<option title="" value="">'.$this->L('select_field').'</option>';
 		
-		foreach($this->objects[$this->objectName]['col'] as $fk => $fv)
+		foreach($this->objects->{$this->objectName}->col as $fk => $fv)
 		{
 			// dont show xxid & xxsort
 			if (substr($fk,-2) == 'id' || substr($fk,-4) == 'sort')
@@ -851,11 +850,11 @@ class crud
 				continue;
 			}
 			
-			$type = $fv['type'];
+			$type = $fv->type;
 			include_once('fieldtypes/'.$type .'.php');
 			
-			$lbl = ((isset($fv['lang'][$this->lang]['label'])) ? $fv['lang'][$this->lang]['label'] : $fk);
-			$htm = call_user_func( '_'.$type, array($lbl, $fk, '', (isset($fv['add'])?$fv['add']:array())));
+			$lbl = (($fv->lang->{$this->lang}) ? array_shift(explode('##',array_pop(explode('||',array_pop(explode('--', $fv->lang->{$this->lang})))))) : $fk);
+			$htm = call_user_func( '_'.$type, array($lbl, $fk, '', (isset($fv->add)?$fv->add:'')));
 			$str .= '<option title="'.$fk.'" value="' . htmlentities(str_replace(' name="',' id="input_', $htm)) . '">' . $lbl . '</option>';
 		}
 		$str .= '</select><br /><br /><div id="multiField"> </div><hr />';
@@ -938,9 +937,9 @@ class crud
 		
 		
 		// loop all Relations
-		if (isset($this->objects[$this->objectName]['rel']))
+		if (isset($this->objects->{$this->objectName}->rel))
 		{
-			foreach ($this->objects[$this->objectName]['rel'] as $rk => $rt)
+			foreach ($this->objects->{$this->objectName}->rel as $rk => $rt)
 			{
 				$lok = strtolower($rk);
 				$lokId = $lok . 'id';
@@ -949,7 +948,7 @@ class crud
 				
 				
 				// Sibling List
-				if ($this->objects[$rk]['rel'][$this->objectName] === 's')
+				if ($this->objects->{$rk}->rel->{$this->objectName} === 's')
 				{
 					$c = 'Get'.$rk.'List';
 					$sort = (isset($_SESSION[$projectName]['sort'][$rk]) ? $_SESSION[$projectName]['sort'][$rk] : array());
@@ -958,11 +957,11 @@ class crud
 				}
 				
 				// Child List
-				if ($this->objects[$rk]['rel'][$this->objectName] === 'p')
+				if ($this->objects->{$rk}->rel->{$this->objectName} === 'p')
 				{
 					$c = 'Get'.$rk.'List';
 					$sort = array();
-					if (isset($this->objects[$rk]['rel'][$this->objectName.'sort'])) {
+					if (isset($this->objects->{$rk}->col->{$this->objectName.'sort'})) {
 						$sort = array($this->objectName.'sort' => 'asc');
 					}
 					if (isset($_SESSION[$projectName]['sort'][$rk])) {
@@ -972,15 +971,15 @@ class crud
 				}
 				
 				// Parent Element
-				if ($this->objects[$rk]['rel'][$this->objectName] === 'c')
+				if ($this->objects->{$rk}->rel->{$this->objectName} === 'c')
 				{
 					$c = 'Get'.$rk;
 					$myItem = $item->$c();
 					$relList = (($myItem->id) ? array($myItem) : array());
 				}
-				// define Header$this->objectName]
+				// define Header
 				$head = '<div><div class="ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all"><span style="font-weight:bold;padding:15px">' .
-						(isset($this->objects[$rk]['lang'][$this->lang]) ? $this->objects[$rk]['lang'][$this->lang] : $rk) .
+						(isset($this->objects->$rk->lang->{$this->lang}) ? $this->objects->$rk->lang->{$this->lang} : $rk) .
 						'</span>';
 				
 				// if needed, add prev-button
@@ -1054,7 +1053,7 @@ class crud
 		$pClass = '';
 		$pId = false;
 		$relIds = array();
-		$type = $this->objects[$this->referenceName]['rel'][$this->objectName];
+		$type = $this->objects->{$this->referenceName}->rel->{$this->objectName};
 		
 		// Sibling-List
 		if($type === 's')
@@ -1072,7 +1071,7 @@ class crud
 		{
 			$c = 'Get' . $this->referenceName . 'List';
 			$sort = (isset($_SESSION[$projectName]['sort'][$rk]) ? $_SESSION[$projectName]['sort'][$rk] : array());
-			if($this->objects[$this->referenceName]['col'][$this->objectName . 'sort'])
+			if($this->objects->{$this->referenceName}->col->{$this->objectName . 'sort'})
 			{
 				$sort[] = array($this->objectName . 'sort' => 'asc');
 			}
@@ -1164,7 +1163,7 @@ class crud
 		
 		////////////////////////////////////////////// get the NOT connected Entries ////////////////////////////////////////////////////////////////
 		// define Tree-sorting along "treeleft"
-		$sort = ($this->objects[$this->referenceName]['ttype'] == 'Tree') ? 
+		$sort = ($this->objects->{$this->referenceName}->ttype == 'Tree') ? 
 																			array('treeleft'=>'asc') : 
 																			array();
 		// 
@@ -1238,7 +1237,7 @@ class crud
 	public function addReference()
 	{
 		// cancel if Relation dosent exist
-		if(!isset($this->objects[$this->objectName]['rel'][$this->referenceName])) 
+		if(!isset($this->objects->{$this->objectName}->rel->{$this->referenceName})) 
 		{
 			exit('[[' . $this->L('error') . ' ' . $this->L('relation_dosent_exist'). ']]');
 		}
@@ -1250,7 +1249,7 @@ class crud
 		$ref = new $this->referenceName();
 		$refitem = $ref->Get($this->referenceId);
 		
-		$action = ($this->objects[$this->objectName]['rel'][$this->referenceName] == 'p') ? 'Set'.$this->referenceName : 'Add'.$this->referenceName;
+		$action = ($this->objects->{$this->objectName}->rel->{$this->referenceName} == 'p') ? 'Set'.$this->referenceName : 'Add'.$this->referenceName;
 		
 		$item->$action($refitem);
 		return $item->Save();
@@ -1265,7 +1264,7 @@ class crud
 	{
 		
 		// cancel if Relation dosent exist
-		if(!isset($this->objects[$this->objectName]['rel'][$this->referenceName])) 
+		if(!isset($this->objects->{$this->objectName}->rel->{$this->referenceName})) 
 		{
 			exit('[[' . $this->L('error') . ' ' . $this->L('relation_dosent_exist'). ']]');
 		}
@@ -1286,7 +1285,7 @@ class crud
 		// Sort-Counter == old Offset+1
 		$s = $a[2]+1;
 		
-		switch( $this->objects[$this->objectName]['rel'][$this->referenceName] )
+		switch( $this->objects->{$this->objectName}->rel->{$this->referenceName} )
 		{
 			
 			// Sibling-List -----------------------------------------------------------------
@@ -1413,7 +1412,7 @@ class crud
 				}
 				
 				// if there is any Sort-Field defined
-				if($this->objects[$this->referenceName]['rel'][$this->objectName.'sort'])
+				if($this->objects->{$this->referenceName}->col->{$this->objectName.'sort'})
 				{
 					
 					$query3 = 'UPDATE `'.$this->referenceName.'` SET `'.$this->objectName.'sort` = ? WHERE `id` = ?;';

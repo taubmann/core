@@ -37,7 +37,6 @@ require 'inc/functions.php';
 $_SESSION['extensionedit'] = 1;
 
 
-
 /**
 * show available Extensions
 */

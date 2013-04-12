@@ -219,14 +219,14 @@ foreach ($objects as $ok => $ov)
 {
 	$option = array(
 					'name' => $ok, 
-					'label' => ((isset($ov->lang)&&isset($ov->lang->{$lang})) ? $ov->lang->{$lang} : $ok), 
-					'htype' => (isset($ov->ttype) ? $ov->ttype : '')
+					'label' => ((isset($ov['lang']) && isset($ov['lang'][$lang])) ? $ov['lang'][$lang] : $ok), 
+					'htype' => (isset($ov['ttype']) ? $ov['ttype'] : '')
 				);
 	
 	// collect Objects in Tag-Groups
-	if (isset($ov->tags->{$lang}))
+	if (isset($ov['tags'][$lang]))
 	{
-		foreach($ov->tags->{$lang} as $t)
+		foreach($ov['tags'][$lang] as $t)
 		{
 			if(!isset($objectOptions[$t[0]])) $objectOptions[$t[0]]=array();
 			$objectOptions[$t[0]][] = $option;
@@ -242,12 +242,12 @@ foreach ($objects as $ok => $ov)
 	// define Field-Labels (Fallback id)
 	//if ( !isset($_SESSION[$projectName]['labels'][$ok]) ){
 		$_SESSION[$projectName]['labels'][$ok] = array('id');// default
-		foreach ($ov->col as $fk => $fv)
+		foreach ($ov['col'] as $fk => $fv)
 		{
 			if (
 				substr($fk,-2) != 'id' && // ignore id-Fields
 				!in_array(substr($fk,0,2), array('__','c_','e_')) && // ignore Fields beginning with...
-				strpos($fv->type, 'CHAR') // take only (Var)char-Fields
+				strpos($fv['type'], 'CHAR') // take only (Var)char-Fields
 				)
 			{
 				$_SESSION[$projectName]['labels'][$ok] = array($fk);

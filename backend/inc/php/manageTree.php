@@ -26,7 +26,7 @@
 require 'header.php';
 require_once($ppath . '/objects/class.'.$objectName.'.php');
 
-$treeType = $objects->{$objectName}->ttype;
+$treeType = $objects[$objectName]['ttype'];
 
 // Reset Sort-Order to default
 $_SESSION[$projectName]['sort'][$objectName] = ($treeType == 'Tree') ? array('treeleft'=>'asc') : array();

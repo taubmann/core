@@ -11,17 +11,17 @@ error_reporting(E_ALL ^ E_NOTICE);
 foreach ($_GET as $k=>$v){ $_GET[str_replace('amp;','',$k)] = preg_replace('/\W/', '', $v); }
 
 // additional securing of Variables (probably via filter)??
-$projectName = strtolower($_GET['projectName']);
-$objectName = strtolower($_GET['objectName']);
+$projectName = $_GET['projectName'];
+$objectName = $_GET['objectName'];
 
 // abort script if access is not allowed
 if (!isset($_SESSION[$projectName]['objects'])) exit('not active');
-if (!isset($_SESSION[$projectName]['objects']->$objectName)) exit('Object is not accessible!');
+if (!isset($_SESSION[$projectName]['objects'][$objectName])) exit('Object is not accessible!');
 
 $ppath = realpath( __DIR__ . '/../../../projects/' . $projectName );
 
 $objects = $_SESSION[$projectName]['objects'];
-$db = intval($objects->{$objectName}->db);
+$db = intval($objects[$objectName]['db']);
 $theme = end($_SESSION[$projectName]['config']['theme']);
 
 

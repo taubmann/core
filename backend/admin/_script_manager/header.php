@@ -3,7 +3,7 @@
 session_start();
 $projectName = preg_replace('/\W/', '', $_GET['project']);
 
-$level = ((substr(basename(dirname(__FILE__)),0,1)!=='_') ? 1 : 2);
+$level = ((substr(basename(__DIR__),0,1)!=='_') ? 1 : 2);
 if (!$_SESSION[$projectName]['root'] >= $level) exit('you are not allowed to access this Service!');
 
 function relativePath($from, $to, $ps = DIRECTORY_SEPARATOR)
@@ -18,6 +18,6 @@ function relativePath($from, $to, $ps = DIRECTORY_SEPARATOR)
 	return str_pad('', count($arFrom) * 3, '..'.$ps).implode($ps, $arTo);
 }
 
-$backend = dirname(dirname(dirname(__FILE__)));
+$backend = dirname(dirname(__DIR__));
 $HTML = '';
 

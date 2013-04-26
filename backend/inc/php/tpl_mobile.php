@@ -34,7 +34,12 @@
 
 <link rel="icon" type="image/png" href="inc/css/icon.png" />
 
-<script src="inc/js/jquery.min.js"></script>
+<!--[if lt IE 9]>
+    <script src="inc/js/jquery1.min.js"></script>
+<![endif]-->
+<!--[if gte IE 9]><!-->
+    <script src="inc/js/jquery2.min.js"></script>
+<!--<![endif]-->
 <script src="inc/js/jquery-ui.js"></script>
 
 <script src="inc/locale/<?php echo $lang;?>1.js" ></script>

@@ -52,30 +52,30 @@ function L($str)
 }
 
 
-//				array(filename, compress, translate, commenthead)
+//				array(filepath, compress_code, translate_labels, restore_commenthead)
 $src = array(
 			
 			// Desktop-Version
 			array(
-				array('jquery.maskedinput.min.js', false, false, true),
-				array('dev/cmskit.core.js', true, true, true),
-				array('dev/cmskit.desktop.js', true, true, false),
-				array('jquery.ui.selectmenu.js', true, false, true),
-				array('dev/jquery.autosize.min.js', false, false, true),
-				array('jquery.foldertree.js', true, false, true),
-				array('dev/jquery-ui-timepicker.js', true, true, true),
-				array('jqCron.js', true, true, true),
+				//array('jquery.maskedinput.min.js', false, false, true),
+				array('../dev/js/cmskit.core.js', true, true, true),
+				array('../dev/js/cmskit.desktop.js', true, true, false),
+				//array($js_path.'jquery.ui.selectmenu.js', true, false, true),
+				array('../dev/js/jquery.autosize.min.js', false, false, true),
+				array($js_path.'jquery.foldertree.js', true, false, true),
+				//array('dev/jquery-ui-timepicker.js', true, true, true),
+				//array('jqCron.js', true, true, true),
 			  ),
 			
 			// Mobile-Version
 			array(
-				array('dev/cmskit.core.js', false, true, true),
-				array('dev/cmskit.mobile.js', false, true, false),
-				array('jquery.ui.selectmenu.js', true, false, true),
-				array('jquery.foldertree.js', true, false, true),
-				array('dev/mobiscroll.min.js', false, false, true),
-				array('jquery.ui.touchpunch.js',false, false, true),
-				array('jqCron.js', true, true, true),
+				array('../dev/js/cmskit.core.js', false, true, true),
+				array('../dev/js/cmskit.mobile.js', false, true, false),
+				//array('jquery.ui.selectmenu.js', true, false, true),
+				array($js_path.'jquery.foldertree.js', true, false, true),
+				array('../dev/js/mobiscroll.min.js', false, false, true),
+				array($js_path.'jquery.ui.touchpunch.js',false, false, true),
+				//array('jqCron.js', true, true, true),
 			  ),
 		);
 
@@ -88,7 +88,7 @@ foreach ($src as $aa)
 	foreach($aa as $a)
 	{
 		
-		if(!$str = file_get_contents($js_path . $a[0]))
+		if(!$str = file_get_contents($a[0]))
 		{
 			exit($js_path . $a[0] . ' is missing!');
 		}

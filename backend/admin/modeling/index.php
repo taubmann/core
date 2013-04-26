@@ -41,8 +41,9 @@ require $ppath . '__configuration.php';
 <script>$.uiBackCompat = false;</script>
 <script src="../../inc/js/jquery-ui.js"></script>
 <script src="../../inc/js/rules/disallowedNames.js"></script>
-
-<script src="inc/js/jquery.ui.multidraggable.js"></script>
+<!--
+<script src="inc/js/jsquery.ui.multidraggable.js"></script>
+-->
 <script>if(!window.JSON){document.writeln('<script src="../../inc/js/json2.min.js"><\/script>')}</script>
 
 <script src="inc/js/JsonXml.js"></script>
@@ -918,8 +919,10 @@ function addObject(objectname, x, y)
 		}
 	});
 	
-	// make Object draggable //$('#'+objectname).draggable({
-	$('#'+objectname).multidraggable({
+	// make Object draggable 
+	$('#'+objectname).draggable({
+	//$('#'+objectname).multidraggable({
+		
 		handle: 'p',
 
 		start: function(event, ui)
@@ -989,6 +992,40 @@ function esc(str)
 }
 
 
+function buildFollowers(v, my_type)
+{
+	var w  = wizards[v],
+		df = datatype_defaults[v],
+		tn = datatype[v],
+		to = datatype[my_type];//
+	
+	if(to != tn) {
+		alert('<?php echo L('Attention:_changing_general_Datatype_can_corrupt_Data')?>');
+	}
+	var html = '';
+	if(w)
+	{
+		html += '<select id="wizardEmbedSelect"><option value=""><?php echo L('Wizard')?></option>';
+		for(e in w) html += '<option title="'+w[e][1]+'" value="'+w[e][0]+'">'+e+'</option>';
+		html += '</select>';
+	}
+	$('#wizardSelect').html(html);
+	//$('#field_add').val('');
+	$('#wizardEmbedSelect').on('change',function() {
+		$('#field_add').val($(this).val().replace('#',"\n"));
+	});
+	
+	var html = '';
+	if(df)
+	{
+		html += '<select onchange="$(\'#field_default\').val(this.value)"><option value=""><?php echo L('Default_Value')?></option>';
+		for(e in df) html += '<option value="'+df[e]+'">'+e+'</option>';
+		html += '</select>';
+		html += '<input type="text" style="margin-left:122px" value="" name="default" id="field_default" />';
+		$('#defaultSelect').html(html);
+	}
+}
+
 // add a Field
 function addField (objectname, fieldname, col, norefresh)
 {
@@ -1004,7 +1041,7 @@ function addField (objectname, fieldname, col, norefresh)
 		html += '<label title="<?php echo L('edit_Field_properties')?>" class="ui-icon ui-icon-pencil"></label>';
 		
 		html += '<span title="<?php echo L('drag_to_Sort')?>" class="ui-icon ui-icon-arrowthick-2-n-s"></span>';
-		html += '' + fieldname + '</li>';
+		html += '' + fieldname.substr(0,15) + '</li>';
 	
 	ul.append(html);
 	
@@ -1029,13 +1066,16 @@ function addField (objectname, fieldname, col, norefresh)
 			types: datatypes
 		}).appendTo('#dialogbody');
 		
+		buildFollowers(my_type, my_type);
+		
 		$('#dialog').dialog('open');
 		
 		// if the User changes the Data-Type
 		$('#field_datatype').on('change', function()
 		{
-			var v  = $(this).val(),
-				w  = wizards[v],
+			var v  = $(this).val();
+			buildFollowers(v, my_type);
+			/*	w  = wizards[v],
 				df = datatype_defaults[v],
 				tn = datatype[v],
 				to = datatype[my_type];//
@@ -1064,8 +1104,9 @@ function addField (objectname, fieldname, col, norefresh)
 				html += '</select>';
 				html += '<input type="text" style="margin-left:122px" value="" name="default" id="field_default" />';
 				$('#defaultSelect').html(html);
-			}
-		})
+			}*/
+		});
+		
 	});
 	
 

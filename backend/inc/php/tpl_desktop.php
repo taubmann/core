@@ -35,7 +35,13 @@
 <link rel="stylesheet" type="text/css" id="mainTheme" href="inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/jquery-ui.css" />
 <link rel="stylesheet" type="text/css" id="baseTheme" href="inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/style.css" />
 
-<script src="inc/js/jquery.min.js"></script>
+<!--[if lt IE 9]>
+    <script src="inc/js/jquery1.min.js"></script>
+<![endif]-->
+<!--[if gte IE 9]><!-->
+    <script src="inc/js/jquery2.min.js"></script>
+<!--<![endif]-->
+
 <script src="inc/js/jquery-ui.js"></script>
 <script src="inc/locale/<?php echo $lang;?>0.js" ></script>
 

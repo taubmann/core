@@ -172,7 +172,7 @@ function processObject ($name, $object, $db, $increment)
 			
 			
 			
-			$tmp['col'][$fname] = array	('type' => $object['fields']['field'][$i]['datatype']);
+			$tmp['col'][$fname] = array	('type' => $object['fields']['field'][$i]['datatype'], 'tpl' => $datatypes[ $object['fields']['field'][$i]['datatype'] ]['tpl']);
 			
 			//
 			if ($b = text2array($object['fields']['field'][$i]['filter']))
@@ -181,7 +181,7 @@ function processObject ($name, $object, $db, $increment)
 			}
 			
 			//
-			if ($b = text2array($object['fields']['field'][$i]['add']))
+			if ($b = text2array($object['fields']['field'][$i]['add']))//, false, true
 			{
 				$tmp['col'][$fname]['add'] = $b;
 			}
@@ -445,6 +445,7 @@ function text2array($str, $simple=false, $deep=false)
 		
 		$lines = explode(PHP_EOL, urldecode($str));
 		$array = array();
+		$pk = false;
 		foreach ($lines as $line)
 		{
 			$lineArr = explode(':', trim($line));
@@ -459,8 +460,13 @@ function text2array($str, $simple=false, $deep=false)
 			}
 			else
 			{
+				if($k == $pk)
+				{
+					$lineArr[0] = $array[$k] . '|' . $lineArr[0];
+				}
 				$array[$k] = $lineArr[0];
 			}
+			$pk = $k;
 		}
 		//ksort($array);
 		return $array;

@@ -91,13 +91,13 @@ switch ($action)
 	case 'dbreplace': // super-root: only replace something in DB-Models
 	case 'save': // classic Save-Procedure
 		
-		if(!is_writable($path)) exit('ERROR: "'.$_GET['file'].'.php" '.L('is not writable').'!');
+		if(!is_writable($path)) exit(L('ERROR').': "'.$_GET['file'].'.php" '.L('is not writable').'!');
 		
 		// TIMESTAMP-ACTION-MODELNAME-USERID
 		$bp1 = $backuppath . time() . '-' . $action . '-' . $_GET['file'] . '-' . $_SESSION[$projectName]['special']['user']['id'];
 		
+		if(!$datatypes = json_decode(file_get_contents($backend.'inc/js/rules/datatypes.json'), true)) exit('Datatypes not found/decoded');
 		
-							
 		
 		////////////////////////////////////////////////////////////////////////////////////////////
 		$new = json_decode($_POST['json'], true);
@@ -110,17 +110,33 @@ switch ($action)
 			case JSON_ERROR_SYNTAX: 	exit('JSON-Error in '.$_GET['file'].': Syntax error, malformed JSON'); break;
 		}
 		
+		// add the datatype-template to the Model
+		foreach($new as $k=>$v)
+		{ 
+			$new[$k]['tpl'] = $datatypes[$new[$k]['type']]['tpl'];
+		}
+		
+		
 		if ($new === $old)
 		{
 			exit(L('absolutely_nothing_changed'));
 		}
 		
+		// Model to be saved
+		$newJson = $new;
+		
 		// strip/adapt the arrays if no fullscan required (only values stored in DB)
-		if(substr($_GET['file'],0,1) != '_')
+		if (substr($_GET['file'],0,1) != '_')
 		{
-			foreach($new as $k=>$v){ $new[$k] = array('value'=>$new[$k]['value']); }
+			foreach($new as $k=>$v)
+			{ 
+				$new[$k] = array('value'=>$new[$k]['value']);
+			}
 			$new['MODEL'] = ' '.$_GET['file'];
-			foreach($old as $k=>$v){ $old[$k] = array('value'=>$old[$k]['value']); }
+			foreach($old as $k=>$v)
+			{
+				$old[$k] = array('value'=>$old[$k]['value']);
+			}
 			$old['MODEL'] = ' '.$_GET['file'];
 		}
 		
@@ -216,7 +232,7 @@ switch ($action)
 		// save the new JSON
 		if ($_GET['action'] !== 'dbreplace')
 		{
-			file_put_contents($path, '<?php exit;?>'."\n".$_POST['json']);
+			file_put_contents($path, '<?php exit;?>'."\n".json_encode($newJson));
 		}
 		
 		echo ''.$updated.' '.L('Entries_updated');

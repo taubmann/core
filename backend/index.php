@@ -74,7 +74,12 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 <meta http-equiv="content-style-type" content="text/css">
 <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
 
-<script src="inc/js/jquery.min.js"></script>
+<!--[if lt IE 9]>
+    <script src="inc/js/jquery1.min.js"></script>
+<![endif]-->
+<!--[if gte IE 9]><!-->
+    <script src="inc/js/jquery2.min.js"></script>
+<!--<![endif]-->
 
 <link rel="icon" type="image/png" href="inc/css/icon.png" />
 <style>

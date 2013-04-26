@@ -1,5 +1,5 @@
 <?php
 function _HIDDENINTEGER($arr) {
-	return '<input type="hidden" name="'.$arr['name'].'" value="'.intval($arr['value']).'" />';
+	return '<input class="input" type="hidden" id="input_'.str_replace(array('[',']'),'_',$arr['name']).'" name="'.$arr['name'].'" value="'.intval($arr['value']).'" />';
 }
 ?>

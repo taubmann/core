@@ -263,6 +263,9 @@ foreach ($objects as $ok => $ov)
 	
 }
 
+
+//print_r($_SESSION[$projectName]['objects']);
+
 ksort($objectOptions, SORT_LOCALE_STRING);
 
 //print_r($objectOptions);

@@ -65,6 +65,7 @@ option
 #colMidb .field
 {
 	margin-top: 10px;
+	clear: both;
 }
 #colMidb label
 {
@@ -185,6 +186,7 @@ option
 #dialog1, #dialog2
 {
 	display: none;
+	z-index: 20;
 }
 #dialog3
 {
@@ -195,35 +197,7 @@ option
 	z-index: 55;
 }
 .ui-timepicker-div .ui-widget-header
-{
-	margin-bottom: 8px;
-}
-.ui-timepicker-div dl
-{
-	text-align: left;
-}
-.ui-timepicker-div dl dt
-{
-	height: 25px;
-}
-.ui-timepicker-div dl dd
-{
-	margin: -25px 0 10px 65px;
-}
-.ui-timepicker-div td
-{
-	font-size: 90%;
-}
 
-.timeframe
-{
-	cursor: pointer;
-	border: 1px solid #borderColorDefault;
-	border-radius: cornerRadius;
-	color: #fcDefault;
-	padding: 4px;
-	margin-right: 5px;
-}
 
 .slider
 {

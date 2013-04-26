@@ -35,7 +35,7 @@ $ppath = realpath($backend . '../projects/' . strtolower($projectName)) . '/obje
 
 $lang = $_SESSION[$projectName]['lang'];
 $LL = array();
-@include dirname(__FILE__) . '/locale/'.$lang.'.php';
+@include __DIR__ . '/locale/'.$lang.'.php';
 
 /**
 * 

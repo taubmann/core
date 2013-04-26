@@ -74,13 +74,13 @@ class crud
 	* create LI-Tags for Reference-Lists objectname, id|label, no dragging
 	* 
 	* @return 
- 
+    ui-state-default ui-corner-all
 	*/
 	protected function strLi ($n, $id, $lbl, $nodrag=false)
 	{
 		$s = explode('|', $str);
 		return 	'<li id="l_'.$id.'" class="ui-state-default ui-selectee">' .
-				($nodrag?'':'<span style="float:left;margin-right:10px" class="ui-icon ui-icon-arrow-2-n-s"></span>') .
+				($nodrag?'':'<span class="ui-state-default ui-corner-all" style="float:left;margin-right:10px;" title="drag here"><em class="ui-icon ui-icon-arrow-2-n-s"></em></span>') .
 				'<a title="id: '.$id.'" class="lnk" data-object="'.$n.'" data-id="'.$id.'" href="#">' .
 				((strlen(trim($lbl))>0)?substr(trim(strip_tags($lbl)),0,100):'[...]') .
 				'</a></li>';
@@ -594,7 +594,7 @@ class crud
 			}
 			
 			// load the Field-Template
-			include_once('fieldtypes/' . $fv['type'] . '.php');
+			include_once('fields/' . $fv['tpl'] . '.php');
 			
 			
 			$lbl = $fk;
@@ -642,18 +642,15 @@ class crud
 			// Replacement-Start
 			$str1 .= '<!--s_'.$fk.'-->';
 			
-			// call the function array(label, fieldname, content, addition-array)
-			$str1 .= call_user_func(
-									'_'.$fv['type'],
-									array(
-											'name' => $fk,
-											'label' => $lbl,
-											'placeholder' => $placeholder,
-											'value' => $item->$fk,
-											'add' => ( isset($fv['add']) ? $fv['add'] : array() )
-										)
-									);
 			
+			
+			$data = '';
+			foreach($fv['add'] as $dk=>$dv){ $data.='data-'.$dk.'="'.$dv.'" '; }
+			
+			// example: draw_xyz ($name, $id, $label, $val, $data)
+			$str1 .= call_user_func( 'draw_'.$fv['tpl'], $fk, 'input_'.$fk, $lbl, $placeholder, $item->$fk, $data );
+									
+			// end of field
 			$str1 .= '<!--e_'.$fk.'-->';
 			
 			// if a Generic Structure is detected
@@ -666,7 +663,6 @@ class crud
 					$temp['MODEL'] = array('type'=>'HIDDENTEXT','value'=>(is_string($temp['MODEL'])?$temp['MODEL']:$temp['MODEL']['value']));// : array('type'=>'HIDDENTEXT','value'=>);
 					
 					// merge Data with external Model
-					//echo $this->ppath.'/objects/generic/'.$temp['MODEL']['value'].'.php';
 					if (isset($temp['MODEL']) && file_exists($this->ppath.'/objects/generic/'.trim($temp['MODEL']['value']).'.php'))
 					{
 						$php = file_get_contents($this->ppath.'/objects/generic/'.trim($temp['MODEL']['value']).'.php');
@@ -675,16 +671,15 @@ class crud
 							$temp = array_replace_recursive($tpl, $temp);
 						}
 					}
-					//$temp = $this->arrayToObject($temp);
 					
 					foreach ($temp as $jk => $jv)
 					{
 						// skip invalid fields
-						if (!isset($jv['type']) || !isset($jv['value'])){ continue; }
+						if (!isset($jv['tpl']) || !isset($jv['type']) || !isset($jv['value'])){ continue; }
 						
 						
-						include_once ('fieldtypes/' . $jv['type'] . '.php');
-						if ( function_exists('_'.$jv['type']) )
+						include_once ('fields/' . $jv['tpl'] . '.php');
+						if ( function_exists('draw_'.$jv['tpl']) )
 						{
 							$jlbl = $jk;
 							$placeholder = '';
@@ -698,16 +693,11 @@ class crud
 								if (isset($arr['lbl']['placeholder'])) $placeholder = $arr['lbl']['placeholder'];
 							}
 							
-							$str1 .= call_user_func(
-													'_'.$jv['type'],
-													array( 
-															'name' => $fk.'['.$jk.'][value]',
-															'label' => $jlbl,
-															'placeholder' => $placeholder,
-															'value' => $jv['value'],
-															'add' => ( isset($jv['add']) ? $jv['add'] : array() )
-														)
-													);
+							$data = '';
+							foreach($jv['add'] as $dk=>$dv){ $data.='data-'.$dk.'="'.$dv.'" '; }
+							// example: draw_xyz ($name, $id, $label, $val, $data)
+							$id = 'input_'.$fk.'_'.$jk;
+							$str1 .= call_user_func( 'draw_'.$jv['tpl'],  $fk.'['.$jk.'][value]', $id, $jlbl, $placeholder, $jv['value'], $data );
 						}
 						else
 						{

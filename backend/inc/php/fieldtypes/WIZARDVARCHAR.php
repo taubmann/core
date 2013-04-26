@@ -5,7 +5,7 @@ function _WIZARDVARCHAR($arr)
 	//  [extension] => Array ( [0] => gear [1] => su [2] => path=user/wizards/su )
 	//$wz = explode(':', $arr['add']);
 	global $c; 
-	$str = '<div class="field"><label>'.$arr['label'].'</label><input id="input_'.$arr['name'].'" type="text" name="'.$arr['name'].'" placeholder="'.$arr['placeholder'].'" value="'.htmlspecialchars($arr['value']).'" /> '.
+	$str = '<div class="field"><label>'.$arr['label'].'</label><input id="input_'.str_replace(array('[',']'),'_',$arr['name']).'" type="text" name="'.$arr['name'].'" placeholder="'.$arr['placeholder'].'" value="'.htmlspecialchars($arr['value']).'" /> '.
 			$c->wizardButton($arr['name'], $arr['add']);
 	
 	//<button class="wz_'.($wz[0]=='extension'?md5($wz[3]):$wz[0]).'" rel="'.(isset($wz[1])?$wz[1]:'gear').'" onclick="getWizard(\'input_'.$arr['name'].'\',\''.$wz[0].'\''.(isset($wz[3])?',\''.$wz[3].'\'':'').')" type="button">'.(isset($wz[2])?$wz[2]:'Wizard').'</button>';

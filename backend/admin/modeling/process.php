@@ -78,7 +78,7 @@ if(!is_writable($ppath)) exit('Folder "objects" is not writable!');
 // OBJECTS
 $datatypes 		= json_decode(file_get_contents('../../inc/js/rules/datatypes.json'), true);// load Datatypes
 $dbModel 		= getTableStructure(); //
-$jsonModel		= $objects;//json_decode(json_encode($objects), true);
+$jsonModel		= $objects;
 $xmlModel		= json_decode(json_encode(simplexml_load_string($model)), true);
 $newModel 		= array();
 

@@ -70,7 +70,7 @@ function array_diff(a, b) {
 };
 
 function template(str, data) {
-    return str.replace(/%(\w*)%/g,function(m,key){return data.hasOwnProperty(key) ? data[key] : '';});
+	return str.replace(/%(\w*)%/g,function(m,key){return data.hasOwnProperty(key) ? data[key] : '';});
 };
 
 function showTT(el) {
@@ -93,35 +93,9 @@ function checkForNumber(el) {
 * @todo fix the boolean vars
 */
 $(function($){
-	$.datepicker.regional[''] = {
-		closeText: _('close'),
-		prevText: _('back'),
-		nextText: _('next'),
-		currentText: _('today'),
-		monthNames: [_('January'),_('February'),_('March'),_('April'),_('May'),_('June'),_('July'),_('August'),_('September'),_('October'),_('November'),_('December')],
-		monthNamesShort: [_('Jan'),_('Feb'),_('Mar'),_('Apr'),_('May'),_('Jun'),_('Jul'),_('Aug'),_('Sept'),_('Oct'),_('Nov'),_('Dec')],
-		dayNames: [_('Sunday'),_('Monday'),_('Tuesday'),_('Wednesday'),_('Thursday'),_('Friday'),_('Saturday')],
-		dayNamesShort: [_('Sun'),_('Mon'),_('Tue'),_('Wed'),_('Thu'),_('Fri'),_('Sat')],
-		dayNamesMin: [_('Su'),_('Mo'),_('Tu'),_('We'),_('Th'),_('Fr'),_('Sa')],
-		weekHeader: _('Wk'),
-		dateFormat: _('dd.mm.yy'),
-		firstDay: 1,
-		isRTL: false,
-		showMonthAfterYear: false,
-		yearSuffix: ''
-	};
 	
 	
-	$.timepicker.regional[''] = {
-	  timeOnlyTitle: _('choose_time'),
-	  timeText: _('Time'),
-	  hourText: _('Hour'),
-	  minuteText: _('Minute'),
-	  secondText: _('Second'),
-	  currentText: _('Now'),
-	  closeText: _('close'),
-	  ampm: false
-	};
+	
 });
 	
 /**
@@ -144,28 +118,7 @@ function styleButtons(id)
 	}
 )};
 
-function secToTimeframe (sec, name, show)
-{
-	var years = Math.floor(sec / 31556926);
-	sec %= 31556926;
-	var months = Math.round(sec / 2629743);
-	sec %= 2629743;
-	var days = Math.floor(sec / 86400);
-	sec %= 86400;
-	var hours = Math.floor(sec / 3600);
-	sec %= 3600;
-	var minutes = Math.floor(sec / 60);
-	sec %= 60;
-	var  str = '';
-	if(/year/.test(show)) str += '<span class="timeframe" data-mult="31556926" data-field="'+name+'"> ' + _('Years') + ': <em>' + years.toString() + '</em></span>';
-	if(/month/.test(show)) str += '<span class="timeframe" data-mult="2629743" data-field="'+name+'">' + _('Months') + ': <em>' + months.toString()  + '</em></span>';
-	if(/day/.test(show)) str += '<span class="timeframe" data-mult="86400" data-field="'+name+'">' + _('Days') + ': <em>' + days.toString()  + '</em></span>';
-	if(/hour/.test(show)) str += '<span class="timeframe" data-mult="3600" data-field="'+name+'">' + _('Hours') + ': <em>' + hours.toString()  + '</em></span>';
-	if(/minute/.test(show)) str += '<span class="timeframe" data-mult="60" data-field="'+name+'">' + _('Minutes') + ': <em>' + minutes.toString()  + '</em></span>';
-	if(/second/.test(show)) str += '<span class="timeframe" data-mult="1" data-field="'+name+'">' + _('Seconds') + ': <em>' + sec.toString()  + '</em></span>';
-	
-	return str;
-};
+
 
 $(document).ready(function()
 {
@@ -185,5 +138,72 @@ function openDoc(p)
 	getFrame('admin/extension_manager/showDoc.php?file=../../'+p)
 };
 
+// require_once - alternative to $.getScript. use: $.loadScript('myscript.js', function() {...});
+var loadedScripts = [];
+jQuery.loadScript = function (url, callback)
+{
+	if ($.inArray(url, loadedScripts) < 0)
+	{
+		jQuery.ajax({
+			type: 'GET',
+			url: url+'?projectName='+projectName+'&objectName='+objectName+'&lang='+lang+'&theme='+theme,
+			dataType: 'script',
+			cache: true,
+			success: function() {
+				loadedScripts.push(url);
+				callback.call(this);
+			}
+		});
+	}
+	else
+	{
+		callback.call(this);
+	}
+};
+
 $(window).unload(function(){window.name=JSON.stringify(store)});
 
+/*
+// http://tdanemar.wordpress.com/2010/08/24/jquery-serialize-method-and-checkboxes
+(function ($) {
+ 
+	 $.fn.serialize = function (options) {
+		 return $.param(this.serializeArray(options));
+	 };
+ 
+	 $.fn.serializeArray = function (options) {
+		 var o = $.extend({
+		 checkboxesAsBools: false
+	 }, options || {});
+ 
+	 var rselectTextarea = /select|textarea/i;
+	 var rinput = /text|hidden|password|search/i;
+ 
+	 return this.map(function () {
+		 return this.elements ? $.makeArray(this.elements) : this;
+	 })
+	 .filter(function () {
+		 return this.name && !this.disabled &&
+			 (this.checked
+			 || (o.checkboxesAsBools && this.type === 'checkbox')
+			 || rselectTextarea.test(this.nodeName)
+			 || rinput.test(this.type));
+		 })
+		 .map(function (i, elem) {
+			 var val = $(this).val();
+			 return val == null ?
+			 null :
+			 $.isArray(val) ?
+			 $.map(val, function (val, i) {
+				 return { name: elem.name, value: val };
+			 }) :
+			 {
+				 name: elem.name,
+				 value: (o.checkboxesAsBools && this.type === 'checkbox') ? //moar ternaries!
+						(this.checked ? 'true' : 'false') :
+						val
+			 };
+		 }).get();
+	 };
+ 
+})(jQuery);*/

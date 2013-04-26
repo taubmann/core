@@ -110,14 +110,14 @@ function setColWidth(cw)
 	$('#colRight').css('left', (cw[0]+cw[1]+30)+'px');
 	store['cw'] = cw;
 	// border:1px solid #f00;
-	$('<style>#colMid input{width:'+(cw[1]-220)+'px}#colRight a{width:'+(cw[2]-60)+'px}</style>').appendTo('head')
+	$('<style>#colMid .input{width:'+(cw[1]-220)+'px}#colRight a{width:'+(cw[2]-60)+'px}</style>').appendTo('head')
 };
 
 $(document).ready(function()
 {
 	// Rules for Masked Input
-	$.mask.definitions['~'] = '[+-]';//plus-minus
-	$.mask.definitions['h'] = '[A-Fa-f0-9]';//color-hash (= #hhhhhh )
+	//$.mask.definitions['~'] = '[+-]';//plus-minus
+	//$.mask.definitions['h'] = '[A-Fa-f0-9]';//color-hash (= #hhhhhh )
 	//alert(JSON.stringify(store));
 	/**
 	* xss
@@ -151,6 +151,7 @@ $(document).ready(function()
 	// Resizable Columns
 	var dw = $(document).width(),
 		w  = Math.floor((dw-50)/4),// 3-columns-grid 1/2/1
+		
 		cw = (store['cw']) ? store['cw'] : [w, w*2, w];
 		ch = $(document).height()-70,// 
 		limitNumber = Math.floor((ch-50)/32);// how many Elements go int the window?
@@ -479,15 +480,63 @@ function getContent(id)
 	function(data)
 	{
 		$('#colMidb').html(data);
-		//$('#colMidb').css({opacity:0.0}).html(data).animate({opacity:1.0},1000);
 		
 		// content-processing
-		$('#accordion').accordion({collapsible:true});
-		$('#tabs').tabs();
-		prettify('colMidb');
+		$('#colMidb #accordion').accordion({collapsible:true});
+		$('#colMidb #tabs').tabs();
 		
-		//$('#colMidb textarea,input').autoResize({maxWidth: ($("#colMid").width()-200)});
+		
+		
+		
+		// loop throught all Input-Elements
+		$('#colMidb .input').each(function()
+		{
+			//alert(JSON.stringify($(this).data()))
+			
+			// get all data-... attributes of element e
+			var e = $(this);
+			var d = e.data();
+			
+			// Wizard detected, (try to) prepare
+			if(d.wizard)
+			{
+				
+				if(d.external) // external Wizard (open Dialog)
+				{
+					var bt = $('<button type="button" title="'+(d.title?d.title:'')+'" rel="'+(d.icon||'gear')+'">'+(d.label||'Wizard')+'</button>');
+					e.after(bt);// place the button
+					e.width(store['cw'][1]-230-bt.width());// reduce input-with, to place the button right to the Field
+					bt.on('click', function()
+					{
+						targetFieldId = e.attr('id');
+						getFrame( (d.path?d.path.replace(/###PROJECT###/,projectName):'wizards/'+d.wizard) + '/index.php?projectName='+projectName+'&objectName='+objectName+'&lang='+lang+'&theme='+theme+'&objectId='+objectId+((d.params)?'&'+d.params:'') );
+					});
+				}
+				else // embedded Wizard (load Script)
+				{
+					$.loadScript((d.path?d.path:'wizards/'+d.wizard)+'/include.php', function() {
+						e[d.wizard]()
+					});
+				}
+			}
+			
+			// change some basic stylings
+			if(d.readonly) $(this).attr('readonly','readonly');// make the Field readonly
+			if(d.hide_input) $(this).css({'position':'absolute','left':'-1000px'});// hide the Field
+			if(d.hide_label) $(this).prev('label').css('display','none');// hide the Label
+			if(d.exclude_input) $(this).parent().remove();// delete the Field
+			
+			
+			
+		});// $('#colMidb .inp') END
 		$('#colMidb textarea').autosize();
+		styleButtons('colMidb');
+		
+		/*
+		$.loadScript('myscript.js',function() {
+			alert('script ausgeführt')
+		});
+		*/
 		
 		// show related Objects
 		/*
@@ -503,13 +552,14 @@ function getContent(id)
 		});*/
 		
 		// bind a Input-Mask to this Field
-		$('#colMidb input[data-mask]').each(function(){
+		/*$('#colMidb input[data-mask]').each(function(){
 			$(this).mask($(this).data('mask'))
 		});
 		// make this Field readonly
 		$('#colMidb *[data-readonly]').each(function(){
 			$(this).attr('readonly','readonly')
 		});
+		
 		// change type="..." (e.g. for HTML5 checks)
 		$('#colMidb input[data-type]').each(function(){
 			var newEl = $(this).clone();
@@ -537,12 +587,15 @@ function getContent(id)
 					main.val(parseInt(main.val()) + neu - old);
 			}
 		});
+		*/
+		afterGetContent(id);
 	});
 	
 	getConnectedReferences(id);
 };
 
-
+// empty Function to use as a Hook for further Content-Processing
+function afterGetContent(id){}
 
 
 
@@ -596,16 +649,26 @@ function saveContent(id)
 {
 	
 	// embed-wizard-transfer
-	$('#colMidb .eframe').each(function() {
+	/*$('#colMidb .eframe').each(function() {
 		var f=$(this), fd=f[0].contentWindow||f[0]; // iframe
 		fd.transfer();// run function
-	});
-	$.post('crud.php?action=saveContent&projectName='+projectName+'&objectName='+objectName+'&objectId='+id, $('#colMidb').serialize(), 
+	});*/
+	
+	// serialize the Form
+	var s = $('#colMidb').serialize();
+	
+	// fix ignoring unchecked Checkboxes
+	$('#colMidb .checkbox').each(function(){if(!$(this).prop('checked')) s += '&' + $(this).attr('name') + '=0';});
+	
+	$.post('crud.php?action=saveContent&projectName='+projectName+'&objectName='+objectName+'&objectId='+id, s, 
 	function(data) {
 		message(data);
 		getList(id);
+		afterSaveContent(id);
 	});
 };
+
+function afterSaveContent(id){};
 
 /**
 * creates a new Entry and opens it in the main Slot
@@ -620,7 +683,7 @@ function createContent()
 		action: 'createContent', 
 		projectName: projectName, 
 		objectName: objectName
-	}, 
+	},
 	function(data) 
 	{
 		$('#colRightb').html('');
@@ -802,8 +865,9 @@ function getReferences (id, offs1, offs2)
 function prettify(id)
 {
 	styleButtons(id);
+	
 	//$('#'+id+' .selectbox').selectmenu({style:'popup'});
-	$('#'+id+' .date').datepicker(
+	/*$('#'+id+' .date').datepicker(
 	{
 		dateFormat:'yy-mm-dd'
 	});
@@ -812,12 +876,12 @@ function prettify(id)
 		dateFormat:'yy-mm-dd',
 		timeFormat:'h:m:s',
 		showSecond:true
-	});
+	})*/
 	
-	$('#'+id+' .cron').jqCron();
+	//$('#'+id+' .cron').jqCron();
 	
 	
-	$('#'+id+' .timestamp').datetimepicker(
+	/*$('#'+id+' .timestamp').datetimepicker(
 	{
 		dateFormat:'yy-mm-dd',
 		timeFormat:'h:m:s',
@@ -850,6 +914,7 @@ function prettify(id)
 			}
 		});
 	});
+	
 	$('#'+id+' .checkbox').button({
 		icons: {primary: 'ui-icon-circle-close'},
 		text: false 
@@ -858,7 +923,7 @@ function prettify(id)
 		$(this).button('option', 'icons', {primary: this.checked ? 'ui-icon-circle-check':'ui-icon-circle-close'})
 	})
 	.filter(":checked").button({icons: {primary: "ui-icon-circle-check"}});
-
+	*/
 };
 
 /**

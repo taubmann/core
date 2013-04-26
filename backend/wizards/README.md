@@ -2,8 +2,15 @@
 
 See [cms-kit](//github.com/cmskit/core)
 
-Wizards are simple Folders with -at least- a File called index.php placed in backend/wizards/
+Wizards extend Backend-Inputs or provide Dialogs for easy Manipulation of Data
 
-Wizards are opened from Backend and are meant to support/ease some Editing-Tasks (such as editing HTML with a WYSIWYG-Editor).
+Each Wizard is a Folder containing (at least):
 
+* include.php (include as embedded Wizard)
+* index.php (open as Dialog)
+* doc/
+  * info.php (Settings to register the Wizard system-wide)
+  * en/ (Folders for language-agnostic documentation)
+  * ../
+* ...
 

@@ -1,6 +1,7 @@
 {
 	"INTEGER": {
 		"type": "NUMERIC",
+		"tpl": "number",
 		"quote": "0",
 		"filter": "FILTER_SANITIZE_NUMBER_INT",
 		"php": "int",
@@ -13,6 +14,7 @@
 	},
 	"FLOAT": {
 		"type": "NUMERIC",
+		"tpl": "number",
 		"quote": "0",
 		"filter": "FILTER_SANITIZE_NUMBER_FLOAT",
 		"php": "float",
@@ -24,6 +26,7 @@
 	},
 	"HIDDENINTEGER": {
 		"type": "NUMERIC",
+		"tpl": "string",
 		"quote": "0",
 		"filter": "FILTER_SANITIZE_NUMBER_INT",
 		"php": "int",
@@ -36,6 +39,7 @@
 	},
 	"EXCLUDEDINTEGER": {
 		"type": "NUMERIC",
+		"tpl": "none",
 		"quote": "0",
 		"filter": "FILTER_SANITIZE_NUMBER_INT",
 		"php": "int",
@@ -48,6 +52,7 @@
 	},
 	"WIZARDINTEGERBUTTON": {
 		"type": "NUMERIC",
+		"tpl": "string",
 		"quote": "0",
 		"wizselect": "1",
 		"filter": "FILTER_SANITIZE_NUMBER_INT",
@@ -61,6 +66,7 @@
 	},
 	"BOOL": {
 		"type": "NUMERIC",
+		"tpl": "bool",
 		"quote": "0",
 		"filter": "FILTER_VALIDATE_BOOLEAN",
 		"php": "int",
@@ -74,6 +80,7 @@
 	},
 	"SELINTEGER": {
 		"type": "NUMERIC",
+		"tpl": "number",
 		"quote": "0",
 		"add": "1-10",
 		"filter": "",
@@ -87,6 +94,7 @@
 	},
 	"VARCHAR": {
 		"type": "CHARACTER",
+		"tpl": "string",
 		"quote": "1",
 		"filter": "",
 		"php": "string",
@@ -99,6 +107,7 @@
 	},
 	"SELVARCHAR": {
 		"type": "CHARACTER",
+		"tpl": "string",
 		"quote": "1",
 		"add": "",
 		"filter": "",
@@ -112,6 +121,7 @@
 	},
 	"WIZARDVARCHAR": {
 		"type": "CHARACTER",
+		"tpl": "string",
 		"quote": "1",
 		"wizselect": "1",
 		"filter": "",
@@ -125,6 +135,7 @@
 	},
 	"EXCLUDEDVARCHAR": {
 		"type": "CHARACTER",
+		"tpl": "none",
 		"quote": "1",
 		"add": "textfield",
 		"filter": "",
@@ -138,6 +149,7 @@
 	},
 	"TEXT": {
 		"type": "CHARACTER",
+		"tpl": "text",
 		"quote": "1",
 		"filter": "",
 		"php": "string",
@@ -149,6 +161,7 @@
 	},
 	"EXCLUDEDTEXT": {
 		"type": "CHARACTER",
+		"tpl": "none",
 		"quote": "1",
 		"filter": "",
 		"php": "string",
@@ -160,6 +173,7 @@
 	},
 	"HIDDENTEXT": {
 		"type": "CHARACTER",
+		"tpl": "text",
 		"quote": "1",
 		"filter": "",
 		"php": "string",
@@ -171,6 +185,7 @@
 	},
 	"WIZARDTEXT": {
 		"type": "CHARACTER",
+		"tpl": "text",
 		"quote": "1",
 		"wizselect": "1",
 		"filter": "",
@@ -183,6 +198,7 @@
 	},
 	"WIZARDBUTTON": {
 		"type": "CHARACTER",
+		"tpl": "string",
 		"quote": "1",
 		"wizselect": "1",
 		"filter": "",
@@ -195,6 +211,7 @@
 	},
 	"WIZARDTEXTEMB": {
 		"type": "CHARACTER",
+		"tpl": "string",
 		"quote": "1",
 		"wizselect": "1",
 		"filter": "",
@@ -207,6 +224,7 @@
 	},
 	"BLOB": {
 		"type": "CHARACTER",
+		"tpl": "text",
 		"quote": "1",
 		"filter": "",
 		"php": "string",
@@ -218,6 +236,7 @@
 	},
 	"DATE": {
 		"type": "OTHER",
+		"tpl": "string",
 		"quote": "1",
 		"filter": "",
 		"php": "string",
@@ -231,6 +250,7 @@
 	},
 	"DATETIME": {
 		"type": "OTHER",
+		"tpl": "string",
 		"quote": "1",
 		"filter": "",
 		"php": "string",
@@ -244,6 +264,7 @@
 	},
 	"CRON": {
 		"type": "OTHER",
+		"tpl": "string",
 		"quote": "1",
 		"filter": "",
 		"php": "string",
@@ -256,6 +277,7 @@
 	},
 	"YEAR": {
 		"type": "OTHER",
+		"tpl": "number",
 		"quote": "0",
 		"filter": "",
 		"php": "int",
@@ -269,6 +291,7 @@
 	},
 	"TIMESTAMP": {
 		"type": "OTHER",
+		"tpl": "number",
 		"quote": "0",
 		"filter": "",
 		"php": "int",
@@ -282,6 +305,7 @@
 	},
 	"MODEL": {
 		"type": "OTHER",
+		"tpl": "none",
 		"quote": "1",
 		"filter": "",
 		"php": "string",

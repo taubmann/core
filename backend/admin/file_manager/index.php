@@ -1,3 +1,3 @@
 <?php
-header( 'location: ../../wizards/filemanager/index.php?nosave=1&projectName='.$_GET['project'] );
+header( 'location: ../../wizards/filemanager/index.php?noparent=1&projectName='.$_GET['project'] );
 ?>

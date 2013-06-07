@@ -161,11 +161,11 @@ switch ($action)
 			
 			foreach ($objects as $objectname => $object)
 			{
-				foreach($object->col as $fieldname => $field)
+				foreach($object['col'] as $fieldname => $field)
 				{
-					if ( $field->type == 'MODEL' && 
-						 isset($object->col->{$fieldname.'_flag'}) && 
-						 isset($object->col->{$fieldname.'_select'})
+					if ( $field['type'] == 'MODEL' && 
+						 isset($object['col'][$fieldname.'_flag']) && 
+						 isset($object['col'][$fieldname.'_select'])
 						)
 					{
 						//echo $fieldname;
@@ -173,10 +173,10 @@ switch ($action)
 						{
 							// get all entries matching the Model-Name
 							$query = 'SELECT `id`, `'.$fieldname.'` as j FROM `'.$objectname.'` WHERE `'.$fieldname.'_flag` = ?';
-							$prepare = $prepare = DB::instance(intval($object->db))->prepare($query);
+							$prepare = $prepare = DB::instance(intval($object['db']))->prepare($query);
 							$prepare->execute(array($_GET['file']));
 							
-							$prepare2 = DB::instance(intval($object->db))->prepare('UPDATE `'.$objectname.'` SET `'.$fieldname.'` = ? WHERE `id` = ?;');
+							$prepare2 = DB::instance(intval($object['db']))->prepare('UPDATE `'.$objectname.'` SET `'.$fieldname.'` = ? WHERE `id` = ?;');
 							
 							$bp2 = $bp1 . '-' . $objectname . '-' . $fieldname . '-';
 							while ($row = $prepare->fetch())

@@ -90,7 +90,7 @@ file_put_contents('../super.php', '<?php
 $super = array(\''.$_POST['salt'].'\', \''.crpt($_POST['pass'], $_POST['salt']).'\');
 $config = array(
 	\'theme\' => array(\''.$_POST['theme'].'\'),
-	\'backend_templates\' => array(\'inc/php/'.implode("','inc/php/", $tpl).'\'),
+	\'backend_templates\' => array(\''.implode("','", explode("\n",trim($_POST['templates']))).'\'),
 	\'autolog\' => array(0)
 );
 ');
@@ -106,6 +106,9 @@ $config = array(
 			<input type="hidden" name="salt" id="salt" value="x" />
 			<h4>default Theme</h4>
 			<select name="theme">'.$topt.'</select>
+			<h4>Templates</h4>
+			<textarea name="templates">default
+			</textarea>
 			<hr /><input type="submit" value="save" />';
 		}
 	}

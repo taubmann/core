@@ -23,7 +23,7 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
 session_start();
-error_reporting(0);
+error_reporting(1);
 session_regenerate_id();
 
 // fix/sanitize GET-Parameter
@@ -54,6 +54,7 @@ else
 }
 
 require('inc/php/functions.php');
+
 $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 @include('inc/locale/login/'.$l.'.php');
 
@@ -127,7 +128,7 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 
 <form id="form" style="display:none" method="post" action="backend.php">
 	<input type="hidden" id="lang" name="lang" value="<?php echo $l;?>" />
-	<input type="hidden" id="template" name="template" value="0" />
+	<input type="hidden" id="client" name="client" value="" />
 
 	<?php
 	echo '	'.L('login').'<br />';

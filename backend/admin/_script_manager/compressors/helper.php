@@ -22,16 +22,18 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
+
 /**
 * compress javascript + css
 * 
 * @param string $str uncompressed String
+* @param bool $noc no Comment
 * @return compressed String
 */
-function compress($str)
+function compress($str, $noc=false)
 {
 	//grab the first comment-block
-	$comment = array_shift(explode('*/', $str));
+	$comment = ($noc?'':array_shift(explode('*/', $str)).'*/');
 	
 	$str = preg_replace("/((?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:\/\/.*))/", '', $str); // remove comments
 	$str = preg_replace('/(\\t|\\r|\\n)/','', $str); // remove tabs + line-feeds ( agressive Method )
@@ -49,7 +51,7 @@ function compress($str)
 						array(	'=',	'){',	'(',	')',	':',	'}}',	';}'	), 
 						$str
 					  );
-	$str = "\n" . $comment . "*/\n\n" . $str;
+	$str = "\n" . $comment . "\n\n" . $str;
 	return $str;
 }
 

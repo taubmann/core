@@ -12,6 +12,7 @@
 		"max": "11",
 		"sqlite": "INTEGER"
 	},
+
 	"FLOAT": {
 		"type": "NUMERIC",
 		"tpl": "number",
@@ -24,46 +25,7 @@
 		"mysql": "FLOAT",
 		"sqlite": "REAL"
 	},
-	"HIDDENINTEGER": {
-		"type": "NUMERIC",
-		"tpl": "string",
-		"quote": "0",
-		"filter": "FILTER_SANITIZE_NUMBER_INT",
-		"php": "int",
-		"default": {
-			"Zero": 0
-		},
-		"mysql": "INT",
-		"max": "11",
-		"sqlite": "INTEGER"
-	},
-	"EXCLUDEDINTEGER": {
-		"type": "NUMERIC",
-		"tpl": "none",
-		"quote": "0",
-		"filter": "FILTER_SANITIZE_NUMBER_INT",
-		"php": "int",
-		"default": {
-			"Zero": 0
-		},
-		"mysql": "INT",
-		"max": "11",
-		"sqlite": "INTEGER"
-	},
-	"WIZARDINTEGERBUTTON": {
-		"type": "NUMERIC",
-		"tpl": "string",
-		"quote": "0",
-		"wizselect": "1",
-		"filter": "FILTER_SANITIZE_NUMBER_INT",
-		"php": "int",
-		"default": {
-			"Zero": 0
-		},
-		"mysql": "INT",
-		"max": "11",
-		"sqlite": "INTEGER"
-	},
+	
 	"BOOL": {
 		"type": "NUMERIC",
 		"tpl": "bool",
@@ -78,20 +40,7 @@
 		"max": "1",
 		"sqlite": "INTEGER"
 	},
-	"SELINTEGER": {
-		"type": "NUMERIC",
-		"tpl": "number",
-		"quote": "0",
-		"add": "1-10",
-		"filter": "",
-		"php": "int",
-		"default": {
-			"Zero": 0
-		},
-		"mysql": "INT",
-		"max": "11",
-		"sqlite": "INTEGER"
-	},
+	
 	"VARCHAR": {
 		"type": "CHARACTER",
 		"tpl": "string",
@@ -105,48 +54,7 @@
 		"max": "255",
 		"sqlite": "TEXT"
 	},
-	"SELVARCHAR": {
-		"type": "CHARACTER",
-		"tpl": "string",
-		"quote": "1",
-		"add": "",
-		"filter": "",
-		"php": "string",
-		"default": {
-			"Empty": " "
-		},
-		"mysql": "VARCHAR (255)",
-		"max": "255",
-		"sqlite": "TEXT"
-	},
-	"WIZARDVARCHAR": {
-		"type": "CHARACTER",
-		"tpl": "string",
-		"quote": "1",
-		"wizselect": "1",
-		"filter": "",
-		"php": "string",
-		"default": {
-			"Empty": " "
-		},
-		"mysql": "VARCHAR (255)",
-		"max": "255",
-		"sqlite": "TEXT"
-	},
-	"EXCLUDEDVARCHAR": {
-		"type": "CHARACTER",
-		"tpl": "none",
-		"quote": "1",
-		"add": "textfield",
-		"filter": "",
-		"php": "string",
-		"default": {
-			"Empty": " "
-		},
-		"mysql": "VARCHAR (255)",
-		"max": "255",
-		"sqlite": "TEXT"
-	},
+	
 	"TEXT": {
 		"type": "CHARACTER",
 		"tpl": "text",
@@ -159,69 +67,7 @@
 		"mysql": "MEDIUMTEXT",
 		"sqlite": "TEXT"
 	},
-	"EXCLUDEDTEXT": {
-		"type": "CHARACTER",
-		"tpl": "none",
-		"quote": "1",
-		"filter": "",
-		"php": "string",
-		"default": {
-			"Empty": " "
-		},
-		"mysql": "MEDIUMTEXT",
-		"sqlite": "TEXT"
-	},
-	"HIDDENTEXT": {
-		"type": "CHARACTER",
-		"tpl": "text",
-		"quote": "1",
-		"filter": "",
-		"php": "string",
-		"default": {
-			"Empty": " "
-		},
-		"mysql": "MEDIUMTEXT",
-		"sqlite": "TEXT"
-	},
-	"WIZARDTEXT": {
-		"type": "CHARACTER",
-		"tpl": "text",
-		"quote": "1",
-		"wizselect": "1",
-		"filter": "",
-		"php": "string",
-		"default": {
-			"Empty": " "
-		},
-		"mysql": "MEDIUMTEXT",
-		"sqlite": "TEXT"
-	},
-	"WIZARDBUTTON": {
-		"type": "CHARACTER",
-		"tpl": "string",
-		"quote": "1",
-		"wizselect": "1",
-		"filter": "",
-		"php": "string",
-		"default": {
-			"Empty": " "
-		},
-		"mysql": "MEDIUMTEXT",
-		"sqlite": "TEXT"
-	},
-	"WIZARDTEXTEMB": {
-		"type": "CHARACTER",
-		"tpl": "string",
-		"quote": "1",
-		"wizselect": "1",
-		"filter": "",
-		"php": "string",
-		"default": {
-			"Empty": " "
-		},
-		"mysql": "MEDIUMTEXT",
-		"sqlite": "TEXT"
-	},
+	
 	"BLOB": {
 		"type": "CHARACTER",
 		"tpl": "text",
@@ -234,6 +80,7 @@
 		"mysql": "BLOB",
 		"sqlite": "BLOB"
 	},
+
 	"DATE": {
 		"type": "OTHER",
 		"tpl": "string",
@@ -248,6 +95,7 @@
 		"mysql": "DATE",
 		"sqlite": "TEXT"
 	},
+
 	"DATETIME": {
 		"type": "OTHER",
 		"tpl": "string",
@@ -262,19 +110,7 @@
 		"mysql": "DATETIME",
 		"sqlite": "TEXT"
 	},
-	"CRON": {
-		"type": "OTHER",
-		"tpl": "string",
-		"quote": "1",
-		"filter": "",
-		"php": "string",
-		"default": {
-			"Empty": "",
-			"All": "* * * * *"
-		},
-		"mysql": "VARCHAR (20)",
-		"sqlite": "TEXT"
-	},
+	
 	"YEAR": {
 		"type": "OTHER",
 		"tpl": "number",
@@ -289,6 +125,7 @@
 		"mysql": "YEAR",
 		"sqlite": "TEXT"
 	},
+
 	"TIMESTAMP": {
 		"type": "OTHER",
 		"tpl": "number",
@@ -303,6 +140,7 @@
 		"max": "11",
 		"sqlite": "INTEGER"
 	},
+
 	"MODEL": {
 		"type": "OTHER",
 		"tpl": "none",

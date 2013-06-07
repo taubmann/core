@@ -27,15 +27,18 @@ function createAlertIcon($str)
 
 function getExtensionList($projectName, $m, $mainpath)
 {
+	global $root;
+	
+	
 	$dirs = glob($mainpath[2].'*', GLOB_ONLYDIR);
 	$html = '<h3>'.L('Extensions').'</h3>
 	<div>
 	';
-
+	
 	foreach($dirs as $dir)
 	{
 		//
-		if($_SESSION[$projectName]['root']==2 || !file_exists($dir.'/.superadmin'))
+		if($root==2 || !file_exists($dir.'/.superadmin'))
 		{
 			$n = basename($dir);
 			$pluginNames[] = $n;

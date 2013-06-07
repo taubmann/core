@@ -26,11 +26,12 @@
  * Show/Edit the content of a File (depends on wizards/syntax)
  * */
 
+if(!file_exists('../../wizards/markup/index.php')) exit('Markup-Wizard is missing');
 
 require '../../inc/php/functions.php';
 require 'inc/path.php';
 
-if(!file_exists('../../wizards/syntax/src/ace.js')) exit('Syntax-Wizard is missing :-(');
+if(!file_exists('../../wizards/markup/src-min/ace.js')) exit('Syntax-Wizard is missing :-(');
 
 //$file = realpath((isset($_GET['int']) ? '../..' : '../../../projects/'.$_GET['project']) . '/extensions/'.$_GET['ext'].'/'.$_GET['file']);
 
@@ -44,7 +45,7 @@ $file = realpath($mainpath[2] . $_GET['ext'] . '/' . $_GET['file']);
 
 $mime = array_pop(explode('.', $_GET['file']));
 
-// allowed modes + translation mime => ace-mode (see: syntax/src/mode-xxx.js)
+// allowed modes + translation mime => ace-mode (see: markup/src-min/mode-xxx.js)
 $mode = array(
 	'js' => 'javascript',
 	'php' => 'php',
@@ -81,10 +82,10 @@ else
 	
 	<title>Code-Editor</title>
 	
-	<link href="../../wizards/syntax/inc/styles.css" rel="stylesheet" />
-	<script src="../../wizards/syntax/inc/scripts.js" type="text/javascript" charset="utf-8"></script>
+	<link href="../../wizards/markup/inc/styles.css" rel="stylesheet" />
+	<script src="../../wizards/markup/inc/scripts.js" type="text/javascript" charset="utf-8"></script>
 	<script src="../../inc/js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
-	<script src="../../wizards/syntax/src/ace.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../../wizards/markup/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
 	<style>
 		body, #helpdesk{ font-size:14px;background-color:#fff;color:#000;border:1px solid #000;}
 	</style>
@@ -92,7 +93,7 @@ else
 </head>
 <body>
 
-<img src="../../wizards/syntax/inc/img/help.png" id="bhelp" onclick="helpToggle()" title="help" />
+<img src="../../wizards/markup/inc/img/help.png" id="bhelp" onclick="helpToggle()" title="help" />
 
 <?php
 $readonly = '';
@@ -102,9 +103,9 @@ if($m < 1 || $_SESSION[$projectName]['root'] == 2)
 {
 	// draw active save-button if file is writable or to create one
 	if($canSave || $_GET['create']) {
-		echo '<img src="../../wizards/syntax/inc/img/save.png" id="bsave" onclick="save()" title="'.L('save').' '.$file.'" />';
+		echo '<img src="../../wizards/markup/inc/img/save.png" id="bsave" onclick="save()" title="'.L('save').' '.$file.'" />';
 	}else {
-		echo '<img src="../../wizards/syntax/inc/img/nosave.png" id="bsave" title="'.L('file_is_not_writable').'" />';
+		echo '<img src="../../wizards/markup/inc/img/nosave.png" id="bsave" title="'.L('file_is_not_writable').'" />';
 		$readonly = 'editor.setReadOnly(true);';
 	}
 }
@@ -120,10 +121,10 @@ else
 <div id="overlay" style="display:none;" onclick="$('#overlay').hide()"></div>
 <div id="helpdesk" style="display:none">
 	<div>
-		<img style="float:right;cursor:pointer" src="../../wizards/syntax/inc/img/close.png" onclick="helpToggle()" />
+		<img style="float:right;cursor:pointer" src="../../wizards/markup/inc/img/close.png" onclick="helpToggle()" />
 		<span style="font-size:10px" id="stats"></span>
 	</div>
-	<?php echo file_get_contents('../../wizards/syntax/inc/help.html');?>
+	<?php echo file_get_contents('../../wizards/markup/inc/help.html');?>
 </div>
 
 <script>

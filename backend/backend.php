@@ -83,12 +83,15 @@ if (!isset($_SESSION[$projectName]) )
 	include_once 'extensions/cms/hooks.php';
 	include_once $ppath . '/extensions/cms/hooks.php';
 	
-	$_SESSION[$projectName]['template'] = intval($_POST['template']);
+	//$_SESSION[$projectName]['template'] = $_POST['template'];
 	
 	// collect some configuration-Settings from "cms"-Extensions
-	$configs = array (	'extensions/cms/config/config.php',
+	$configs = array (	
+						'extensions/cms/config/config.php',
 						$ppath . '/extensions/cms/config/config.php'
-					);
+					 );
+	
+	
 	
 	foreach ($configs as $cf)
 	{
@@ -101,22 +104,26 @@ if (!isset($_SESSION[$projectName]) )
 			}
 		}
 	}
+	
 	$_SESSION[$projectName]['config'] = $config;
 	
 	
 	// check for Super-Root
 	if ( (
-			crpt($_POST['pass'], $super[0]) === $super[1] && 
+			crpt($_POST['pass'], $super[0]) === $super[0].':'.$super[1] 
+			&& 
 			(
-				in_array($_SERVER['SERVER_NAME'], array('localhost','127.0.0.1')) ||
-				isset($_SESSION['captcha_answer']) && $_POST['name']==$_SESSION['captcha_answer']
+				in_array($_SERVER['SERVER_NAME'], array('localhost','127.0.0.1')) // no need for Captchas on localhost
+				||
+				isset($_SESSION['captcha_answer']) && $_POST['name'] == $_SESSION['captcha_answer']
 			)
-		 ) || 
-		 end($config['autolog']) == 1
+		 )
+		 || 
+		 end($config['autolog']) == 1 // login is disabled at all
 		)
 	{
-		// define User as Super-Root (==2) and put some infs into the user-array 
-		$_SESSION[$projectName]['root'] = 2;
+		// define User as "Super-Root" and put some infos into the user-array 
+		$_SESSION[$projectName]['root'] = md5($_SERVER['REMOTE_ADDR'] . $super[1]);
 		$_SESSION[$projectName]['special']['user'] = 
 		array	(
 			'prename'	=> 'superroot',
@@ -134,6 +141,7 @@ if (!isset($_SESSION[$projectName]) )
 		);
 		
 		$log = true;
+		
 	}
 	
 	// (try to) call Login-Hooks
@@ -185,6 +193,8 @@ if (!isset($_SESSION[$projectName]) )
 		// refresh this Page to kill POST-Variables
 		header('location: backend.php?project=' . $projectName);
 	}
+	
+	unset($super);
 	
 } // Verification-Process END
 
@@ -273,7 +283,8 @@ ksort($objectOptions, SORT_LOCALE_STRING);
 $user_wizards = array_merge($_SESSION[$projectName]['config']['wizards'], $_SESSION[$projectName]['special']['user']['wizards']);
 
 // load Template
-$ti = (isset($_GET['template'])) ? intval($_GET['template']) : $_SESSION[$projectName]['template'];
-include $_SESSION[$projectName]['config']['backend_templates'][$ti];
-
+if(isset($_POST['template'])) $_SESSION[$projectName]['config']['template'] = preg_replace('/\W/', '', $_POST['template']);
+//$_SESSION[$projectName]['config']['backend_templates'][((isset($_GET['template'])) ? $_GET['template'] : $_SESSION[$projectName]['template'])];
+include 'templates/' . $_SESSION[$projectName]['config']['template'] . '/backend.php';
+//print_r($_SESSION[$projectName]['config']['backend_templates']);
 ?>

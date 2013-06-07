@@ -91,7 +91,6 @@ echo $html;
 echo '<button type="button" id="logoutButton" rel="power" onclick="logout()">'.L('logout').'</button>';
 
 ?>
-	
 </div>
 
 <div id="iHeadLeft">
@@ -113,7 +112,7 @@ foreach($objectOptions as $group => $arr)
 	echo '<optgroup label="'.(($group!='0')?' '.$group.'':'').'">';
 	foreach($arr as $option)
 	{
-		echo '	<option value="'.$option['name'].'" data-htype="'.$option['htype'].'"> '.$option['label'].'</option>';
+		if(substr($option['label'],0,1)!=='.') echo '	<option value="'.$option['name'].'" data-htype="'.$option['htype'].'"> '.$option['label'].'</option>';
 	}
 	echo '</optgroup>';
 }

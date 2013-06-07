@@ -1009,7 +1009,10 @@ function openGlobalWizard(el)
 */
 function getWizard(id, type, add)
 {
+	// if we get a Type pointing to an id we grab the real type from this Element
+	// > open different wizards depending on a Selectbox-Selection
 	if(type.substr(0,1)=='#') type=$(type).val();
+	
 	targetFieldId = id;
 	getFrame( 'wizards/' + type + '/index.php?projectName='+projectName+'&objectName='+objectName+'&objectId='+objectId+((add)?'&'+add:'') );
 };

@@ -543,8 +543,7 @@ class crud
 		{
 			foreach ($this->objects[$this->objectName]['rel'] as $rk => $rt)
 			{
-				
-				$str0 .= '<option class="relType'.$rt.'" value="'.$rk.'">'.(isset($this->objects[$rk]['lang'][$this->lang]) ? $this->objects[$rk]['lang'][$this->lang] : $rk).'</option>';
+				$str0 .= '<option class="relType'.$rt.'" value="'.$rk.'">'.(isset($this->objects[$rk]['lang'][$this->lang]) ? trim($this->objects[$rk]['lang'][$this->lang], '.') : $rk).'</option>';
 			}
 		}
 		
@@ -587,14 +586,14 @@ class crud
 		// loop the Fields
 		foreach($col as $fk => $fv)
 		{
-			// dont show xxid & xxsort
+			// dont show xxid & xxsort - Fields
 			if (substr($fk,-2) == 'id' || substr($fk,-4) == 'sort')
 			{
 				continue;
 			}
 			
 			// load the Field-Template
-			include_once('fields/' . $fv['tpl'] . '.php');
+			if($fv['tpl']) include_once('fields/' . $fv['tpl'] . '.php');
 			
 			
 			$lbl = $fk;
@@ -645,10 +644,10 @@ class crud
 			
 			
 			$data = '';
-			foreach($fv['add'] as $dk=>$dv){ $data.='data-'.$dk.'="'.$dv.'" '; }
+			if($fv['add']) foreach($fv['add'] as $dk=>$dv){ $data.='data-'.$dk.'="'.$dv.'" '; }
 			
 			// example: draw_xyz ($name, $id, $label, $val, $data)
-			$str1 .= call_user_func( 'draw_'.$fv['tpl'], $fk, 'input_'.$fk, $lbl, $placeholder, $item->$fk, $data );
+			if(function_exists('draw_'.$fv['tpl'])) $str1 .= call_user_func( 'draw_'.$fv['tpl'], $fk, 'input_'.$fk, $lbl, $placeholder, $item->$fk, $data );
 									
 			// end of field
 			$str1 .= '<!--e_'.$fk.'-->';
@@ -718,8 +717,11 @@ class crud
 			$str1 = str_replace('###TABSHEAD###', '<ul>'.implode('', $tabHeads).'</ul>', $str1);
 		}
 		
+		// close a possible Tab-/Accordion-Container
+		if($cnt>0) $str1 .= '</div>';
+		
 		// Content-Buttons (created here because they need IDs and Style-Attributes) 
-		$str2 .= '<span style="float:right"><!--cb3-->';
+		$str2 .= '<div style="clear:both"><span style="float:right"><!--cb3-->';
 		if(!isset($this->disallow['deletebutton']))
 		{
 			$str2 .= '<button id="deleteButton" type="button" rel="trash" onclick="deleteContent(\''.$this->objectId.'\')">'.$this->L('delete_entry').'</button> ';
@@ -730,7 +732,7 @@ class crud
 			$str2 .= '<button id="saveButton" alt="'.$this->objectId.'" type="button" rel="disk" onclick="saveContent(\''.$this->objectId.'\')">'.$this->L('save').'</button> ';
 		}
 		// Javascript-Slot (insert a Newline at first)
-		$str2 .= '
+		$str2 .= '</div>
 <script>
 // <!--js-->
 </script>';
@@ -970,7 +972,7 @@ class crud
 				}
 				// define Header$this->objectName]
 				$head = '<div><div class="ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all"><span style="font-weight:bold;padding:15px">' .
-						(isset($this->objects[$rk]['lang'][$this->lang]) ? $this->objects[$rk]['lang'][$this->lang] : $rk) .
+						(isset($this->objects[$rk]['lang'][$this->lang]) ? trim($this->objects[$rk]['lang'][$this->lang],'.') : $rk) .
 						'</span>';
 				
 				// if needed, add prev-button
@@ -1051,10 +1053,7 @@ class crud
 		{
 			$c = 'Get' . $this->referenceName . 'List';
 			$sort = (isset($_SESSION[$projectName]['sort'][$rk]) ? $_SESSION[$projectName]['sort'][$rk] : array());
-			$relList =  $item->$c( $this->getAssocListFilter, $sort);
-			
 			$relList =  $item->$c($this->getAssocListFilter, $sort);
-			
 		}
 		
 		// Child-List
@@ -1163,28 +1162,31 @@ class crud
 		$str2 = '<ul id="sublist2" class="ilist rlist"><li class="ui-state-disabled">' . $this->L('available') . '</li>';
 		
 		$all_cnt = 0;
-		foreach ($allList as $i)
+		if($allList)
 		{
-			// if there are more Results, draw "next" (see limit+1)
-			if($all_cnt < $this->limit)
+			foreach ($allList as $i)
 			{
-				$nn = '';
-				
-				foreach($this->referenceFields as $n)
+				// if there are more Results, draw "next" (see limit+1)
+				if($all_cnt < $this->limit)
 				{
-					$nn .= $i->$n . ' ';
+					$nn = '';
+					
+					foreach($this->referenceFields as $n)
+					{
+						$nn .= $i->$n . ' ';
+					}
+					
+					if(strlen(trim($nn))==0) $nn = '[...]';
+					
+					// id | name [if child, parent id]
+					$str2 .= $this->strLi(
+									$this->referenceName, 
+									$i->id,
+									$nn . ((isset($i->$pId) && strlen($i->$pId) > 0) ? '(!)' : '') 
+							);//('.$i->$pId.')
 				}
-				
-				if(strlen(trim($nn))==0) $nn = '[...]';
-				
-				// id | name [if child, parent id]
-				$str2 .= $this->strLi(
-								$this->referenceName, 
-								$i->id,
-								$nn . ((isset($i->$pId) && strlen($i->$pId) > 0) ? '(!)' : '') 
-						);//('.$i->$pId.')
+				$all_cnt++;
 			}
-			$all_cnt++;
 		}
 		$str2 .= '</ul>';
 		

@@ -24,50 +24,69 @@
 *********************************************************************************/
 
 /*
- * some Global Functions
- * */
+* some Global Functions
+*/
+// cms-kit Release-Number "main.min.patch" according to: Semantic Versioning 2.0.0-rc.2 (http://semver.org)
+$KITVERSION = '0.9.0';
 
-// cms-kit Release-Number (main.min)
-$KITVERSION = 0.9;
 
 /**
-* encrypt Passwords
+* encrypt Passwords (using bcrypt if possible)
+* @param string password
+* @pram string salt-string
+* @return string "salt:password-hash"
 */
-function crpt($pass, $salt=false)
+function crpt ($pass, $salt=false )
 {
-	// if not set get filemtime as salt
-	$salt = ($salt ? md5($salt) : md5(filemtime(__FILE__)));
+	// create a new "random" Salt if not set
+	if(!$salt) $salt = microtime(true);
 	
 	if (defined('CRYPT_BLOWFISH') && CRYPT_BLOWFISH)
 	{
-		$salt = '$2a$07$' . substr($salt, 0, 22) . '$';
-		return md5(crypt($pass, $salt));
-	}else
+		// create the Salt activating bcrypt with 7 Rounds
+		$msalt = '$2a$07$'.substr(md5($salt), 0, 22).'$';
+		return $salt.':'.md5(crypt($pass, $msalt));
+	}
+	else
 	{
-		return md5(md5(md5($salt . $pass)));
+		// Fallback to the much weaker MD5-Encryption (3 Rounds)
+		// throw new Exception('bcrypt is not supported!');
+		return $salt.':'.md5(md5(md5($salt . $pass)));
 	}
 }
 
-/*
- * translate Strings if $str as key in $LL available
- * $LL should be loaded separately from Language-File
- */
-if(!function_exists('L'))
+/**
+* translate Strings if $str as key in $LL available
+* $LL should be loaded separately from Language-File!
+*/
+if (!function_exists('L'))
 {
-	$LL = array();
 	function L($str)
 	{
 		global $LL;
-		$str = trim($str);
-		return ( isset($LL[$str]) ? $LL[$str] : str_replace('_',' ',$str) );
+		if (isset($LL) && isset($LL[$str]))
+		{
+			return $LL[$str];
+		}
+		else
+		{
+			// uncomment to add all untranslated Labels to "ll.txt" (Directory must be writable!)
+			// $D = dirname(realpath($_SERVER['DOCUMENT_ROOT'].$_SERVER['PHP_SELF']));
+			// file_put_contents($D . '/ll.txt', $str.'<<<'.$_SERVER['PHP_SELF'].'>>>'. PHP_EOL, FILE_APPEND);
+			// chmod($D . '/ll.txt',0777);
+			return str_replace('_', ' ', $str);
+		}
 	}
 }
-/*
- * Detect Browser-Language 
- * browserLang(array(language-files), default-language)
- * browserLang(array('dir/ar.php','dir/de.php','dir/en.php'), 'en');
- * */
-function browserLang($file_arr, $default='en')
+
+/**
+* Detect Browser-Language
+* 
+* @param mixed File-Array containing Translations
+* @param string Default-Language
+* @return preferred detected Language
+*/
+function browserLang($file_arr=array('en.php'), $default='en')
 {
 	$al = strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 	$ua = strtolower($_SERVER['HTTP_USER_AGENT']);
@@ -86,7 +105,7 @@ function browserLang($file_arr, $default='en')
 	// Try to detect any language if not yet detected.
 	foreach ($arr as $k)
 	{
-		if (preg_match("/[\[\( ]{$k}[;,_\-\)]/",$ua))
+		if (preg_match("/[\[\( ]{$k}[;,_\-\)]/", $ua))
 		{
 			return $k;
 		}

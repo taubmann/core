@@ -31,6 +31,8 @@
 
 
 require '../../inc/php/functions.php';
+require '../../inc/super.php';
+
 require 'inc/path.php';
 require 'inc/functions.php';
 
@@ -53,7 +55,7 @@ $html = '
 >';
 foreach($mainpaths as $mk=>$mv)
 {
-	$html .= '<option value="'.$mk.'"'.((isset($_GET['m']) && $_GET['m']==$mk)?' selected="selected"':'').'>'.$mv[0].'</option>';
+	if($root>=$mv[3]) $html .= '<option value="'.$mk.'"'.((isset($_GET['m']) && $_GET['m']==$mk)?' selected="selected"':'').'>'.$mv[0].'</option>';
 }
 $html .= '</select>';
 

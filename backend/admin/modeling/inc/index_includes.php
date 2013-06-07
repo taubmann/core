@@ -26,6 +26,13 @@
 
 require $ppath . '/objects/__configuration.php';
 
+$tpldirs = glob($backend.'templates/*',	GLOB_ONLYDIR);
+
+foreach($tpldirs as $tpldir)
+{
+	
+}
+
 // get embed-codes for wizards an hooks
 $dirs = glob($backend.'wizards/*',	GLOB_ONLYDIR);
 $dirs = array_merge($dirs,glob($backend.'extensions/*',	GLOB_ONLYDIR));

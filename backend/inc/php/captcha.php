@@ -1,5 +1,5 @@
 <?php
-//super-simple captcha to protect against brute-force attacks
+//super-simple Captcha to protect against brute-force Attacks
 session_start();
 $ch = '23456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';// 0/1 look like O/l
 $s = '';

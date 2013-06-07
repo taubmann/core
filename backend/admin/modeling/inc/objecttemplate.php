@@ -456,7 +456,7 @@ class ObjectGenerator
 						$this->str .= "\n".$indent."\t}";
 						$this->str .= "\n".$indent."}";
 						
-						$this->str .= "\n".$indent."\$".$key." = array_replace_recursive(\$".$key.", \$".$obj."->".$key.");";
+						$this->str .= "\n".$indent."if(is_array(\$".$obj."->".$key.")) \$".$key." = array_replace_recursive(\$".$key.", \$".$obj."->".$key.");";
 						$this->str .= "\n".$indent."\$".$obj."->".$key." = json_encode(\$".$key.");";
 						
 						if ($this->debug)
@@ -578,14 +578,14 @@ class ObjectGenerator
 		
 		$this->str .= "\n\t\t\t\t\t\t\tif (in_array(\$o[2], \$this->__columns['".$this->objectName."'], true))";
 		$this->str .= "\n\t\t\t\t\t\t\t{";
-		$this->str .= "\n\t\t\t\t\t\t\t\t\$value = '`' . \$o[2] . '`';";
+		$this->str .= "\n\t\t\t\t\t\t\t\t\$value = '' . \$o[2] . '';";
 		$this->str .= "\n\t\t\t\t\t\t\t}";
 		$this->str .= "\n\t\t\t\t\t\t\telse";
 		$this->str .= "\n\t\t\t\t\t\t\t{";
 		$this->str .= "\n\t\t\t\t\t\t\t\t\$value = '?';";
 		$this->str .= "\n\t\t\t\t\t\t\t\t\$bindings[] = \$o[2];";
 		$this->str .= "\n\t\t\t\t\t\t\t}";
-		$this->str .= "\n\t\t\t\t\t\t\t\$orArray[] = '`' . \$o[0] . '` ' . \$o[1] . ' ' . \$value;";
+		$this->str .= "\n\t\t\t\t\t\t\t\$orArray[] = '' . \$o[0] . ' ' . \$o[1] . ' ' . \$value;";
 		$this->str .= "\n\t\t\t\t\t\t}";
 		$this->str .= "\n\t\t\t\t\t\t\$whereArray[] = '(' . implode(' OR ', \$orArray) . ')';";
 		$this->str .= "\n\t\t\t\t\t}";
@@ -594,14 +594,14 @@ class ObjectGenerator
 		
 		$this->str .= "\n\t\t\t\t\t\t\tif (in_array(\$a[2], \$this->__columns['".$this->objectName."'], true))";
 		$this->str .= "\n\t\t\t\t\t\t\t{";
-		$this->str .= "\n\t\t\t\t\t\t\t\t\$value = '`' . \$a[2] . '`';";
+		$this->str .= "\n\t\t\t\t\t\t\t\t\$value = '' . \$a[2] . '';";
 		$this->str .= "\n\t\t\t\t\t\t\t}";
 		$this->str .= "\n\t\t\t\t\t\t\telse";
 		$this->str .= "\n\t\t\t\t\t\t\t{";
 		$this->str .= "\n\t\t\t\t\t\t\t\t\$value = '?';";
 		$this->str .= "\n\t\t\t\t\t\t\t\t\$bindings[] = \$a[2];";
 		$this->str .= "\n\t\t\t\t\t\t\t}";
-		$this->str .= "\n\t\t\t\t\t\t\$whereArray[] = '`' . \$a[0] . '` ' . \$a[1] . ' ' . \$value;";
+		$this->str .= "\n\t\t\t\t\t\t\$whereArray[] = '' . \$a[0] . ' ' . \$a[1] . ' ' . \$value;";
 		
 		$this->str .= "\n\t\t\t\t\t}";
 		$this->str .= "\n\t\t\t\t}";

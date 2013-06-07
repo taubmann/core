@@ -1,7 +1,7 @@
 <?php
-/* header for various Files
+/* Header for various Files
  * 
- * */
+*/
 session_start();
 
 //error_reporting(0);
@@ -40,7 +40,10 @@ function L($str)
 	}
 	else
 	{
-		//file_put_contents(__DIR__ . '/ll.txt', $str.PHP_EOL, FILE_APPEND);chmod(__DIR__ . '/ll.txt',0777); // export all untranslated Labels
+		// uncomment to add all untranslated Labels to "ll.txt" (Directory must be writable!)
+		// $D = dirname(realpath($_SERVER['DOCUMENT_ROOT'].$_SERVER['PHP_SELF']));
+		// file_put_contents(__DIR__ . '/ll.txt', $str.'<<<'.$_SERVER['PHP_SELF'].'>>>'. PHP_EOL, FILE_APPEND);
+		// chmod(__DIR__ . '/ll.txt',0777);
 		return str_replace('_', ' ', $str);
 	}
 }

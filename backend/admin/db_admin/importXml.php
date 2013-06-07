@@ -26,7 +26,11 @@ echo '<!DOCTYPE html>
 <style>body{padding:50px;font:.8em sans-serif;}</style>
 </head>
 <body>
-<p><a href="index.php?project='.$projectName.'">back to Index</a></p>';
+<p>
+<a href="index.php?project='.$projectName.'">back to Index</a>
+</p>
+
+';
 
 
 // https://forums.digitalpoint.com/threads/import-xml-to-mysql-database-using-php.550665
@@ -66,7 +70,7 @@ function endElement($parser, $type)
 		{
 			$str = json_decode($str, true);
 		}
-		$obj->{$elname} = $str;
+		if(isset($obj->{$elname}) && strlen($str)>0) $obj->{$elname} = $str;
 		$str = '';
 	}
 	
@@ -93,7 +97,7 @@ $xml_parser = xml_parser_create();
 xml_set_element_handler($xml_parser, "startElement", "endElement");
 xml_set_character_data_handler($xml_parser, "getData");
 
-while ($data = fread($fp, 1024)) // read 5MB
+while ($data = fread($fp, 10240)) // read chunk
 {
 	xml_parse($xml_parser, $data, feof($fp)) 
 	or die(

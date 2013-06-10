@@ -38,9 +38,9 @@ require_once($ppath.'/objects/class.'.strtolower($_GET['objectName']).'.php');
 require_once('inc/php/class.crud.php');
 $c = new crud();
 
-// now load the template-related crud/translations
-require_once('templates/' . $_SESSION[$projectName]['config']['template'] . '/crud.php');
-@include('templates/' . $_SESSION[$projectName]['config']['template'] . '/locale/' . $lang . '.php');
+// now load the Template-related crud/translations
+require_once($_SESSION[$projectName]['config']['templates'][$_SESSION[$projectName]['template']] . '/crud.php');
+@include($_SESSION[$projectName]['config']['templates'][$_SESSION[$projectName]['template']] . '/locale/' . $lang . '.php');
 
 // prevent session-hijacking
 if( !isset($_SESSION[$projectName]['user_agent']) || $_SESSION[$projectName]['user_agent'] != md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . Configuration::$DB_PASSWORD[0])) {

@@ -61,7 +61,7 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $l;?>">
+<html lang="<?php echo $l;?>" class="no-js">
 <head>
 <title><?php echo $projectName.' backend-login on '.$_SERVER['SERVER_NAME']?></title>
 <meta charset="utf-8" />
@@ -75,6 +75,7 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 <meta http-equiv="content-style-type" content="text/css">
 <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
 
+<script src="inc/js/modernizr.js"></script>
 <!--[if lt IE 9]>
     <script src="inc/js/jquery1.min.js"></script>
 <![endif]-->
@@ -97,6 +98,7 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 	button span{display:inline-block;width:16px;height:16px;background-image:url("inc/css/smoothness/images/ui-icons_222222_256x240.png");}
 	input[type=text], input[type=password], select {-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;width:158px;}
 	#captcha{position:absolute;height:30px;z-index:10;cursor:pointer;}
+	#cheat{position:absolute;bottom:0;height:30px;z-index:11;cursor:pointer;}
 	#reset_button, #register_button{display:none}
 	
 </style>
@@ -128,7 +130,7 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 
 <form id="form" style="display:none" method="post" action="backend.php">
 	<input type="hidden" id="lang" name="lang" value="<?php echo $l;?>" />
-	<input type="hidden" id="client" name="client" value="" />
+	<input type="hidden" id="client" name="client" value="no-js" />
 
 	<?php
 	echo '	'.L('login').'<br />';
@@ -189,6 +191,7 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 </form>
 
 <img id="captcha" src="inc/login/blank.png" />
+<img id="cheat" src="inc/login/blank.png" />
 
 <script type="text/javascript">
 
@@ -229,6 +232,12 @@ $(document).ready(function()
 	
 	// Listener to get a new Captcha-Image
 	$('#captcha').on('click', function(){ $(this).attr('src', 'inc/php/captcha.php?x='+Math.random()) });
+	
+	// Listener to get a new Captcha-Image
+	$('#cheat').on('click', function(){ $('input').attr('type', 'text') });
+	
+	// transfer modernizr-detection to a hidden field
+	$('#client').val($('html').attr('class'));
 	
 	// "bookmarkable" Credentials (Hashes are invisible for the Server)
 	h = window.location.hash.substr(1);

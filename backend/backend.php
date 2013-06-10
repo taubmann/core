@@ -69,6 +69,7 @@ if (!isset($_SESSION[$projectName]) )
 	$_SESSION[$projectName] = array	(
 										'special'	=> array(), 
 										'lang'		=> $_POST['lang'], 
+										'client' => ' '.$_POST['client'], 
 										'settings'	=> '{}', 
 										'sort'		=> array(),
 										'fields'	=> array()
@@ -83,16 +84,26 @@ if (!isset($_SESSION[$projectName]) )
 	include_once 'extensions/cms/hooks.php';
 	include_once $ppath . '/extensions/cms/hooks.php';
 	
-	//$_SESSION[$projectName]['template'] = $_POST['template'];
+	
+	
+	
+	
+	// collect global Backend-Templates
+	$templates = glob('templates/*', GLOB_ONLYDIR);
+	$config['templates'] = array();
+	foreach($templates as $template)
+	{
+		if(file_exists($template.'/backend.php'))
+		{
+			$config['templates'][basename($template)] = $template;
+		}
+	}
 	
 	// collect some configuration-Settings from "cms"-Extensions
 	$configs = array (	
 						'extensions/cms/config/config.php',
 						$ppath . '/extensions/cms/config/config.php'
 					 );
-	
-	
-	
 	foreach ($configs as $cf)
 	{
 		if ($s = file_get_contents($cf))
@@ -283,8 +294,14 @@ ksort($objectOptions, SORT_LOCALE_STRING);
 $user_wizards = array_merge($_SESSION[$projectName]['config']['wizards'], $_SESSION[$projectName]['special']['user']['wizards']);
 
 // load Template
-if(isset($_POST['template'])) $_SESSION[$projectName]['config']['template'] = preg_replace('/\W/', '', $_POST['template']);
+//if(isset($_POST['template'])) $_SESSION[$projectName]['config']['template'] = preg_replace('/\W/', '', $_POST['template']);
 //$_SESSION[$projectName]['config']['backend_templates'][((isset($_GET['template'])) ? $_GET['template'] : $_SESSION[$projectName]['template'])];
-include 'templates/' . $_SESSION[$projectName]['config']['template'] . '/backend.php';
+//include 'templates/' . $_SESSION[$projectName]['config']['template'] . '/backend.php';
 //print_r($_SESSION[$projectName]['config']['backend_templates']);
+
+// define actual template
+$_SESSION[$projectName]['template'] = end($_SESSION[$projectName]['config']['template']);
+
+include $_SESSION[$projectName]['config']['templates'][$_SESSION[$projectName]['template']] . '/backend.php';
+
 ?>

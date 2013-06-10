@@ -22,17 +22,30 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
+
+// collect styles
 $styles = glob('../css/*', GLOB_ONLYDIR);
-$topt = '';
+$sopt = '';
 foreach($styles as $style)
 {
 	if(file_exists($style.'/preview.png'))
 	{
-		$name = basename($style);//array_pop( explode('/', $style) );
-		$topt .= '<option value="'.$name.'">'.$name.'</option>';
+		$name = basename($style);
+		$tsopt .= '<option value="'.$name.'">'.$name.'</option>';
 	}
 }
 
+// collect templates
+$templates = glob('../../templates/*', GLOB_ONLYDIR);
+$topt = '';
+foreach($templates as $template)
+{
+	if(file_exists($template.'/backend.php'))
+	{
+		$name = basename($template);
+		$topt .= '<option value="'.$name.'">'.$name.'</option>';
+	}
+}
 
 ?>
 <!DOCTYPE html>
@@ -89,9 +102,9 @@ file_put_contents('../super.php', '<?php
 // auto-generated: do not edit!
 $super = array(\''.$_POST['salt'].'\', \''.crpt($_POST['pass'], $_POST['salt']).'\');
 $config = array(
-	\'theme\' => array(\''.$_POST['theme'].'\'),
-	\'backend_templates\' => array(\''.implode("','", explode("\n",trim($_POST['templates']))).'\'),
-	\'autolog\' => array(0)
+	\'theme\' => array(\''.$_POST['theme'].'\'), // default jQuery-UI-Theme
+	\'template\' => array(\''.$_POST['template'].'\'), // default Backend-Template
+	\'autolog\' => array(0), // automatic login (1/0)
 );
 ');
 			
@@ -105,10 +118,10 @@ $config = array(
 			<input type="password" autocomplete="off" id="inputPassword" name="pass" />
 			<input type="hidden" name="salt" id="salt" value="x" />
 			<h4>default Theme</h4>
-			<select name="theme">'.$topt.'</select>
+			<select name="theme">'.$sopt.'</select>
 			<h4>Templates</h4>
-			<textarea name="templates">default
-			</textarea>
+			<select name="template">'.$topt.'</select>
+			
 			<hr /><input type="submit" value="save" />';
 		}
 	}

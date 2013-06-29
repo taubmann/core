@@ -31,19 +31,22 @@ $output = '';
 
 $action = preg_replace('/\W/', '', $_REQUEST['action']);
 
-if(!$_SESSION[$projectName]['objects']) exit('<iframe style="width:100px;height:20px" src="inc/php/na.php?p='.$projectName.'"></iframe>');
+if(!isset($_SESSION[$projectName]['objects'])) exit(''.$projectName.' is not active');
 
+// get the class of the base-object
 require_once($ppath.'/objects/class.'.strtolower($_GET['objectName']).'.php');
+
+// load base-crud
 require_once('inc/php/class.crud.php');
 $c = new crud();
 
-// now load the Template-related crud/translations
+// now load the Template-related crud + translations
 require_once($_SESSION[$projectName]['config']['templates'][$_SESSION[$projectName]['template']] . '/crud.php');
 @include($_SESSION[$projectName]['config']['templates'][$_SESSION[$projectName]['template']] . '/locale/' . $lang . '.php');
 
 // prevent session-hijacking
 if( !isset($_SESSION[$projectName]['user_agent']) || $_SESSION[$projectName]['user_agent'] != md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . Configuration::$DB_PASSWORD[0])) {
-	exit('Session expired or IP changed');
+	exit('Session expired or IP has changed');
 }
 
 
@@ -74,7 +77,7 @@ foreach ($_POST as $k => $v)
 				require_once('inc/php/crypt.php');
 				// objectname, fieldname, entry_id, password
 				$key  = md5($objectName . $k . $objectId . $_SESSION[$projectName]['config']['crypt'][$objectName][$k]);
-				$_POST[$k] = 	Blowfish::encrypt($v, $key, md5(Configuration::$DB_PASSWORD[$objectDB]));
+				$_POST[$k] = Blowfish::encrypt($v, $key, md5(Configuration::$DB_PASSWORD[$objectDB]));
 			}
 			else
 			{

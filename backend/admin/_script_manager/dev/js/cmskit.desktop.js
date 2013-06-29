@@ -77,8 +77,10 @@ function checkHash()
 */
 function init(name, id)
 {
-	//objectName = name;
-	if(!objectName) return;
+	if(!objectName) {
+		$('#searchbox').hide();
+		return;
+	}
 	$('#colMidb').html('');
 	$('#colRightb').html('');
 	//$('#objectSelect').selectmenu("value", name);
@@ -407,12 +409,12 @@ function setPagination(n)
 function getList(id)
 {
 	
-	// autocomplete-Searchbox
+	// Searchbox + Autocomplete
 	$('#searchbox').autocomplete({
 		source: 'inc/php/search.php?projectName='+projectName+'&objectName='+objectName,
 		minLength: 3,
 		response: function(){
-			$('body').removeClass('loading')
+			$('body').removeClass('loading');
 		},
 		select: function(event,ui)
 		{
@@ -625,16 +627,16 @@ function getConnectedReferences(id, off)
 		}, 
 		function(data) 
 		{
-			//alert(data);
+			
 			$('#colRightb').html(data);
 			styleButtons('colRightb');
 			$('#colRightb .lnk').on('click',function(e)
 			{
-				objectName = $(this).data('object');
-				getList();
+				window.location = 'backend.php?project='+projectName+'&object='+$(this).data('object')+'#id='+$(this).data('id');
+				//getList();
 				//$('#objectSelect').selectmenu("value", objectName);
-				$('#objectSelect').val(objectName);
-				getContent($(this).data('id'));
+				//$('#objectSelect').val(objectName);
+				//getContent($(this).data('id'));
 				e.preventDefault();
 			});
 		});
@@ -805,7 +807,7 @@ function getReferences (id, offs1, offs2)
 				saveReference();
 			});
 			
-			// init Searchbox
+			// init Searchbox with Dialog
 			$('#referenceSearchbox').autocomplete(
 			{
 				source: 'inc/php/search.php?projectName='+projectName+'&objectName='+referenceName,
@@ -842,11 +844,13 @@ function getReferences (id, offs1, offs2)
 			
 			$('#colRightb .lnk').on('click',function(e)
 			{
-				objectName = $(this).data('object');
+				window.location = 'backend.php?project='+projectName+'&object='+$(this).data('object')+'#id='+$(this).data('id');
+				
+				/*objectName = $(this).data('object');
 				getList();
 				//$('#objectSelect').selectmenu("value", objectName);
 				$('#objectSelect').val(objectName);
-				getContent($(this).data('id'));
+				getContent($(this).data('id'));*/
 				e.preventDefault();
 			});
 			
@@ -936,7 +940,7 @@ function prettify(id)
 function logout()
 {
 	store['lastPage'] = window.location.hash.substr(1);
-	//top.window.name=null;
+	
 	// there is a real user
 	if(userId != 0)
 	{

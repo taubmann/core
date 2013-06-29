@@ -55,7 +55,7 @@ foreach($lf as $l) $langs[] = substr($l, -6, 2);
 	</ul>
 	<hr />
 	
-	<p><a href="misc/show_checksums.php?<?php echo $getP;?>">Checksum-Test</a> lets you save a Checksum-Snapshot of your System or test against a previously saved Snapshot</p>
+	<p><a href="misc/show_checksums.php?<?php echo $getP;?>">Checksum-Test</a> lets you save a Checksum-Snapshot of your System or test against a previously saved Snapshot. This is useful for testing if someone has corrupted your system.</p>
 	<hr />
 	
 	<p><a href="misc/pic_of_the_day.php?<?php echo $getP;?>">Pic of the Day Editor</a> lets you manage Pictures shown at Login</p>

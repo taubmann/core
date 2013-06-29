@@ -29,7 +29,7 @@ if (isset($_GET['testmyproject']))
 $path = realpath($mypath);
 $offset = strlen($path);
 
-$dirs = array();
+$files = array();
 $sums = false;
 $size = 0;
 $errors = '';
@@ -67,14 +67,14 @@ function formatBytes ($size, $precision = 2)
 
 /**
 * recursively collect all Files/Folders with their MD5-Checksums
-* add them to a global Variable $dirs
+* add them to a global Variable $files
 * 
 * @param string Directory-Path
 * @return string MD5 Checksum
 */
 function collect ($dir)
 {
-	global $errors, $offset, $dirs, $size, $excludedFileFolders;
+	global $errors, $offset, $files, $size, $excludedFileFolders;
 	
 	if (!is_dir($dir))
 	{
@@ -98,11 +98,11 @@ function collect ($dir)
 			if (is_dir($subpath))
 			{
 				
-				$md5s[] = $dirs[$key] = collect($subpath);
+				$md5s[] = $files[$key] = collect($subpath);
 			}
 			else
 			{
-				$md5s[] = $dirs[$key] = md5_file($subpath);
+				$md5s[] = $files[$key] = md5_file($subpath);
 				$size += filesize($subpath);
 			}
 			 
@@ -114,8 +114,9 @@ function collect ($dir)
 
 // call the Function
 $x = collect($path);
+
 // sort the global Array by its Keys
-ksort($dirs);
+ksort($files);
 
 ?>
 <!DOCTYPE html>
@@ -124,6 +125,7 @@ ksort($dirs);
 <meta charset="utf-8" />
 <style>
 	body{ font: .8em sans-serif; }
+	a { color:blue; text-decoration:none; }
 	textarea{ width: 100%; height: 400px; }
 	.r{ color: #c00; }
 	.g{ color: #0c0; }
@@ -145,16 +147,18 @@ echo '<p>
 if ($sums)
 {
 	$changed = false;
-	echo '<h3>Test Checksums against input</h3>';
+	echo '<h3>Test Checksums against Input</h3>';
 	echo '<p><a href="show_checksums.php'.$get.'">show actual Checksums</a></p>';
 	echo '<div>';
-	foreach ($dirs as $k => $v)
+	
+	foreach ($files as $k => $v)
 	{
 		if (!isset($sums[$k]))
 		{
-			echo 		'<div class="b">"' . $k . '" added' . 
-						(is_file($path.$k)?' (' . date('d.m.Y H:i:s', filemtime($path.$k)) . ')' : '')  . 
-						"</div>\n";
+			echo 		(is_file($path . $k) ?
+							'<div class="b"><b>"' . $k . '" added (' . date('d.m.Y H:i:s', filemtime($path.$k)) . ')</b>' : 
+							'<div class="b">"' . $k . '" changed'
+						)  . "</div>\n";
 			$changed = true;
 		}
 		else
@@ -173,7 +177,7 @@ if ($sums)
 			}
 		}
 	}
-	
+	 
 	if (!$changed)
 	{
 		echo '<b class="g">nothing changed!</b>';
@@ -189,7 +193,7 @@ else
 	<form method="post" action="show_checksums.php'.$get.'">
 	<textarea spellcheck="false" name="checksums">' . $errors;
 	
-	foreach ($dirs as $k => $v)
+	foreach ($files as $k => $v)
 	{
 		echo $k . ' | ' . $v . "\n";
 	}

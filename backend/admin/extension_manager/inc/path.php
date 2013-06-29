@@ -1,4 +1,11 @@
 <?php
+/**
+* 
+*/
+$backend = dirname(dirname(dirname(__DIR__)));
+require_once $backend.'/inc/php/functions.php';
+require_once $backend.'/inc/super.php';
+
 //error_reporting(E_ALL ^ E_NOTICE ^ E_DEPRECATED);
 error_reporting(0);
 session_start();

@@ -30,20 +30,18 @@ session_start();
 error_reporting(E_ALL);
 session_regenerate_id();
 
-header ('Cache-Control: no-cache,must-revalidate', true);
 
-
-require_once 'inc/php/functions.php';
-
-// fix/sanitize GET-Parameter
+// fix/sanitize GET/POST/(+1 REQUEST)-Parameter
 foreach($_GET as $k=>$v){  $_GET[$k]  = preg_replace('/\W/', '', $v); }
 foreach($_POST as $k=>$v){ $_POST[$k] = preg_replace('/\W/', '', $v); }
 $projectName = preg_replace('/\W/', '', $_REQUEST['project']);
-
+// reset SESSION if a Login is detected
 if (isset($_POST['project']))
 {
 	unset($_SESSION[$projectName]);
 }
+
+require_once 'inc/php/functions.php';
 
 $ppath = '../projects/' . $projectName;
 
@@ -236,18 +234,18 @@ $jsLangLabels = implode(',', $tmp);
 
 
 // collect Objects
-foreach ($objects as $ok => $ov)
+foreach ($objects as $objectKey => $objectValues)
 {
 	$option = array(
-					'name' => $ok, 
-					'label' => ((isset($ov['lang']) && isset($ov['lang'][$lang])) ? $ov['lang'][$lang] : $ok), 
-					'htype' => (isset($ov['ttype']) ? $ov['ttype'] : '')
+					'name' => $objectKey, 
+					'label' => ((isset($objectValues['lang']) && isset($objectValues['lang'][$lang])) ? $objectValues['lang'][$lang] : $objectKey), 
+					'htype' => (isset($objectValues['ttype']) ? $objectValues['ttype'] : '')
 				);
 	
 	// collect Objects in Tag-Groups
-	if (isset($ov['tags'][$lang]))
+	if (isset($objectValues['tags'][$lang]))
 	{
-		foreach($ov['tags'][$lang] as $t)
+		foreach($objectValues['tags'][$lang] as $t)
 		{
 			if(!isset($objectOptions[$t[0]])) $objectOptions[$t[0]]=array();
 			$objectOptions[$t[0]][] = $option;
@@ -259,49 +257,51 @@ foreach ($objects as $ok => $ov)
 		$objectOptions[0][] = $option;
 	}
 	
-		
-	// define Field-Labels (Fallback id)
-	//if ( !isset($_SESSION[$projectName]['labels'][$ok]) ){
-		$_SESSION[$projectName]['labels'][$ok] = array('id');// default
-		foreach ($ov['col'] as $fk => $fv)
-		{
-			if (
-				substr($fk,-2) != 'id' && // ignore id-Fields
-				!in_array(substr($fk,0,2), array('__','c_','e_')) && // ignore Fields beginning with...
-				strpos($fv['type'], 'CHAR') // take only (Var)char-Fields
-				)
-			{
-				$_SESSION[$projectName]['labels'][$ok] = array($fk);
-				break;
-			}
-		}
-	//}
 	
-	if ( !isset($_SESSION[$projectName]['sort'][$ok]) )
+	// define Field-Labels (Fallback id)
+	
+	$_SESSION[$projectName]['labels'][$objectKey] = array('id');// default
+	foreach ($objectValues['col'] as $fieldKey => $fieldValues)
 	{
-		$_SESSION[$projectName]['sort'][$ok] = ($option['htype']=='Tree') ? array('treeleft' => 'asc') : array('id' => 'asc');
+		if (
+			substr($fieldKey,-2) != 'id' && // ignore id-Fields
+			!in_array(substr($fieldKey,0,2), array('__','c_','e_')) && // ignore Fields beginning with...
+			strpos($fieldValues['type'], 'CHAR') // take only (Var)char-Fields
+			)
+		{
+			$_SESSION[$projectName]['labels'][$objectKey] = array($fieldKey);
+			break;
+		}
 	}
 	
-}
+	// save available Backend-Templates for later use
+	$_SESSION[$projectName]['templates'][$objectKey] = (isset($objectValues['templates']) ? explode(',', $objectValues['templates']) : $_SESSION[$projectName]['config']['template']);
+	
+	if ( !isset($_SESSION[$projectName]['sort'][$objectKey]) )
+	{
+		$_SESSION[$projectName]['sort'][$objectKey] = ($option['htype']=='Tree') ? array('treeleft' => 'asc') : array('id' => 'asc');
+	}
+	
+}// collect Objects END
 
-
-//print_r($_SESSION[$projectName]['objects']);
 
 ksort($objectOptions, SORT_LOCALE_STRING);
 
-//print_r($objectOptions);
-
 $user_wizards = array_merge($_SESSION[$projectName]['config']['wizards'], $_SESSION[$projectName]['special']['user']['wizards']);
 
+$object = (!empty($_GET['object']) ? $_GET['object']: false);
+
+// define actual Template
+$_SESSION[$projectName]['template'] = (isset($_GET['template']) ? $_GET['template'] : end($_SESSION[$projectName]['config']['template']));
+
+//echo $_SESSION[$projectName]['template'];
+//print_r($_SESSION[$projectName]['templates']);
+
+
+// prevent caching of HTML (in addition to Meta-Tags)
+header ('Cache-Control: no-cache,must-revalidate', true);
+
 // load Template
-//if(isset($_POST['template'])) $_SESSION[$projectName]['config']['template'] = preg_replace('/\W/', '', $_POST['template']);
-//$_SESSION[$projectName]['config']['backend_templates'][((isset($_GET['template'])) ? $_GET['template'] : $_SESSION[$projectName]['template'])];
-//include 'templates/' . $_SESSION[$projectName]['config']['template'] . '/backend.php';
-//print_r($_SESSION[$projectName]['config']['backend_templates']);
-
-// define actual template
-$_SESSION[$projectName]['template'] = end($_SESSION[$projectName]['config']['template']);
-
 include $_SESSION[$projectName]['config']['templates'][$_SESSION[$projectName]['template']] . '/backend.php';
 
 ?>

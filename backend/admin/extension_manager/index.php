@@ -23,15 +23,11 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
 
-/* 
- * cms-kit Extension-Management
- * show/edit/create Documentations, Configurations and Files
- * 
- * */
-
-
-require '../../inc/php/functions.php';
-require '../../inc/super.php';
+/**
+* cms-kit Extension-Management
+* show/edit/create Documentations, Configurations and Files
+* 
+*/
 
 require 'inc/path.php';
 require 'inc/functions.php';
@@ -196,12 +192,12 @@ $(window).resize(function() {
 
 </head>
 <body>
-<iframe id="frame" src="about:blank"></iframe>
+	
+	<iframe id="frame" src="about:blank"></iframe>
 
-<div id="menu">
-<?php echo $infohtml .$html;?>
-
-</div>
+	<div id="menu">
+	<?php echo $infohtml . $html;?>
+	</div>
 
 </body>
 </html>

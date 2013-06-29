@@ -37,14 +37,29 @@ require $ppath . '__configuration.php';
 
 <link href="../../inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/jquery-ui.css" rel="stylesheet" />
 
-<script src="../../inc/js/jquery.min.js"></script>
+<!--<link href="inc/css/chosen.css" rel="stylesheet" />-->
+
+<!--[if lt IE 9]>
+    <script src="../../inc/js/jquery1.min.js"></script>
+<![endif]-->
+<!--[if gte IE 9]><!-->
+    <script src="../../inc/js/jquery2.min.js"></script>
+<!--<![endif]-->
+
+
 <script>$.uiBackCompat = false;</script>
 <script src="../../inc/js/jquery-ui.js"></script>
+
 <script src="../../inc/js/rules/disallowedNames.js"></script>
+
 <!--
 <script src="inc/js/jsquery.ui.multidraggable.js"></script>
 -->
 <script>if(!window.JSON){document.writeln('<script src="../../inc/js/json2.min.js"><\/script>')}</script>
+
+<!--<script src="inc/js/chosen.jquery.min.js"></script>-->
+<link type="text/css" href="inc/css/jquery.uix.multiselect.css" rel="stylesheet" />
+<script type="text/javascript" src="inc/js/jquery.uix.multiselect.min.js"></script>
 
 <script src="inc/js/JsonXml.js"></script>
 <script src="inc/js/jquery.tmpl.js"></script>
@@ -150,7 +165,7 @@ ul li span
 {
 	position: absolute; margin-left: -1.3em;
 }
-    
+
 </style>
 
 <!-- jQuery-TEMPLATES BEGIN-->
@@ -206,6 +221,14 @@ ${obj}
 		</select>
 	</p>
 	<p>
+		<label style="float:left"><?php echo L('Templates')?>:</label>
+		<select style="height:200px;float:right" name="templates" id="templateSelect" multiple="multiple"  data-placeholder="<?php echo L('add_Templates_to_Object')?>">
+			{{each templates}}
+			<option value="${$value[0]}" {{if $value[1]}} selected="selected"{{/if}}>${$value[0]}</option>
+			{{/each}}
+		</select>
+	</p>
+	<p style="clear:both">
 		<label><?php echo L('Language_Labels')?>:</label>
 		<textarea name="lang">{{if obj['lang']}}${unesc(obj['lang'])}{{/if}}</textarea>
 	</p>
@@ -352,6 +375,8 @@ var dtypeLabel=[],
 
 // available Databases 
 echo "var databases = ['" . implode("','", Configuration::$DB_ALIAS) . "'];\n";
+
+echo "var templates = ['" . implode("','", array_keys($_SESSION[$projectName]['config']['templates'])) . "'];\n";
 
 echo "var project = '".$projectName."', wizards = [];\n";
 
@@ -732,12 +757,26 @@ function foo(){};
 function saveObjectProps(objectname, x, arr)
 {
 	var i0 = path[objectname][0];
-	for(var i=0,j=arr.length;i<j;++i) {
-		objects.object[i0][arr[i].name] = esc(arr[i].value);
+	objects.object[i0]['templates']=[];
+	for(var i=0,j=arr.length; i<j; ++i) {
+		
 		// change Color-Class of the Object
 		if(arr[i].name=='db') { $('#'+objectname+'>p').css('border-left','4px solid '+dbcolors[arr[i].value]); }
 		if(arr[i].name=='ttype') { $('#'+objectname).removeClass('List Tree Graph').addClass(arr[i].value); }
+		
+		switch(arr[i].name)
+		{
+			case 'templates':
+				objects.object[i0][arr[i].name].push(arr[i].value);
+			break;
+			
+			default:
+				objects.object[i0][arr[i].name] = esc(arr[i].value);
+			break;
+		}
 	};
+	objects.object[i0]['templates'] = objects.object[i0]['templates'].join(',')
+	
 }
 
 function saveFieldProps(objectname, fieldname, arr)
@@ -839,6 +878,21 @@ function addObject(objectname, x, y)
 	// edit Object-Function
 	$('#'+objectname+' p .ui-icon-pencil:first').on('click', function()
 	{
+		// prepare Template-Array
+		var tpls = [], t = [];
+		if (objects.object[index]['templates'])
+		{
+			t = objects.object[index]['templates'].split(',');
+			for(var i=0,j=t.length; i<j; ++i)
+			{
+				tpls.push([t[i], true]);
+			}
+		}
+		for(var i=0,j=templates.length; i<j; ++i)
+		{
+			if(t.indexOf(templates[i]) == -1){ tpls.push([templates[i], false]); }
+		}
+		// prepare Template-Array END
 		
 		//alert(JSON.stringify(objects.object[i]));
 		$('#objectEditTemplate').tmpl({
@@ -846,8 +900,13 @@ function addObject(objectname, x, y)
 			ttypes: ttypes,
 			hooks: hooks,
 			db : databases,
+			templates: tpls,
 			dbcolors: dbcolors
 		}).appendTo('#dialogbody');
+		
+		//$('#templateSelect').chosen();
+		$("#templateSelect").multiselect({sortable:true});
+		
 		$('#dialog').dialog('open');
 		
 		//
@@ -981,6 +1040,7 @@ function unesc(str)
 {
 	return decodeURIComponent((str + '').replace(/\+/g, '%20'));
 }
+
 //php.js
 function esc(str)
 {
@@ -990,6 +1050,7 @@ function esc(str)
 	return encodeURIComponent(str).replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').
 	replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+');
 }
+
 
 
 function buildFollowers(v, my_type)

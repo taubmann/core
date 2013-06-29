@@ -109,9 +109,9 @@ foreach ($src as $aa)
 		$out .= $str . "\n";
 	}
 	
-	if(file_put_contents($out_path.$_GET['lang'].$c.'.js', $out))
+	if (file_put_contents($out_path.$_GET['lang'].$c.'.js', $out))
 	{
-		chmod($out_path.$_GET['lang'].$c.'.js', 0777);
+		chmod($out_path.$_GET['lang'].$c.'.js', 0766);
 	}
 	
 	else

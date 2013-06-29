@@ -33,7 +33,8 @@
 function compress($str, $noc=false)
 {
 	//grab the first comment-block
-	$comment = ($noc?'':array_shift(explode('*/', $str)).'*/');
+	$comment0 = explode('*/', $str);
+	$comment = ($noc ? '' : array_shift($comment0).'*/');
 	
 	$str = preg_replace("/((?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:\/\/.*))/", '', $str); // remove comments
 	$str = preg_replace('/(\\t|\\r|\\n)/','', $str); // remove tabs + line-feeds ( agressive Method )

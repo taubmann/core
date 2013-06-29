@@ -9,7 +9,7 @@ header('Content-Type: text/plain; charset=utf-8');
 $ppath = '../../../projects/' . $projectName;
 include_once($ppath . '/objects/__database.php');
 
-// secure search-string (taken from $_REQUEST, not $_GET)
+// secure Search-String (taken from $_REQUEST, not $_GET)
 $strip_this = "/[^äöüßÄÖÜa-z0-9\\040\\.\\-\\_\\,\\:\\!\\%\\*\\@\\?]/i";
 
 $term = function_exists('mb_strtolower') ? mb_strtolower($_REQUEST['term']) : strtolower($_REQUEST['term']);
@@ -31,14 +31,14 @@ foreach($_SESSION[$projectName]['objects']->{$_GET['objectName']}->col as $k => 
 {
 	if($k != 'id')
 	{
-		$fields[] = '`'.strtolower($k).'` LIKE ?';
+		$fields[] = '`'.$k.'` LIKE ?';
 		$likes[]  = '%' . ((substr($k, 0, 2) == 'e_') ? base64_encode($term) : $term) . '%';
 	}
 }
 
 $query = 'SELECT `id` AS id, '.$concat.' AS lbl FROM `'.$objectName.'` WHERE ' . implode(' OR ', $fields) . ' LIMIT 30';
 
-// exit('[{"label":"'.$query.'"}]');
+ exit('[{"label":"'.$query.'"}]');
 // exit('[{"label":"'.implode(',',$likes).'"}]');
 
 $prepare = DB::instance($db)->prepare($query);

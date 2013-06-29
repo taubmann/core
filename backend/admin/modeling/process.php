@@ -135,6 +135,7 @@ foreach ($xmlModel['object'] as $object)
 					array('hooks',		false, true ),
 					array('url',		false, false),
 					array('vurl',		true,  false),
+					array('templates',	true,  false),
 					array('ttype',		true,  false),
 					array('hidettype',	true,  false),
 					array('comment',	true,  false)

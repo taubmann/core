@@ -1,3 +1,6 @@
+
+**Attention: work in Progress!!!!!!!**
+
 ## Backend-Templates
 
 Templates for cms-kit Backend
@@ -10,7 +13,7 @@ a Template-Folder **must** contain
 
 a Folder **may** contain
 
-* *pack.json* Informations about the Source-Files gathered by admin/script_manager
+* *pack.json* Informations about Source-Files gathered by admin/script_manager
 * *js/css/img* - Folders containing Development-Files as well as packed Files
 * *doc/LANG/SOME_FANCY_INFOS.md* further Infos about the Template 
 * *config/config.php* Configurations to adapt some global Settings

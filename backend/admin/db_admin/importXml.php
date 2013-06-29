@@ -40,27 +40,34 @@ $tag = '';
 $objname = '';
 $elname = '';
 $type = '';
+$goon = false;
 
 function startElement($parser, $type, $attrs)
 {
-	global $tag, $ppath, $obj, $objname, $elname;
+	global $goon, $str, $tag, $ppath, $obj, $objname, $elname;
 	
 	$tag = $type;
 	$elname = $attrs['NAME'];
 	
 	// create a new Object
-	if ($type == "TABLE")
+	if ($type == "TABLE" && file_exists($ppath. 'class.' . $attrs['NAME'] . '.php'))
 	{
 		require_once $ppath. 'class.' . $attrs['NAME'] . '.php';
 		echo "new Entry in: <b>" . $attrs['NAME'] . "</b> ( ";
 		$obj = new $attrs['NAME']();
 		$objname = $attrs['NAME'];
+		$goon = true;
+		$str = '';
+	}
+	else
+	{
+		$goon = false;
 	}
 }
 
 function endElement($parser, $type)
 {
-	global $str, $tag, $obj, $objname, $elname, $objects;
+	global $goon, $str, $tag, $obj, $objname, $elname, $objects;
 	
 	if($tag == "COLUMN")
 	{
@@ -75,18 +82,20 @@ function endElement($parser, $type)
 	}
 	
 	// save to DB
-	if ($type == "TABLE")
+	if (is_object($obj) && $type == "TABLE")
 	{
 		$obj->Save();
 		$obj = null;
 		$objname = '';
 		echo ")<hr>";
+		$goon = false;
 	}
 }
 
 function getData($parser, $data)
 {
-	global $str, $tag;
+	global $goon, $str, $tag;
+	
 	if($tag == "COLUMN")
 	{
 		$str .= $data;

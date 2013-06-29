@@ -28,7 +28,6 @@
 require 'inc/php/header.php';
 
 $output = '';
-//print_r($_GET);
 
 $action = preg_replace('/\W/', '', $_REQUEST['action']);
 

@@ -23,17 +23,18 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
 session_start();
-error_reporting(1);
+error_reporting(0);
 session_regenerate_id();
 
 // fix/sanitize GET-Parameter
-foreach($_GET as $k=>$v){ $_GET[str_replace('amp;','',$k)] = preg_replace('/\W/', '', $v); }
+foreach($_GET as $k=>$v){ $_GET[$k] = preg_replace('/\W/', '', $v); }
 
 $projects = glob('../projects/*', GLOB_ONLYDIR);
 
 // if not needed you can delete the following 2 Redirects
 if ( !file_exists('inc/super.php') ){ header('location: inc/php/setSuperpassword.php'); } // redirect to Superpassword-Input if not set
 if ( count($projects) == 0 ){ header('location: admin/_project_setup/index.php'); }	// redirect to Project-Setup if no project
+// redirects END
 
 $logout = false;
 if (isset($_GET['project']))
@@ -58,50 +59,43 @@ require('inc/php/functions.php');
 $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 @include('inc/locale/login/'.$l.'.php');
 
-
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $l;?>" class="no-js">
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="<?php echo $l;?>"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="<?php echo $l;?>"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="<?php echo $l;?>"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="<?php echo $l;?>" class="no-js"> <!--<![endif]-->
 <head>
-<title><?php echo $projectName.' backend-login on '.$_SERVER['SERVER_NAME']?></title>
-<meta charset="utf-8" />
-<meta name="robots" content="none" />
-<meta http-equiv="cache-control" content="max-age=0" />
-<meta http-equiv="cache-control" content="no-cache" />
-<meta http-equiv="expires" content="0" />
-<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
-<meta http-equiv="pragma" content="no-cache" />
-<meta http-equiv="content-script-type" content="text/javascript">
-<meta http-equiv="content-style-type" content="text/css">
-<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
-
-<script src="inc/js/modernizr.js"></script>
-<!--[if lt IE 9]>
-    <script src="inc/js/jquery1.min.js"></script>
-<![endif]-->
-<!--[if gte IE 9]><!-->
-    <script src="inc/js/jquery2.min.js"></script>
-<!--<![endif]-->
-
-<link rel="icon" type="image/png" href="inc/css/icon.png" />
-<style>
-	body{font:90% "Trebuchet MS", sans-serif;}
-	body, a{text-decoration:none;color:#000;}
-	#form, #error, #msg{position:absolute;top:50%;left:50%;width:160px;margin:-80px 0px 0px -80px;}
-	#error, #msg{margin-top:-170px;padding:5px;height:50px;font-weight:bold;border:2px solid;filter:Alpha(opacity=40);opacity:0.6;-moz-opacity:0.6;}
-	#error{background:#fcc;color:#f00;border-color:#f00;}
-	#msg{background:#fcc;color:#333;border-color:#ccc;display:none;}
-	#msg span{cursor:pointer;}
-	input, button, select {background:#fff;border:1px solid #333;padding:5px;margin:3px 0px;}
-	input, button, select, #error, #msg {border-radius:5px;}
-	button{cursor:pointer;}
-	button span{display:inline-block;width:16px;height:16px;background-image:url("inc/css/smoothness/images/ui-icons_222222_256x240.png");}
-	input[type=text], input[type=password], select {-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;width:158px;}
-	#captcha{position:absolute;height:30px;z-index:10;cursor:pointer;}
-	#cheat{position:absolute;bottom:0;height:30px;z-index:11;cursor:pointer;}
-	#reset_button, #register_button{display:none}
-	
-</style>
+	<title><?php echo $projectName.' backend-login on '.$_SERVER['SERVER_NAME']?></title>
+	<meta charset="utf-8" />
+	<meta name="robots" content="none" />
+	<meta http-equiv="cache-control" content="max-age=0" />
+	<meta http-equiv="cache-control" content="no-cache" />
+	<meta http-equiv="expires" content="0" />
+	<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+	<meta http-equiv="pragma" content="no-cache" />
+	<meta http-equiv="content-script-type" content="text/javascript">
+	<meta http-equiv="content-style-type" content="text/css">
+	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+	<link rel="icon" type="image/png" href="inc/css/icon.png" />
+	<style>
+		body{font:90% "Trebuchet MS", sans-serif;}
+		body, a{text-decoration:none;color:#000;}
+		#form, #error, #msg{position:absolute;top:50%;left:50%;width:160px;margin:-80px 0px 0px -80px;}
+		#error, #msg{margin-top:-170px;padding:5px;height:50px;font-weight:bold;border:2px solid;filter:Alpha(opacity=40);opacity:0.6;-moz-opacity:0.6;}
+		#error{background:#fcc;color:#f00;border-color:#f00;}
+		#msg{background:#fcc;color:#333;border-color:#ccc;display:none;}
+		#msg span{cursor:pointer;}
+		input, button, select {background:#fff;border:1px solid #333;padding:5px;margin:3px 0px;}
+		input, button, select, #error, #msg {border-radius:5px;}
+		button{cursor:pointer;}
+		button span{display:inline-block;width:16px;height:16px;background-image:url("inc/css/smoothness/images/ui-icons_222222_256x240.png");}
+		input[type=text], input[type=password], select {-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;width:158px;}
+		#captcha{position:absolute;height:30px;z-index:10;cursor:pointer;}
+		#cheat{position:absolute;bottom:0;height:30px;z-index:11;cursor:pointer;}
+		#reset_button, #register_button{display:none}
+		
+	</style>
 
 </head>
 <body>
@@ -193,7 +187,15 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 <img id="captcha" src="inc/login/blank.png" />
 <img id="cheat" src="inc/login/blank.png" />
 
-<script type="text/javascript">
+<script src="inc/js/modernizr.js"></script>
+<!--[if lt IE 9]>
+	<script src="inc/js/jquery1.min.js"></script>
+<![endif]-->
+<!--[if gte IE 9]><!-->
+	<script src="inc/js/jquery2.min.js"></script>
+<!--<![endif]-->
+
+<script>
 
 var msgNo = 0;//
 var logout = <?php echo ($logout?'true':'false');?>;// 
@@ -239,9 +241,9 @@ $(document).ready(function()
 	// transfer modernizr-detection to a hidden field
 	$('#client').val($('html').attr('class'));
 	
-	// "bookmarkable" Credentials (Hashes are invisible for the Server)
+	// "bookmarkable" Credentials (remember: Hashes are invisible for the Server)
 	h = window.location.hash.substr(1);
-	if(h.length>0)
+	if (h.length>0)
 	{
 		var p = h.split('&');
 		for(var i=0,j=p.length; i<j; ++i)
@@ -293,7 +295,6 @@ $(document).ready(function()
 		});
 	}
 });
-
 
 </script>
 

@@ -4,7 +4,7 @@
 * taken from: https://github.com/mattpass/dirTree
 * (c) Standard Open Source Initiative MIT License
 */
-require '../../inc/php/functions.php';
+
 require 'inc/path.php';
 
 $path = $mainpath[2] . $_GET['ext'];
@@ -17,7 +17,6 @@ $path = $mainpath[2] . $_GET['ext'];
 <style>
 body {
 	font-family: sans-serif;
-	background: #eee;
 }
 ul {
 	list-style-type: none;
@@ -28,7 +27,7 @@ ul {
 <script>
 $(function ()
 {
-	$('ul').prev().css({'color':'#555','cursor':'pointer','font-weight':'bold'}).append('/').on('click', function() {
+	$('ul').prev().css({'color':'#555','cursor':'pointer','font-weight':'bold'}).prepend('<img src="inc/styles/folder.png" /> ').on('click', function() {
 		$(this).next().toggle('slow');
 	});
 	$('#dirtree>ul ul').hide();

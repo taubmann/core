@@ -23,12 +23,11 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
 /*
- * Show/Edit the content of a File (depends on wizards/syntax)
- * */
+* Show/Edit the content of a File (depends on wizards/syntax)
+*/
 
 if(!file_exists('../../wizards/markup/index.php')) exit('Markup-Wizard is missing');
 
-require '../../inc/php/functions.php';
 require 'inc/path.php';
 
 if(!file_exists('../../wizards/markup/src-min/ace.js')) exit('Syntax-Wizard is missing :-(');

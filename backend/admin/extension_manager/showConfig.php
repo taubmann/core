@@ -22,14 +22,12 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
-/*
- * JSON-Editor based on: http://www.thomasfrank.se/json_editor.html
- * 
- * */
-require '../../inc/php/functions.php';
+/**
+* JSON-Editor
+* 
+*/
+if(!file_exists('../../wizards/jsoneditor/index.php')) exit('JSON-Wizard is missing');
 require 'inc/path.php';
-
-//../../wizards/jsoneditor/
 
 $file = $mainpath[2] . $_GET['ext'] . '/config/' . $_GET['file'] . '.php';
 $s = '';
@@ -69,23 +67,16 @@ else
 
 $action = 'showConfig.php?m='.$_GET['m'].'&project='.$projectName.'&ext='.$_GET['ext'].'&file='.$_GET['file'];
 
-//$LL = array();
-//$lang = $_SESSION[$projectName]['lang'];
-//@include '../../wizards/jsoneditor/locale/'.$lang.'.php';
-
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8">
-<title>JSON-Editor</title>
-<script type="text/javascript" src="../../inc/js/jquery.min.js"></script>
-<link rel="stylesheet" type="text/css" href="../../wizards/jsoneditor/jsoneditor/jsoneditor.css">
-<link rel="stylesheet" type="text/css" href="../../wizards/jsoneditor/add/add.css">
-<script type="text/javascript" src="../../wizards/jsoneditor/jsoneditor/jsoneditor.js"></script>
-	
-
-	
+	<meta charset="utf-8" />
+	<title>JSON-Editor</title>
+	<script type="text/javascript" src="../../inc/js/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../../wizards/jsoneditor/jsoneditor/jsoneditor.css" />
+	<link rel="stylesheet" type="text/css" href="../../wizards/jsoneditor/add/add.css" />
+	<script type="text/javascript" src="../../wizards/jsoneditor/jsoneditor/jsoneditor.js"></script>
 </head>
 <body>
 <?php echo $s;?>
@@ -99,28 +90,20 @@ var obj = <?php echo $str;?>;
 
 var container = document.getElementById("jsoneditor");
 var editor = new JSONEditor(container);
-//var str = parent.$('#'+parent.targetFieldId).val();
-//if(str.length<2) str = '{}';
+
 editor.set(obj);
 
-
-// activate saving
+// deactivate saving
 <?php
 if(!is_writable($file))
 {
 	echo "\n".'$("save").hide();';
 }
 ?>
-		
 
 // save json
 function save() {
 	var json = editor.get();
-	//alert(JSON.stringify(json, null, 2));
-	// save JSON to parent Field
-	//parent.$('#'+parent.targetFieldId).val(JSON.stringify(json));
-	//parent.saveContent("<?php echo $_GET['objectId'];?>");
-	//parent.$('#dialog2').dialog('close');
 	$.post('<?php echo $action?>',
 	{
 		json: JSON.stringify(json, null, 2)

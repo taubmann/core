@@ -23,24 +23,25 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
 
-/*
- * Setup
- * 
- *
- * 
- **/
+/**
+* Setup
+* 
+*
+* 
+*/
 
 session_start();
-require '../../inc/php/functions.php';
+$backend = '../../';
+require $backend.'inc/php/functions.php';
 
-require('../../inc/super.php');
+require($backend.'inc/super.php');
 
 $lang = browserLang( glob('inc/locale/*.php') );
 
 $LL = array();
 @include 'inc/locale/'.$lang.'.php';
 
-$backend = '../../';
+
 
 // create Tooltip-Labels used in Step 3 / 4 below
 function hlp($what, $float=true)
@@ -68,14 +69,16 @@ function hlp($what, $float=true)
 <div id="wrapper">
 <?php
 
-// #### 1 #### no (correct) super-password/captcha => draw login-form
-if (!isset($_POST['pass']) || crpt($_POST['pass'], $super[0]) !== $super[1])
+// #### 1 #### no (correct) super-password/captcha => draw login-form (again)
+if (!isset($_POST['pass']) || crpt($_POST['pass'], $super[0]) !== $super[0].':'.$super[1])
 {
+	//echo '<h3>'.L('incorrect_password').'</h3>';
+	
 	require 'inc/step1.php';
 }
 if (isset($_POST['pass']) && (!isset($_POST['captcha_answer']) || $_POST['captcha_answer'] != $_SESSION['captcha_answer']) )
 {
-	echo '<h3>'.L('incorrect_answer').'</h3>';
+	echo '<h3>'.L('incorrect_captcha').'</h3>';
 	require 'inc/step1.php';
 }
 

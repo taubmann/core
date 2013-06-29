@@ -3,7 +3,7 @@
 
 
 // recursive glob
-// http://snipplr.com/view.php?codeview&id=16233 // $fileList = rglob("*", GLOB_MARK, '/path/to/dir');
+// http://snipplr.com/view.php?codeview&id=16233
 function rglob($pattern, $flags = 0, $path = '') {
 	
 	$fn = basename($path);

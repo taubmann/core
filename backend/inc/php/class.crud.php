@@ -986,23 +986,25 @@ class crud
 				
 				$fields = array();
 				$c = 0;
-				
-				foreach ($relList as $relEl)
+				if(is_array($relList))
 				{
-					$nn = '';
-					foreach ($labels as $l)
+					foreach ($relList as $relEl)
 					{
-						$nn .= $relEl->$l . ' ';
-					}
-					
-					// if needed add next-button
-					if($c>=$this->limit) {
-						$head .= '<button rel="arrowthick-1-e" title="'.$this->L('next').'" onclick="getConnectedReferences(\''.$this->objectId.'\','.($this->offset+$this->limit).')">.</button>';
-					}
-					
-					$c++;
-					if($c<$this->limit) {
-						$str .= $this->strLi($rk, $relEl->id, $nn, true);
+						$nn = '';
+						foreach ($labels as $l)
+						{
+							$nn .= $relEl->$l . ' ';
+						}
+						
+						// if needed add next-button
+						if($c>=$this->limit) {
+							$head .= '<button rel="arrowthick-1-e" title="'.$this->L('next').'" onclick="getConnectedReferences(\''.$this->objectId.'\','.($this->offset+$this->limit).')">.</button>';
+						}
+						
+						$c++;
+						if($c<$this->limit) {
+							$str .= $this->strLi($rk, $relEl->id, $nn, true);
+						}
 					}
 				}
 				$str .= '</ul>';

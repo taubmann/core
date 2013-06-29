@@ -31,7 +31,7 @@ foreach($styles as $style)
 	if(file_exists($style.'/preview.png'))
 	{
 		$name = basename($style);
-		$tsopt .= '<option value="'.$name.'">'.$name.'</option>';
+		$sopt .= '<option value="'.$name.'">'.$name.'</option>';
 	}
 }
 
@@ -51,31 +51,31 @@ foreach($templates as $template)
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>set new Super-Password</title>
-<meta charset="utf-8" />
+	<title>set new Super-Password</title>
+	<meta charset="utf-8" />
 
-<script type="text/javascript" src="../js/jquery.min.js"></script>
-<script type="text/javascript" src="../js/jquery.plugin_password_strength.js"></script>
-<script type="text/javascript" src="../js/gpw.js"></script>
-<style>
-body{background: #eee;font:72.5% "Trebuchet MS", sans-serif;}
-a{text-decoration:none;color:#000;}
-#frm{position:absolute;top:50%;left:50%;width:160px;margin:-80px 0px 0px -80px;}
-input, select{background:#fff;border:1px solid #333;padding:5px;margin:3px 0px;}
-input[type=text]{width:158px;}
-input, div {-moz-border-radius:5px;-webkit-border-radius:5px;-khtml-border-radius:5px;border-radius:5px;}
-
-h3{color: #f00;}
+	<script type="text/javascript" src="../js/jquery.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.plugin_password_strength.js"></script>
+	<script type="text/javascript" src="../js/gpw.js"></script>
+	<style>
+		body{background:#eee; font:72.5% "Trebuchet MS", Arial, sans-serif;}
+		a{text-decoration:none;color:#333;}
+		#frm{position:absolute;top:50%;left:50%;width:160px;margin:-80px 0px 0px -80px;}
+		input, select{background:#fff;border:1px solid #333;padding:5px;margin:3px 0px;-moz-border-radius:5px;-webkit-border-radius:5px;-khtml-border-radius:5px;border-radius:5px;}
+		input[type=text]{width:158px;}
 
 
-.password_strength   {padding: 0 5px; display: inline-block;}
-.password_strength_1 {background-color: #fcb6b1;}
-.password_strength_2 {background-color: #fccab1;}
-.password_strength_3 {background-color: #fcfbb1;}
-.password_strength_4 {background-color: #dafcb1;}
-.password_strength_5 {background-color: #bcfcb1;}
+		h3{color: #f00;}
 
-</style>
+
+		.password_strength   {padding: 0 5px; display: inline-block;}
+		.password_strength_1 {background-color: #fcb6b1;}
+		.password_strength_2 {background-color: #fccab1;}
+		.password_strength_3 {background-color: #fcfbb1;}
+		.password_strength_4 {background-color: #dafcb1;}
+		.password_strength_5 {background-color: #bcfcb1;}
+
+	</style>
 
 </head>
 <body>
@@ -100,11 +100,11 @@ foreach($templates as $template)
 }
 file_put_contents('../super.php', '<?php
 // auto-generated: do not edit!
-$super = array(\''.$_POST['salt'].'\', \''.crpt($_POST['pass'], $_POST['salt']).'\');
+$super = array(\''.$_POST['salt'].'\', \''.array_pop(explode(':',crpt($_POST['pass'], $_POST['salt']))).'\');
 $config = array(
 	\'theme\' => array(\''.$_POST['theme'].'\'), // default jQuery-UI-Theme
 	\'template\' => array(\''.$_POST['template'].'\'), // default Backend-Template
-	\'autolog\' => array(0), // automatic login (1/0)
+	\'autolog\' => array(0), // automatic Login (1/0)
 );
 ');
 			
@@ -134,8 +134,6 @@ else
 {
 	echo '<h3>Super-Password already exists!</h3>';
 }
-
-
 
 ?>
 </form>

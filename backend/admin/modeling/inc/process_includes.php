@@ -174,6 +174,7 @@ function processObject ($name, $object, $db, $increment)
 			
 			$tmp['col'][$fname] = array	('type' => $object['fields']['field'][$i]['datatype'], 'tpl' => $datatypes[ $object['fields']['field'][$i]['datatype'] ]['tpl']);
 			
+			
 			//
 			if ($b = text2array($object['fields']['field'][$i]['filter']))
 			{

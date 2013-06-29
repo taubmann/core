@@ -15,19 +15,21 @@ $strip_this = "/[^äöüßÄÖÜa-z0-9\\040\\.\\-\\_\\,\\:\\!\\%\\*\\@\\?]/i";
 $term = function_exists('mb_strtolower') ? mb_strtolower($_REQUEST['term']) : strtolower($_REQUEST['term']);
 $term = preg_replace($strip_this, '', $term);
 
-//exit('[{"label":"'.$_REQUEST['term'].'"}]');
+// test if autocomplete is working at all
+// exit('[{"label":"'.$_REQUEST['term'].'"}]');
 
 $fields = array();
 $likes  = array();
 $out    = array();
 
-// Database-specific preparation of Concat-Statements
+// Database-specific preparation of Concat-Statements (todo: better approach??)
 $labels = $_SESSION[$projectName]['labels'][$objectName];
 if(Configuration::$DB_TYPE[$db] == 'sqlite'){ $concat = implode('`||\' \'||`', $labels ); }
 if(Configuration::$DB_TYPE[$db] == 'mysql' ){ $concat =  'CONCAT('.implode(',\' \',', $labels ).')'; }
 
+
 // prepare Query-Parts: `fieldname` LIKE + %term% 
-foreach($_SESSION[$projectName]['objects']->{$_GET['objectName']}->col as $k => $v)
+foreach($_SESSION[$projectName]['objects'][$_GET['objectName']]['col'] as $k => $v)
 {
 	if($k != 'id')
 	{
@@ -38,7 +40,8 @@ foreach($_SESSION[$projectName]['objects']->{$_GET['objectName']}->col as $k => 
 
 $query = 'SELECT `id` AS id, '.$concat.' AS lbl FROM `'.$objectName.'` WHERE ' . implode(' OR ', $fields) . ' LIMIT 30';
 
- exit('[{"label":"'.$query.'"}]');
+// test show some under-the-hood
+// exit('[{"label":"'.$query.'"}]');
 // exit('[{"label":"'.implode(',',$likes).'"}]');
 
 $prepare = DB::instance($db)->prepare($query);

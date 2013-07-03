@@ -29,97 +29,48 @@
 include '../header.php';
 include 'helper.php';
 
-$path = $backend . '/inc/';
-$js_path  = $path . 'js/';
-$out_path = $path . 'locale/';
-$relpath = relativePath(dirname(__FILE__),$path) . '/locale/';
-
-$headstr = 'Javascript concatenated';
-
-if(!$_GET['lang'] || !file_exists($path.'locale/'.$_GET['lang'].'.php'))
-{
-	$_GET['lang'] = 'en';
-}
-
 $LL = array();
-include($path . 'locale/'.$_GET['lang'].'.php');
+$headstr = (isset($_GET['nocompress']) ? 'Scripts concatenated' : 'Scripts packed');
+$headline = '// AUTO-CREATED FILE (build at ' . date('d.m.Y H:i:s', time()) . ") do not edit!\n";
+$links = '';
+if(empty($_GET['lang'])) $_GET['lang'] = 'en';
 
-function L($str)
+$paths = getPaths('js');
+
+
+
+// loop all templates name => array(filepath, compress_code, translate_labels, restore_commenthead)
+foreach ($paths as $templatename => $arr)
 {
-	global $LL;
-	$str = trim($str);
-	return ( isset($LL[$str]) ? ('\''.$LL[$str].'\'') : ('\'' . str_replace('_', ' ', $str) . '\'') );
-}
-
-
-//				array(filepath, compress_code, translate_labels, restore_commenthead)
-$src = array(
-			
-			// Desktop-Version
-			array(
-				//array('jquery.maskedinput.min.js', false, false, true),
-				array('../dev/js/cmskit.core.js', true, true, true),
-				array('../dev/js/cmskit.desktop.js', true, true, false),
-				//array($js_path.'jquery.ui.selectmenu.js', true, false, true),
-				array('../dev/js/jquery.autosize.min.js', false, false, true),
-				array($js_path.'jquery.foldertree.js', true, false, true),
-				//array('dev/jquery-ui-timepicker.js', true, true, true),
-				//array('jqCron.js', true, true, true),
-			  ),
-			
-			// Mobile-Version
-			array(
-				array('../dev/js/cmskit.core.js', false, true, true),
-				array('../dev/js/cmskit.mobile.js', false, true, false),
-				//array('jquery.ui.selectmenu.js', true, false, true),
-				array($js_path.'jquery.foldertree.js', true, false, true),
-				array('../dev/js/mobiscroll.min.js', false, false, true),
-				array($js_path.'jquery.ui.touchpunch.js',false, false, true),
-				//array('jqCron.js', true, true, true),
-			  ),
-		);
-
-
-$c = 0;
-foreach ($src as $aa)
-{
-	$out = '// AUTO-CREATED FILE (created at '.date('d.m.Y H:i:s',time()).") do not edit!\n\n";
+	// try to get language-labels
+	@include($arr['base'] . '/locale/'.$_GET['lang'].'.php');
 	
-	foreach($aa as $a)
+	//
+	$str = $headline;
+	foreach ($arr['src'] as $src)
 	{
-		
-		if(!$str = file_get_contents($a[0]))
+		$p = str_replace(array('TEMPLATE', 'BACKEND'), array($arr['base'], $backend), $src[0]);
+		if(!file_exists($p))
 		{
-			exit($js_path . $a[0] . ' is missing!');
+			exit('<p>' . $p . ' is missing!</p>');
 		}
+		$s = file_get_contents($p);
+		$str .= ((!$src[1] || !empty($_GET['nocompress'])) ? $s : compress($s, $src[3]));
 		
-		// compress (sort of)
-		if ($a[1] && !isset($_GET['nocompress']))
-		{
-			$str = compress($str);
-			$headstr = 'Javascript packed';
-		}
 		
-		// translate Languge-Calls found in the Code (the L-Word)
-		if($a[2] && $LL)
+		// translate Language-Calls found in the Code (the L-Function)
+		if($src[2] && $LL)
 		{
 			$str = preg_replace("/_\('(\w+)'\)/e", "L('\\1')", $str);
 		}
+		$str .= "\n";
 		
-		$out .= $str . "\n";
 	}
+	$o = str_replace(array('TEMPLATE', 'BACKEND', 'LANG'), array($arr['base'], $backend, $_GET['lang']), $arr['out']);
 	
-	if (file_put_contents($out_path.$_GET['lang'].$c.'.js', $out))
-	{
-		chmod($out_path.$_GET['lang'].$c.'.js', 0766);
-	}
+	putFile($templatename, $o, $str);
 	
-	else
-	{
-		exit('File could not be written!!!');
-	}
-	$c++;
-}
+}// loop all templates END
 
 
 ?>
@@ -139,7 +90,6 @@ a, a:visited{text-decoration:underline;color:#00f;}
 	<h2><?php echo $headstr;?></h2>
 	<p>Labels were translated to: "<?php echo $_GET['lang'];?>".</p>
 	
-	<p>Desktop: <a target="_blank" href="<?php echo $relpath.$_GET['lang'];?>0.js">File</a></p>
-	<p>Mobile:  <a target="_blank" href="<?php echo $relpath.$_GET['lang'];?>1.js">File</a></p>
+	<?php echo $links;?>
 </body>
 </html>

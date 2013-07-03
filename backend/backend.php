@@ -68,7 +68,7 @@ if (!isset($_SESSION[$projectName]) )
 	$_SESSION[$projectName] = array	(
 										'special'	=> array(), 
 										'lang'		=> $_POST['lang'], 
-										'client' => ' '.$_POST['client'], 
+										'client' => $_POST['client'], 
 										'settings'	=> '{}', 
 										'sort'		=> array(),
 										'fields'	=> array()
@@ -205,7 +205,7 @@ if (!isset($_SESSION[$projectName]) )
 		// refresh this Page to kill POST-Variables
 		header('location: backend.php?project=' . $projectName);
 	}
-	
+	$_SESSION[$projectName]['template'] = array();
 	unset($super);
 	
 } // Verification-Process END
@@ -297,8 +297,8 @@ $user_wizards = array_merge($_SESSION[$projectName]['config']['wizards'], $_SESS
 
 $object = (!empty($_GET['object']) ? $_GET['object']: false);
 
-// define actual Template
-$_SESSION[$projectName]['template'] = (!empty($_GET['template']) ? $_GET['template'] : end($_SESSION[$projectName]['config']['template']));
+// define actual Template. Fallback-Order: 1. GET, 2. SESSION, 3. default
+$_SESSION[$projectName]['template'][$object] = (!empty($_GET['template']) ? $_GET['template'] : (isset($_SESSION[$projectName]['template'][$object]) ? $_SESSION[$projectName]['template'][$object] : end($_SESSION[$projectName]['config']['template'])));
 
 //echo $_SESSION[$projectName]['template'];
 //print_r($_SESSION[$projectName]['templates']);
@@ -307,6 +307,6 @@ $_SESSION[$projectName]['template'] = (!empty($_GET['template']) ? $_GET['templa
 header ('Cache-Control: no-cache,must-revalidate', true);
 
 // load Template
-include $_SESSION[$projectName]['config']['templates'][$_SESSION[$projectName]['template']] . '/backend.php';
+include $_SESSION[$projectName]['config']['templates'][ $_SESSION[$projectName]['template'][$object] ] . '/backend.php';
 
 ?>

@@ -122,7 +122,7 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 	<img src="inc/login/logo.png" />
 </span>
 
-<form id="form" style="display:none" method="post" action="backend.php">
+<form id="form" style="display:none" method="post" action="backend.php" >
 	<input type="hidden" id="lang" name="lang" value="<?php echo $l;?>" />
 	<input type="hidden" id="client" name="client" value="no-js" />
 
@@ -200,6 +200,16 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 var msgNo = 0;//
 var logout = <?php echo ($logout?'true':'false');?>;// 
 
+Modernizr.addTest('json', function()
+{
+    return window.JSON
+        && window.JSON.parse
+        && typeof window.JSON.parse === 'function'
+        && window.JSON.stringify
+        && typeof window.JSON.stringify === 'function';
+});
+
+
 // show processing for Logout-Hooks
 function msg(str)
 {
@@ -238,7 +248,7 @@ $(document).ready(function()
 	// Listener to get a new Captcha-Image
 	$('#cheat').on('click', function(){ $('input').attr('type', 'text') });
 	
-	// transfer modernizr-detection to a hidden field
+	// transfer modernizr-detection to a hidden field.replace(/ /g,',')
 	$('#client').val($('html').attr('class'));
 	
 	// "bookmarkable" Credentials (remember: Hashes are invisible for the Server)
@@ -282,18 +292,12 @@ $(document).ready(function()
 	$('#project').on('blur', function(){ loadProjectJs($(this).val()) });
 	loadProjectJs(project);
 	
-	// detect Touchscreen-Devices
-	if (('ontouchstart' in document.documentElement) || $('#template').val()==1)
+	// fetch Background-Image for Desktop-Devices
+	$.getScript('inc/js/jquery.backstretch.js',function()
 	{
-		$('#template').val('1');
-	}
-	else // fetch Background-Image for Desktop-Devices
-	{
-		$.getScript('inc/js/jquery.backstretch.js',function(){
-			var now = new Date();
-			$.getScript('inc/login/x_of_the_day.php?t='+now.getFullYear()+'_'+now.getMonth()+'_'+now.getDay());
-		});
-	}
+		var now = new Date();
+		$.getScript('inc/login/x_of_the_day.php?t='+now.getFullYear()+'_'+now.getMonth()+'_'+now.getDay());
+	});
 });
 
 </script>

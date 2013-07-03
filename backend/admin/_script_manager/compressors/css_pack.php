@@ -29,77 +29,66 @@
 include '../header.php';
 include 'helper.php';
 
-$path = $backend . '/inc/css/';
+$headstr = (isset($_GET['nocompress']) ? 'Stylesheets concatenated' : 'Stylesheets packed');
+$headline = '// AUTO-CREATED FILE (build at ' . date('d.m.Y H:i:s', time()) . ") do not edit!\n";
+$links = '';
 
-$headstr = 'Stylesheets concatenated';
 
-$folders = glob($path.'*', GLOB_ONLYDIR);
+// grab the parameters of all jQuery-UI - Styles
+$uiFolders = glob($backend.'/inc/css/*', GLOB_ONLYDIR);
 $styles = array();
-foreach ($folders as $folder)
+foreach ($uiFolders as $uiFolder)
 {
-	if($params = file_get_contents($folder.'/parameter.txt'))
+	if (@$paramstr = file_get_contents($uiFolder.'/parameter.txt'))
 	{
-		$styles[basename($folder)] = $params;
+		parse_str($paramstr, $styles[basename($uiFolder)]);
 	}
 }
 
-// DEVELOPMENT:
-// print_r($styles);
-// pretty-print array for development-purposes
-// parse_str($styles['darkness'], $testi); echo '<pre>'; print_r($testi); echo '</pre>'; exit();
-/* if you want to know whitch variables are used in styles.css 
-$css = file_get_contents($path.'styles.css');
-parse_str($styles['cupertino'], $params);
-$k = array_keys($params);
-$kw = array();
-foreach($k as $s){ if(strpos($css,$s)!==false){ $kw[] = $s; } }
-array_unique($kw);
-echo implode('=&', $kw).'=';
-*/
+$paths = getPaths('css');
 
-$html = '';
-
-// loop all Style-Packages
-foreach ($styles as $k => $v)
+// loop all Templates: name => array(filepath, compress_code)
+foreach ($paths as $templatename => $arr)
 {
-	
-	
-	if(!file_exists($path.$k.'/jquery-ui.css'))
+	$str = $headline;
+	foreach ($arr['src'] as $src)
 	{
-		$html .= '<p style="color:red">' . $k . ' does not exist</p>';
-		continue;
+		$p = str_replace(array('TEMPLATE', 'BACKEND'), array($arr['base'], $backend), $src[0]);
+		if(!file_exists($p))
+		{
+			exit('<p>' . $p . ' is missing!</p>');
+		}
+		
+		$s = file_get_contents($p);
+		
+		// compress string if active
+		$str .= ( (!$src[1] || !empty($_GET['nocompress'])) ? $s : compress($s, true));
 	}
 	
-	// get UI-Definitions from String $v and put them to $params
-	parse_str($v, $params);
 	
-	// collect "additional" styles first
-	$css = "\n";
-	$css .= file_get_contents($path.'plugins/foldertree.css') . "\n";
-	$css .= file_get_contents($path.'plugins/jquery.ui.selectmenu.css') . "\n";
-	$css .= file_get_contents($path.'plugins/jqCron.css') . "\n";
-	$css .= file_get_contents($path.'styles.css') . "\n";
-	//$css .= file_get_contents('') . "\n";
-	
-	// generate output-string (replacing placeholders with params)
-	$str = file_get_contents($path.$k.'/jquery-ui.css') . strtr($css, $params);
-	
-	if(!isset($_GET['nocompress']))
+	// should we replace Placeholders with UI-Values?
+	if ($arr['lessify'])
 	{
-		$str = compress($str);
-		$headstr = 'Stylesheets packed';
-	}
-	// write css to file
-	if(file_put_contents($path.$k.'/style.css', $str))
-	{
-		@chmod($path . $k . '/style.css', 0776);
-		$html .= '<p><a target="_blank" href="'. relativePath(dirname(__FILE__),$path) . '/' . $k . '/style.css">'.$k .'/style.css</a> saved</p>';
+		foreach ($styles as $k => $v)
+		{
+			$o = str_replace(array('TEMPLATE', 'BACKEND', 'UI'), array($arr['base'], $backend, $k), $arr['out']);
+			
+			// build relative path pointing to the UI-Directory
+			$v['BASEPATH'] = relativePath(dirname($o), $backend.'/inc/css/'.$k);
+			
+			// save File with Replacements
+			putFile($templatename, $o, strtr($str, $v));
+		}
 	}
 	else
 	{
-		$html .= '<p style="color:red">ERROR: <a target="_blank" href="'.$path.$k . '/style.css">'.$k .'/style.css</a> is not writable!!</p>';
+		$o = str_replace(array('TEMPLATE', 'BACKEND'), array($arr['base'], $backend), $arr['out']);
+		putFile($templatename, $o, $str);
 	}
-}
+	$links .= '<hr />';
+	
+}// loop all templates END
+
 
 ?>
 <!DOCTYPE html>
@@ -117,7 +106,7 @@ a, a:visited{text-decoration:underline;color:#00f;}
 	<a href="javascript:history.back()">back</a>
 	<h2><?php echo $headstr;?></h2>
 	
-	<?php echo $html;?>
+	<?php echo $links;?>
 </body>
 
 </html>

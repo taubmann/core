@@ -44,7 +44,7 @@ function L($str)
 		// $D = dirname(realpath($_SERVER['DOCUMENT_ROOT'].$_SERVER['PHP_SELF']));
 		// file_put_contents(__DIR__ . '/ll.txt', $str.'<<<'.$_SERVER['PHP_SELF'].'>>>'. PHP_EOL, FILE_APPEND);
 		// chmod(__DIR__ . '/ll.txt',0777);
-		return str_replace('_', ' ', $str);
+		return str_replace('_', ' ', $str);	
 	}
 }
 

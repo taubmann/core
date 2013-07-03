@@ -18,21 +18,21 @@
 <!-- prevent zoom-out -->
 <meta name="viewport" content="width=device-width, initial-scale=1" /> 
 
-<script>
 	<?php
+	
+	if ( strpos($_SESSION[$projectName]['client'], 'nojson') !== false ) echo '<script src="inc/js/json2.min.js"></script>';
+	
 	echo '
+<script>
 	var projectName="'.$projectName.'", objectName = '.($object?'"'.$object.'"':'false').', theme="'.end($_SESSION[$projectName]['config']['theme']).'", lang="'.$lang.'", langLabels={'.$jsLangLabels.'}, userId="'.$_SESSION[$projectName]['special']['user']['id'].'";
 	var store=((top.window.name && top.window.name.substr(0,1)=="{") ? JSON.parse(top.window.name) : JSON.parse(\''.$_SESSION[$projectName]['settings'].'\'));
+</script>
 	';
 	?>
-	if(!window.JSON){
-		document.writeln('<script src="inc/js/json2.min.js"><\/script>')
-	}
-</script>
 
 <link rel="icon" type="image/png" href="inc/css/icon.png" />
 <link rel="stylesheet" type="text/css" id="mainTheme" href="inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/jquery-ui.css" />
-<link rel="stylesheet" type="text/css" id="baseTheme" href="inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/style.css" />
+<link rel="stylesheet" type="text/css" id="baseTheme" href="templates/default/css/packed_<?php echo end($_SESSION[$projectName]['config']['theme'])?>.css" />
 
 <!--[if lt IE 9]>
     <script src="inc/js/jquery1.min.js"></script>
@@ -42,7 +42,8 @@
 <!--<![endif]-->
 
 <script src="inc/js/jquery-ui.js"></script>
-<script src="inc/locale/<?php echo $lang;?>0.js" ></script>
+
+<script src="templates/default/js/packed_<?php echo $lang;?>.js" ></script>
 
 </head>
 <body>

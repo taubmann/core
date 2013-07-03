@@ -1,11 +1,11 @@
 /* jQuery Folder Tree Plugin
- * Version 1.00 - released (28 September 2011) Giannis Koutsaftakis
- * <htmlab> (http://www.htmlab.gr) Visit http://www.htmlab.gr/blog for more information
- * 28 September 2011
- * TERMS OF USE
- * This plugin is dual-licensed under the GNU General Public License and the MIT License and
- * is copyright 2008 A Beautiful Site, LLC. 
- */
+* Version 1.00 - released (28 September 2011) Giannis Koutsaftakis
+* <htmlab> (http://www.htmlab.gr) Visit http://www.htmlab.gr/blog for more information
+* 28 September 2011
+* TERMS OF USE
+* This plugin is dual-licensed under the GNU General Public License and the MIT License and
+* is copyright 2008 A Beautiful Site, LLC. 
+*/
 
 (function($) {
 	$.fn.folderTree = function(o)

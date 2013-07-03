@@ -1,14 +1,19 @@
 {
 	"css": {
+		"lessify": true,
 		"src": [
-			["", true, true, true]
+			["TEMPLATE/css/plugins/foldertree.css", true],
+			["TEMPLATE/css/styles.css", true]
 		],
-		"out": ""
+		"out": "TEMPLATE/css/packed_UI.css"
 	},
 	"js": {
 		"src": [
-		
+			["TEMPLATE/js/cmskit.core.js", true, true, true],
+			["TEMPLATE/js/cmskit.desktop.js", true, true, false],
+			["TEMPLATE/js/jquery.autosize.min.js", true, false, false],
+			["BACKEND/inc/js/jquery.foldertree.js", true, false, true]
 		],
-		"out": ""
+		"out": "TEMPLATE/js/packed_LANG.js"
 	}
 }

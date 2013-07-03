@@ -1,0 +1,91 @@
+/* jqueryFolderTree */
+
+#mainlist2
+{
+	overflow-x: hidden;
+}
+ul.jqueryFolderTree
+{
+	margin: 0 5px;
+	padding: 0px;
+	width: 100%;
+}
+ul.jqueryFolderTree li
+{
+	list-style: none;
+	margin: 0px;
+	padding: 2px 0px 0px 0px;
+	white-space: nowrap;
+}
+ul.jqueryFolderTree a
+{
+	padding: 0px 2px;
+	text-decoration: none;
+}
+ul.jqueryFolderTree a:hover
+{
+	font-weight: bold;
+}
+.jqueryFolderTree li a.nosubs
+{
+	background: url(../plugins/foldertree/nosubs.png) no-repeat;
+	cursor: default;
+	display: block;
+	float: left;
+	height: 16px;
+	width: 16px;
+}
+.jqueryFolderTree li a.folder
+{
+	display: inline-block;
+	padding: 0px 10px 0px 0px;
+}
+.jqueryFolderTree li a.home
+{
+	background: url(../plugins/foldertree/house.png) no-repeat;
+	display: none;
+	padding: 0px 4px 0px 4px;
+}
+.jqueryFolderTree .wait
+{
+	background: url(../plugins/foldertree/spinner.gif) no-repeat;
+	display: inline-block;
+	padding: 0px 4px 0px 4px;
+}
+.jqueryFolderTree .waitb
+{
+	background: url(../plugins/foldertree/spinner.gif) no-repeat;
+	display: inline-block;
+	padding: 0px 4px 0px 4px;
+}
+.jqueryFolderTree .master
+{
+	clear: left;
+	float: left;
+	width: 100%;
+}
+.foldico
+{
+	cursor: pointer;
+	display: inline-block;
+	height: 16px;
+	margin-right: 10px;
+	width: 16px !important;
+}
+.jqueryFolderTree span.sel
+{
+	background: #bgColorActive !important;
+	color: #fcActive !important;
+	padding: 5px 0px 5px 2px !important;
+}
+.jqueryFolderTree span
+{
+	background: #bgColorDefault url(images/ui-bg_glass_bgImgOpacityDefault_bgColorDefault_1x400.png) 50% 50% repeat-x;
+	border: 1px solid #borderColorDefault;
+	color: fcDefault;
+	cursor: pointer;
+	display: inline-block;
+	font-weight: normal;
+	padding: 5px 0px 5px 2px;
+	width: 100%;
+}

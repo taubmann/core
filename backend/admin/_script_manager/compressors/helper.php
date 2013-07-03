@@ -34,7 +34,7 @@ function compress($str, $noc=false)
 {
 	//grab the first comment-block
 	$comment0 = explode('*/', $str);
-	$comment = ($noc ? '' : array_shift($comment0).'*/');
+	$comment = array_shift($comment0)."*/\n";
 	
 	$str = preg_replace("/((?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:\/\/.*))/", '', $str); // remove comments
 	$str = preg_replace('/(\\t|\\r|\\n)/','', $str); // remove tabs + line-feeds ( agressive Method )
@@ -52,8 +52,55 @@ function compress($str, $noc=false)
 						array(	'=',	'){',	'(',	')',	':',	'}}',	';}'	), 
 						$str
 					  );
-	$str = "\n" . $comment . "\n\n" . $str;
+	if($noc) $str = "\n" . $comment . "\n" . $str;
 	return $str;
+}
+
+function L($str)
+{
+	global $LL;
+	$str = trim($str);
+	return ( isset($LL[$str]) ? ('\''.$LL[$str].'\'') : ('\'' . str_replace('_', ' ', $str) . '\'') );
+}
+
+function getPaths($what)
+{
+	global $backend;
+	$basepath = $backend . '/templates';
+	$paths = array();
+
+	$templateFolders = glob($basepath.'/*', GLOB_ONLYDIR);
+	
+	foreach ($templateFolders as $templateFolder)
+	{
+		$name = basename($templateFolder);
+		
+		if  (file_exists($templateFolder . '/pack.json'))
+		{
+			if ($j = json_decode(file_get_contents($templateFolder . '/pack.json'), true))
+			{
+				$paths[$name] = $j[$what];
+			}
+			$paths[$name]['base'] = $templateFolder;
+		}
+		
+	}
+	return $paths;
+}
+
+function putFile($templatename, $o, $str)
+{
+	global $links;
+	if (@file_put_contents($o, $str))
+	{
+		chmod($o, 0766);
+		$rel = relativePath(dirname(__FILE__), $o);
+		$links .= '<p><a target="_blank" href="'.$rel.'">'.$templatename.' => '.basename($o).'</a></p>';
+	}
+	else
+	{
+		exit('<p>"'.$o.'" could not be written!</p>');
+	}
 }
 
 

@@ -480,7 +480,7 @@ function getContent(id)
 		action: 'getContent', 
 		projectName: projectName, 
 		objectName: objectName, 
-		objectId: id 
+		objectId: id
 	}, 
 	function(data)
 	{

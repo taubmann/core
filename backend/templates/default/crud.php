@@ -30,8 +30,6 @@
 * @package crud
 */
 
-// 
-
 class default_crud extends crud
 {
 	/**
@@ -193,7 +191,7 @@ class default_crud extends crud
 		// new-Button
 		if(!isset($this->disallow['newbutton'])) $str .= '<button rel="plus" onclick="createContent()" title="'.$this->L('new_entry').'">'.$this->L('new_entry').'</button>';
 		// sort-Button
-		if(!isset($this->disallow['sortbutton'])) $str .= '<button rel="shuffle" onclick="getFrame(\'inc/php/editList.php?projectName='.$this->projectName.'&objectName='.$this->objectName.'\')" title="'.$this->L('sort').'">'.$this->L('sort').'</button>';
+		if(!isset($this->disallow['sortbutton'])) $str .= '<button rel="shuffle" onclick="getFrame(\'templates/default/editList.php?projectName='.$this->projectName.'&objectName='.$this->objectName.'\')" title="'.$this->L('sort').'">'.$this->L('sort').'</button>';
 		
 		$str .= '<!--lb2--><div id="pagination"></div></div>';
 		
@@ -213,9 +211,9 @@ class default_crud extends crud
 		// New-Button
 		if(!isset($this->disallow['newbutton'])) $str .= $this->strButton('plus', 'new_entry', 'createContent()');
 		// Sort-Button
-		$str .= $this->strButton('shuffle', 'sort', 'getFrame(\'inc/php/editList.php?projectName='.$this->projectName.'&objectName='.$this->objectName.'\')');
+		$str .= $this->strButton('shuffle', 'sort', 'getFrame(\'templates/default/editList.php?projectName='.$this->projectName.'&objectName='.$this->objectName.'\')');
 		// Order-Button
-		if(!isset($this->disallow['orderbutton'])) $str .= $this->strButton('link', 'order', 'getFrame(\'inc/php/manageTree.php?projectName='.$this->projectName.'&objectName='.$this->objectName.'\')');//'<button rel="link" onclick="getFrame(\'inc/php/manageTree.php?projectName='.$this->projectName.'&objectName='.$this->objectName.'\')" title="'.$this->L('arrange').'">'.$this->L('arrange').'</button>';
+		if(!isset($this->disallow['orderbutton'])) $str .= $this->strButton('link', 'order', 'getFrame(\'templates/default/manageTree.php?projectName='.$this->projectName.'&objectName='.$this->objectName.'\')');//'<button rel="link" onclick="getFrame(\'inc/php/manageTree.php?projectName='.$this->projectName.'&objectName='.$this->objectName.'\')" title="'.$this->L('arrange').'">'.$this->L('arrange').'</button>';
 		$str .= '<!--lb2--></div>';
 		$str .= '<div id="mainlist2"></div>';
 		

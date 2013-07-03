@@ -26,7 +26,7 @@ $theme = end($_SESSION[$projectName]['config']['theme']);
 
 
 /**
-* translate Strings
+* translate Strings maybe move this somwhere else...
 */
 $lang = $_SESSION[$projectName]['lang'];
 $LL = array();

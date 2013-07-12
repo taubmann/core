@@ -24,7 +24,7 @@
 ************************************************************************************/
 
 require '../../inc/php/header.php';
-require_once($ppath . '/objects/class.'.$objectName.'.php');
+require_once $ppath . '/objects/class.'.$objectName.'.php';
 
 $treeType = $objects[$objectName]['ttype'];
 
@@ -37,9 +37,10 @@ $url_params = '?projectName='.$projectName.'&objectName='.$objectName;
 
 $message = '';
 
-if ( !empty($_POST['pid']) && !empty($_POST['cid']) )
+if ( isset($_POST['pid']) && !empty($_POST['cid']) )
 {
 	$action = 'Add' . $objectName;
+	//$_POST['pid'] = intval($_POST['pid']);
 	
 	// first we must check if the connection already exists
 	$query = 	($treeType == 'Tree') ?
@@ -48,15 +49,13 @@ if ( !empty($_POST['pid']) && !empty($_POST['cid']) )
 	
 	$prepare = DB::instance($db)->prepare($query);
 	$prepare->execute(array($_POST['cid']));
-	while($row = $prepare->fetch())
+	while ($row = $prepare->fetch())
 	{
 		if ($row->i == $_POST['pid'])
 		{
 			$action = 'Remove' . $objectName;
 		}
 	}
-	// beneath ID
-	//$bid = (!empty($_POST['bid']))?$_POST['bid']:false;
 	
 	// create the Objects
 	$o1 = new $objectName();
@@ -76,8 +75,9 @@ if ( !empty($_POST['pid']) && !empty($_POST['cid']) )
 		$beneath = false;
 	}
 	//print_r($_POST);
+	
 	// no recursion detected
-	if($parent->$action($child, $beneath))
+	if ( $parent->$action($child, $beneath) )
 	{
 		$message = ($action == 'Remove'.$objectName) ? 
 					'<script>parent.message("'.L('connection_removed').'")</script>' : 
@@ -90,7 +90,6 @@ if ( !empty($_POST['pid']) && !empty($_POST['cid']) )
 	{
 		$message = '<script>parent.message("'.L('recursion_detected').'", 1)</script>';
 	}
-	
 }
 
 ?>
@@ -215,7 +214,8 @@ $(document).ready(function()
 			})
 		}
 	});
-	$('body').on({
+	$('body').on(
+	{
 		ajaxStart: function() {
 			$(this).addClass('loading');
 		},

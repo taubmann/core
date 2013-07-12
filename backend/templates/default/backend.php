@@ -11,24 +11,24 @@
 <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
 <meta http-equiv="pragma" content="no-cache" />
 
-<!-- tell the browser what we mean with script-/style-Tags-->
+<!-- tell the Browser what we mean with script-/style-Tags -->
 <meta http-equiv="content-script-type" content="text/javascript" />
 <meta http-equiv="content-style-type" content="text/css" />
 
 <!-- prevent zoom-out -->
 <meta name="viewport" content="width=device-width, initial-scale=1" /> 
 
-	<?php
+<?php
 	
-	if ( strpos($_SESSION[$projectName]['client'], 'nojson') !== false ) echo '<script src="inc/js/json2.min.js"></script>';
+	if ( !in_array('nojson', $_SESSION[$projectName]['client']) ) echo '<script src="inc/js/json2.min.js"></script>';
 	
 	echo '
 <script>
-	var projectName="'.$projectName.'", objectName = '.($object?'"'.$object.'"':'false').', theme="'.end($_SESSION[$projectName]['config']['theme']).'", lang="'.$lang.'", langLabels={'.$jsLangLabels.'}, userId="'.$_SESSION[$projectName]['special']['user']['id'].'";
+	var projectName="'.$projectName.'", objectName='.($object?'"'.$object.'"':'false').', theme="'.end($_SESSION[$projectName]['config']['theme']).'", lang="'.$lang.'", langLabels={'.$jsLangLabels.'}, userId="'.$_SESSION[$projectName]['special']['user']['id'].'";
 	var store=((top.window.name && top.window.name.substr(0,1)=="{") ? JSON.parse(top.window.name) : JSON.parse(\''.$_SESSION[$projectName]['settings'].'\'));
 </script>
 	';
-	?>
+?>
 
 <link rel="icon" type="image/png" href="inc/css/icon.png" />
 <link rel="stylesheet" type="text/css" id="mainTheme" href="inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/jquery-ui.css" />
@@ -47,7 +47,7 @@
 
 </head>
 <body>
-	
+
 <!-- mini-overlay -->
 <div id="dialog1"><div id="dialogb1"></div></div>
 

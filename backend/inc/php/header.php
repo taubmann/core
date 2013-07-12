@@ -1,6 +1,7 @@
 <?php
-/* Header for various Files
- * 
+/**
+* first Processings for various Files
+* 
 */
 session_start();
 
@@ -14,19 +15,27 @@ foreach ($_GET as $k=>$v){ $_GET[str_replace('amp;','',$k)] = preg_replace('/\W/
 $projectName = $_GET['projectName'];
 $objectName = $_GET['objectName'];
 
-// abort script if access is not allowed
+// prevent Session-Hijacking
+if( !isset($_SESSION[$projectName]['user_fingerprint']) || $_SESSION[$projectName]['user_fingerprint'] != md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . date('z'))) 
+{
+	exit('Session expired or IP has changed');
+}
+
+// abort the Script if access is not allowed
 if (!isset($_SESSION[$projectName]['objects'])) exit('not active');
 if (!isset($_SESSION[$projectName]['objects'][$objectName])) exit('Object is not accessible!');
 
+// absolute Project-Path
 $ppath = realpath( __DIR__ . '/../../../projects/' . $projectName );
 
+// accessible Objects 
 $objects = $_SESSION[$projectName]['objects'];
 $db = intval($objects[$objectName]['db']);
 $theme = end($_SESSION[$projectName]['config']['theme']);
 
 
 /**
-* translate Strings maybe move this somwhere else...
+* translate Strings (todo: move the lang-arrays somwhere else...)
 */
 $lang = $_SESSION[$projectName]['lang'];
 $LL = array();

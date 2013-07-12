@@ -22,37 +22,35 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 *********************************************************************************/
-/*
+/**
 * CRUD-Functions
 */
+
 require 'inc/php/header.php';
 
 $output = '';
 
 $action = preg_replace('/\W/', '', $_REQUEST['action']);
 
-if(!isset($_SESSION[$projectName]['objects'])) exit(''.$projectName.' is not active');
+if (!isset($_SESSION[$projectName]['objects'])) exit(''.$projectName.' is not active');
 
 // get the class of the base-object
-require_once($ppath.'/objects/class.'.strtolower($_GET['objectName']).'.php');
+require_once 		$ppath.'/objects/class.'.$_GET['objectName'].'.php';
 
-// load base-crud
-require_once('inc/php/class.crud.php');
-$c = new crud();
+// load base crud-functions
+require_once 		'inc/php/class.crud.php';
 
-// now load the Template-related crud + translations
-require_once	($_SESSION[$projectName]['config']['templates'][$_SESSION[$projectName]['template'][$objectName]] . '/crud.php');
-@include		($_SESSION[$projectName]['config']['templates'][$_SESSION[$projectName]['template'][$objectName]] . '/locale/' . $lang . '.php');
+// now load Template-related crud-functions + translations
+$actTemplate = 		(!empty($_GET['actTemplate'])) ? $_GET['actTemplate'] : $_SESSION[$projectName]['template'][$objectName];
+$templatePath = 	$_SESSION[$projectName]['config']['templates'][$actTemplate];
+require_once		$templatePath . '/crud.php';
+@include			$templatePath . '/locale/' . $lang . '.php';
 
-// prevent session-hijacking
-if( !isset($_SESSION[$projectName]['user_agent']) || $_SESSION[$projectName]['user_agent'] != md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . Configuration::$DB_PASSWORD[0])) {
-	exit('Session expired or IP has changed');
-}
 
 
 $objectDB = intval($objects[$objectName]['db']);
 
-$objectId 			 = (isset($_GET['objectId']) ? $_GET['objectId'] : null);
+$objectId 			 = (isset($_GET['objectId']) ? $_GET['objectId'] : 0);
 $objectFields 		 = $_SESSION[$projectName]['labels'][$objectName];
 $referenceName 		 = (isset($_GET['referenceName']) ? $_GET['referenceName'] : null);
 $referenceId 		 = (isset($_GET['referenceId']) ? $_GET['referenceId'] : null);

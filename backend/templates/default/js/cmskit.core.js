@@ -108,8 +108,8 @@ $(function($){
 */
 function styleButtons(id)
 { 
-	$('#'+id+' button').each(function() {
-		
+	$('#'+id+' button').each(function()
+	{
 		$(this).button( {
 			icons:{primary:'ui-icon-'+$(this).attr('rel')}, 
 			text:(($(this).text()=='.')?false:true),

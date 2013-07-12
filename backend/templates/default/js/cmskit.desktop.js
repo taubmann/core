@@ -411,7 +411,7 @@ function getList(id)
 	
 	// Searchbox + Autocomplete
 	$('#searchbox').autocomplete({
-		source: 'inc/php/search.php?projectName='+projectName+'&objectName='+objectName,
+		source: 'templates/default/search.php?projectName='+projectName+'&objectName='+objectName,
 		minLength: 3,
 		response: function(){
 			$('body').removeClass('loading');
@@ -519,7 +519,9 @@ function getContent(id)
 				}
 				else // embedded Wizard (load Script)
 				{
-					$.loadScript((d.path?d.path:'wizards/'+d.wizard)+'/include.php', function() {
+					//alert((d.path? d.path : 'wizards/'+d.wizard)+'/include.php');
+					$.loadScript((d.path? d.path : 'wizards/'+d.wizard)+'/include.php', 
+					function() {
 						e[d.wizard]()
 					});
 				}
@@ -810,7 +812,7 @@ function getReferences (id, offs1, offs2)
 			// init Searchbox with Dialog
 			$('#referenceSearchbox').autocomplete(
 			{
-				source: 'inc/php/search.php?projectName='+projectName+'&objectName='+referenceName,
+				source: 'templates/default/search.php?projectName='+projectName+'&objectName='+referenceName,
 				select: function(event, ui)
 				{ 
 					// 

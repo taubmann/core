@@ -894,7 +894,7 @@ class ObjectGenerator
 		$this->str .= "\n\t\t\t}";
 		
 		$this->str .= "\n\t\t\t\$prepare = DB::instance($this->db)->prepare('UPDATE `".$n."` SET `treeparentid`=? WHERE `id`=?');";
-		$this->str .= "\n\t\t\t\$prepare->execute(array(\$this->id, \$child->id));";
+		$this->str .= "\n\t\t\t\$prepare->execute(array(intval(\$this->id), \$child->id));";
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\tcatch(Exception \$e)";
 		$this->str .= "\n\t\t{";
@@ -960,7 +960,8 @@ class ObjectGenerator
 		$this->str .= "\n\t\t\t}";
 		$this->str .= "\n\t\t\t// set the new Parent-ID";
 		$this->str .= "\n\t\t\t\$prepare = DB::instance($this->db)->prepare('UPDATE `".$n."` SET `treeparentid` = ? WHERE `id` = ?');";
-		$this->str .= "\n\t\t\t\$prepare->execute(array(\$this->id, \$child->id));";
+		$this->str .= "\n\t\t\t// force parent-id to be an integer (to flatten tree)";
+		$this->str .= "\n\t\t\t\$prepare->execute(array(intval(\$this->id), \$child->id));";
 		$this->str .= "\n\t\t}";
 		$this->str .= "\n\t\tcatch(Exception \$e)";
 		$this->str .= "\n\t\t{";
@@ -1935,7 +1936,7 @@ class ObjectGenerator
 		
 		$this->str .= "\n\t\t\$".$siblingLower."List = array();";
 		$this->str .= "\n\t\t\$bindings = array(\$this->id);";
-		$this->str .= "\n\t\t\$query = 'SELECT DISTINCT * FROM `".$siblingLower."` a INNER JOIN `".strtolower($this->MappingName($this->objectName, $sibling))."` m ON m.".$siblingLower."id = a.id WHERE m.".strtolower($this->objectName)."id = ?';";//'.\$this->".strtolower($this->objectName)."Id;";
+		$this->str .= "\n\t\t\$query = 'SELECT DISTINCT a.* FROM `".$siblingLower."` a INNER JOIN `".strtolower($this->MappingName($this->objectName, $sibling))."` m ON m.".$siblingLower."id = a.id WHERE m.".strtolower($this->objectName)."id = ?';";//'.\$this->".strtolower($this->objectName)."Id;";
 		
 		
 		$this->str .= "\n\t\t";

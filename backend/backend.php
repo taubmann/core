@@ -33,7 +33,7 @@ session_regenerate_id();
 
 // fix/sanitize GET/POST/(+1 REQUEST)-Parameter
 foreach($_GET as $k=>$v){  $_GET[$k]  = preg_replace('/\W/', '', $v); }
-foreach($_POST as $k=>$v){ $_POST[$k] = preg_replace('/\W/', '', $v); }
+foreach($_POST as $k=>$v){ $_POST[$k] = preg_replace('/\W,/', '', $v); }
 $projectName = preg_replace('/\W/', '', $_REQUEST['project']);
 
 // reset SESSION if a Login is detected
@@ -68,7 +68,7 @@ if (!isset($_SESSION[$projectName]) )
 	$_SESSION[$projectName] = array	(
 										'special'	=> array(), 
 										'lang'		=> $_POST['lang'], 
-										'client' => $_POST['client'], 
+										'client' => explode(',',$_POST['client']), 
 										'settings'	=> '{}', 
 										'sort'		=> array(),
 										'fields'	=> array()
@@ -193,7 +193,7 @@ if (!isset($_SESSION[$projectName]) )
 		header('location: index.php?error=please_log_in&project=' . $projectName);
 		exit();
 	}
-	// login successful
+	// Login-Check was successful
 	else
 	{
 		
@@ -201,8 +201,9 @@ if (!isset($_SESSION[$projectName]) )
 		$_SESSION[$projectName]['loginTime'] = time();
 		
 		// create Check to prevent Session-Hijacking in crud.php
-		$_SESSION[$projectName]['user_agent'] = md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . Configuration::$DB_PASSWORD[0]);
-		// refresh this Page to kill POST-Variables
+		$_SESSION[$projectName]['user_fingerprint'] = md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . date('z'));
+		
+		// relocate this Page to kill $_POST
 		header('location: backend.php?project=' . $projectName);
 	}
 	$_SESSION[$projectName]['template'] = array();
@@ -300,7 +301,7 @@ $object = (!empty($_GET['object']) ? $_GET['object']: false);
 // define actual Template. Fallback-Order: 1. GET, 2. SESSION, 3. default
 $_SESSION[$projectName]['template'][$object] = (!empty($_GET['template']) ? $_GET['template'] : (isset($_SESSION[$projectName]['template'][$object]) ? $_SESSION[$projectName]['template'][$object] : end($_SESSION[$projectName]['config']['template'])));
 
-//echo $_SESSION[$projectName]['template'];
+
 //print_r($_SESSION[$projectName]['templates']);
 
 // prevent caching of HTML (in addition to Meta-Tags)

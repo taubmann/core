@@ -192,7 +192,20 @@ class crud
 		return $data;
 	}
 	
-	
+	/**
+	* 
+	* 
+	* @return 
+	*/
+	public function getElementBy($id, $filter)
+	{
+		array_push($filter, array('id','=',$id));
+		
+		$obj = new $this->objectName();
+		$list = $obj->GetList($filter, array(), 1);
+		if(!isset($list[0])) exit($this->L('no_element_found'));
+		return $list[0];
+	}
 	
 	/**
 	* 
@@ -203,7 +216,7 @@ class crud
 	{
 		//$obj = new $this->objectName();
 		
-		$item = $this->getElementBy($this->objectId, $this->getSaveFilter);//$obj->Get($this->objectId);
+		$item = $this->getElementBy($this->objectId, $this->getSaveFilter);
 		
 		
 		foreach ($_POST as $k => $v)

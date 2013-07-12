@@ -77,25 +77,8 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 	<meta http-equiv="content-script-type" content="text/javascript">
 	<meta http-equiv="content-style-type" content="text/css">
 	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
-	<link rel="icon" type="image/png" href="inc/css/icon.png" />
-	<style>
-		body{font:90% "Trebuchet MS", sans-serif;}
-		body, a{text-decoration:none;color:#000;}
-		#form, #error, #msg{position:absolute;top:50%;left:50%;width:160px;margin:-80px 0px 0px -80px;}
-		#error, #msg{margin-top:-170px;padding:5px;height:50px;font-weight:bold;border:2px solid;filter:Alpha(opacity=40);opacity:0.6;-moz-opacity:0.6;}
-		#error{background:#fcc;color:#f00;border-color:#f00;}
-		#msg{background:#fcc;color:#333;border-color:#ccc;display:none;}
-		#msg span{cursor:pointer;}
-		input, button, select {background:#fff;border:1px solid #333;padding:5px;margin:3px 0px;}
-		input, button, select, #error, #msg {border-radius:5px;}
-		button{cursor:pointer;}
-		button span{display:inline-block;width:16px;height:16px;background-image:url("inc/css/smoothness/images/ui-icons_222222_256x240.png");}
-		input[type=text], input[type=password], select {-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;width:158px;}
-		#captcha{position:absolute;height:30px;z-index:10;cursor:pointer;}
-		#cheat{position:absolute;bottom:0;height:30px;z-index:11;cursor:pointer;}
-		#reset_button, #register_button{display:none}
-		
-	</style>
+	<link rel="icon" type="image/png" href="inc/img/icon.png" />
+	<link rel="stylesheet" type="text/css" href="inc/login/css/styles.css" />
 
 </head>
 <body>
@@ -114,15 +97,15 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 ?>
 
 <div id="msg">
-	<img src="inc/login/spinner-mini.gif" /> <?php echo L('please_wait');?>
+	<img src="inc/login/css/spinner-mid.gif" /> <?php echo L('please_wait');?>
 	<hr />
 </div>
 
 <span id="head_right" style="float:right">
-	<img src="inc/login/logo.png" />
+	<img src="inc/img/logo.png" />
 </span>
 
-<form id="form" style="display:none" method="post" action="backend.php" >
+<form id="form" style="display:none" method="post" action="backend.php" enctype="multipart/form-data" >
 	<input type="hidden" id="lang" name="lang" value="<?php echo $l;?>" />
 	<input type="hidden" id="client" name="client" value="no-js" />
 
@@ -184,8 +167,8 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 	<p id="additional_buttons"></p>
 </form>
 
-<img id="captcha" src="inc/login/blank.png" />
-<img id="cheat" src="inc/login/blank.png" />
+<img id="captcha" src="inc/login/css/blank.png" />
+<img id="cheat" src="inc/login/css/blank.png" />
 
 <script src="inc/js/modernizr.js"></script>
 <!--[if lt IE 9]>
@@ -248,8 +231,8 @@ $(document).ready(function()
 	// Listener to get a new Captcha-Image
 	$('#cheat').on('click', function(){ $('input').attr('type', 'text') });
 	
-	// transfer modernizr-detection to a hidden field.replace(/ /g,',')
-	$('#client').val($('html').attr('class'));
+	// transfer modernizr-detection to a hidden field 
+	$('#client').val($(window).width()+','+$(window).height()+$('html').attr('class').replace(/ /g,','));
 	
 	// "bookmarkable" Credentials (remember: Hashes are invisible for the Server)
 	h = window.location.hash.substr(1);
@@ -270,6 +253,7 @@ $(document).ready(function()
 			$('#mail').val('');
 		}, 1000);
 	}
+	
 	// Listener to save Credentials as Bookmark-Url
 	$('#sethash_button').on('click', function(){ window.location = '?project='+$('#project').val()+'#name='+$('#name').val()+'&pass='+$('#pass').val() })
 
@@ -293,10 +277,10 @@ $(document).ready(function()
 	loadProjectJs(project);
 	
 	// fetch Background-Image for Desktop-Devices
-	$.getScript('inc/js/jquery.backstretch.js',function()
+	$.getScript('inc/login/js/jquery.backstretch.js',function()
 	{
 		var now = new Date();
-		$.getScript('inc/login/x_of_the_day.php?t='+now.getFullYear()+'_'+now.getMonth()+'_'+now.getDay());
+		$.getScript('inc/login/	x_of_the_day.php?t='+now.getFullYear()+'_'+now.getMonth()+'_'+now.getDay());
 	});
 });
 

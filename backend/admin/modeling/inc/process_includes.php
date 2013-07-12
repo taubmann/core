@@ -373,20 +373,22 @@ function checkHierarchy (&$queries, $name, $db, $increment, $type, &$tmp)
 	switch($type)
 	{
 		case 'Tree':
-			// add columns 
-			$id_type = (($increment==1)?'EXCLUDEDVARCHAR':'EXCLUDEDINTEGER');
+			// create new Columns 
+			$id_type = (($increment==1)?'VARCHAR':'INTEGER');
 			
 			if(!isset($dbModel[$db][$name]['treeparentid']))
 			{
 				addColumn ($queries, $name, 'treeparentid',	$db, $id_type);
-				addColumn ($queries, $name, 'treeleft', 	$db, 'EXCLUDEDINTEGER');
-				addColumn ($queries, $name, 'treeright', 	$db, 'EXCLUDEDINTEGER');
+				addColumn ($queries, $name, 'treeleft', 	$db, 'INTEGER');
+				addColumn ($queries, $name, 'treeright', 	$db, 'INTEGER');
 			}
 			
-			//add Cols to new Object
+			//add the Columns to the new Object
 			$tmp['col']['treeparentid']['type'] = $id_type;
-			$tmp['col']['treeleft']['type'] = 'EXCLUDEDINTEGER';
-			$tmp['col']['treeright']['type'] = 'EXCLUDEDINTEGER';
+			$tmp['col']['treeleft']['type'] = 'INTEGER';
+			$tmp['col']['treeright']['type'] = 'INTEGER';
+			
+			// add informations to hide the Fields ????
 			
 			
 		break;

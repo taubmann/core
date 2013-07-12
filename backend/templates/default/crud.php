@@ -36,31 +36,27 @@ class default_crud extends crud
 	* create LI-Tags for Reference-Lists objectname, id|label, no dragging
 	* 
 	* @return 
+	* $referenceName, $referenceId, $label
+	* $n, $id, $lbl
 	*/
-	protected function strLi ($n, $id, $lbl, $nodrag=false)
+	public function strLi ($referenceName, $referenceId, $label, $nodrag=false)
 	{
-		$s = explode('|', $str);
-		return 	'<li id="l_'.$id.'" class="ui-state-default ui-selectee">' .
-				($nodrag?'':'<span class="ui-state-default ui-corner-all" style="float:left;margin-right:10px;" title="drag here"><em class="ui-icon ui-icon-arrow-2-n-s"></em></span>') .
-				'<a title="id: '.$id.'" class="lnk" data-object="'.$n.'" data-id="'.$id.'" href="#">' .
-				((strlen(trim($lbl))>0)?substr(trim(strip_tags($lbl)),0,100):'[...]') .
+		$label = trim(strip_tags($label));
+		return 	//open the LI
+				'<li id="l_'.$referenceId.'" class="ui-state-default ui-selectee">' .
+				
+				// 
+				($nodrag ? '' : '<span class="ui-state-default ui-corner-all" style="float:left;margin-right:10px;" title="drag here"><em class="ui-icon ui-icon-arrow-2-n-s"></em></span>') .
+				
+				'<a title="id: '.$referenceId.'" class="lnk" data-object="'.$referenceName.'" data-id="'.$referenceId.'" href="#">' .
+				
+				// ensure some alternative Text if the Label is empty
+				((strlen($label)>0) ? substr($label,0,100) : '[...]' ) .
+				
 				'</a></li>';
 	}
 	
-	/**
-	* 
-	* 
-	* @return 
-	*/
-	public function getElementBy($id, $filter)
-	{
-		array_push($filter, array('id','=',$id));
-		
-		$obj = new $this->objectName();
-		$list = $obj->GetList($filter, array(), 1);
-		if(!isset($list[0])) exit($this->L('no_element_found'));
-		return $list[0];
-	}
+	
 	
 	/**
 	* 
@@ -408,7 +404,7 @@ class default_crud extends crud
 			// load the Field-Template
 			if ($fv['tpl'])
 			{
-				include_once(__DIR__ . '/../../inc/php/fields/' . $fv['tpl'] . '.php');
+				include_once(__DIR__ . '/fields/' . $fv['tpl'] . '.php');
 			}
 			
 			
@@ -508,7 +504,7 @@ class default_crud extends crud
 						}
 						
 						
-						include_once (__DIR__ . '/../../inc/php/fields/' . $jv['tpl'] . '.php');
+						include_once (__DIR__ . '/fields/' . $jv['tpl'] . '.php');
 						if ( function_exists('draw_'.$jv['tpl']) )
 						{
 							$jlbl = $jk;
@@ -720,9 +716,11 @@ class default_crud extends crud
 						}
 						
 						$c++;
-						if ($c<$this->limit)
+						if ($c < $this->limit)
 						{
+							//echo $relEl->id;
 							$str .= $this->strLi($rk, $relEl->id, $nn, true);
+							unset($relEl->id);
 						}
 					}
 				}
@@ -810,7 +808,7 @@ class default_crud extends crud
 		$allFilter = $this->getAssocListFilter;
 		$rel_ids = array();
 		$c = 0;
-		$ol = $offset1+$this->limit;
+		$ol = $offset1 + $this->limit;
 		
 		// we have to temporarily store actual shown + next connected IDs + offset into a Session
 		$_SESSION[$this->projectName]['_'] = array( array(), array(), $offset1 );
@@ -837,12 +835,10 @@ class default_crud extends crud
 							$nn .= $i->$n . ' ';
 						}
 						
-						//if(strlen(trim($nn))==0) $nn = '[...]';
-						
 						$str1 .= $this->strLi(
 												$this->referenceName, 
 												$i->id,
-												$nn . (($pId && strlen($i->$pId) > 0) ? '(!)' : '') 
+												$nn// . (($pId && strlen($i->$pId) > 0) ? '(!)' : '') 
 											 );//('.$i->$pId.')
 						
 						$relIds[] = $i->id;
@@ -850,7 +846,7 @@ class default_crud extends crud
 				}
 				
 				// store all *further* IDs (for Sorting-Actions lateron)
-				if ( $c>$ol )
+				if ( $c > $ol )
 				{
 					$_SESSION[$this->projectName]['_'][1][] = $i->id;
 				}

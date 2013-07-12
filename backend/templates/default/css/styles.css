@@ -120,8 +120,8 @@ option
 }
 #colRight a, #actRel a, #right a
 {
-	display: inline-block;
-	width: 90%;
+	/*display: inline-block;
+	width: 90%;*/
 }
 #mainList a
 {
@@ -137,8 +137,10 @@ option
 #mainlist li
 {
 	height: 18px;
+	line-height: 18px;
 	margin: 0px 5px 5px 5px;
 	padding: 3px;
+	overflow: hidden;
 }
 #mainlistHead
 {
@@ -165,9 +167,11 @@ option
 .ilist li
 {
 	cursor: pointer;
-	height: 1.5em;
-	margin: 3px;
-	padding: 0.4em;
+	height: 18px;
+	line-height: 18px;
+	margin: 0px 5px 5px 5px;
+	padding: 3px;
+	overflow: hidden;
 }
 #innerForm
 {
@@ -199,7 +203,6 @@ option
 }
 .ui-timepicker-div .ui-widget-header
 
-
 .slider
 {
 	margin: 5px 0;
@@ -207,7 +210,7 @@ option
 }
 .sbox
 {
-	background-image: url("../search.png");
+	background-image: url("search.png");
 	background-position: left center;
 	background-repeat: no-repeat;
 	border: 1px solid #ccc;

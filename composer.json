@@ -1,19 +1,21 @@
 {
-	"name": "cmskit/core",
-	"type": "library",
-	"description": "Framework for building your own Content-Management-Applications",
-	"keywords": ["Framework","CMS"],
-	"homepage": "http://cms-kit.org",
-	"license": "GPL",
-	"authors": [
-		{
-			"name": "Christoph Taubmann",
-			"email": "info@cms-kit.org",
-			"homepage": "http://cms-kit.org",
-			"role": "Lead-Developer"
-		}
-	],
-	"require": {
-		"php": ">=5.3.0"
-	}
+    "name": "cms-kit"
+  , "description": "Framework for building your own Content-Management-Applications"
+  , "version": "0.9.0"
+  , "keywords": ["Framework","CMS"]
+  , "homepage": "http://cms-kit.org"
+  , "author": "Christoph Taubmann"
+  , "licenses": [
+    {
+        "type": "GPL"
+      , "url": "http://www.gnu.de/documents/gpl-3.0.en.html"
+    }
+  ]
+  , "repository": {
+      "type": "git"
+    , "url": "https://github.com/cmskit/core.git"
+  }
+  , "require": {
+      "php": ">=5.3.0"
+  }
 }

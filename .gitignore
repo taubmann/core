@@ -1,5 +1,7 @@
-alt
+vendor/
+composer.phar
 .htaccess
+
 projects/**/*
 backend/inc/super.php
 backend/extensions/**/*

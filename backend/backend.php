@@ -33,7 +33,7 @@ session_regenerate_id();
 
 // fix/sanitize GET/POST/(+1 REQUEST)-Parameter
 foreach($_GET as $k=>$v){  $_GET[$k]  = preg_replace('/\W/', '', $v); }
-foreach($_POST as $k=>$v){ $_POST[$k] = preg_replace('/\W,/', '', $v); }
+foreach($_POST as $k=>$v){ $_POST[$k] = preg_replace('/\W,@/', '', $v); }
 $projectName = preg_replace('/\W/', '', $_REQUEST['project']);
 
 // reset SESSION if a Login is detected
@@ -63,12 +63,16 @@ if (!isset($_SESSION[$projectName]) )
 	
 	// set the Check-Variable to false
 	$log = false;
-	
+	$tmp = explode(',', $_POST['client']);
 	// define/reset the main Session-Array
 	$_SESSION[$projectName] = array	(
 										'special'	=> array(), 
 										'lang'		=> $_POST['lang'], 
-										'client' => explode(',',$_POST['client']), 
+										'client' => array(
+															'width'			=> array_shift($tmp),
+															'height'		=> array_shift($tmp),
+															'capabilities'	=> $tmp
+														 ), 
 										'settings'	=> '{}', 
 										'sort'		=> array(),
 										'fields'	=> array()
@@ -109,7 +113,7 @@ if (!isset($_SESSION[$projectName]) )
 		if ($s = file_get_contents($configFile))
 		{
 			$arr = explode('EOD', $s);
-			if (count($arr)==3 && $j = json_decode($arr[1], true))
+			if (count($arr) == 3 && $j = json_decode($arr[1], true))
 			{
 				$config = array_merge_recursive($config, $j);
 				// print_r($config);exit(); // test if config is merged correctly (swap $configFiles above)
@@ -131,7 +135,7 @@ if (!isset($_SESSION[$projectName]) )
 			)
 		 )
 		 || 
-		 end($config['autolog']) == 1 // login is disabled at all
+		 end($config['autolog']) === 1 // login is disabled at all
 		)
 	{
 		// define User as "Super-Root" and put some infos into the user-array 

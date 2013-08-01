@@ -199,11 +199,11 @@ class crud
 	*/
 	public function getElementBy($id, $filter)
 	{
-		array_push($filter, array('id','=',$id));
+		array_push ($filter, array('id', '=', $id));
 		
 		$obj = new $this->objectName();
 		$list = $obj->GetList($filter, array(), 1);
-		if(!isset($list[0])) exit($this->L('no_element_found'));
+		if (!isset($list[0])) exit($this->L('no_element_found'));
 		return $list[0];
 	}
 	
@@ -216,7 +216,16 @@ class crud
 	{
 		//$obj = new $this->objectName();
 		
-		$item = $this->getElementBy($this->objectId, $this->getSaveFilter);
+		// if id is 0 save as new entry
+		if ($this->objectId == 0)
+		{
+			$item = new $this->objectName();
+		}
+		else
+		{
+			$item = $this->getElementBy($this->objectId, $this->getSaveFilter);
+		}
+		
 		
 		
 		foreach ($_POST as $k => $v)
@@ -229,9 +238,10 @@ class crud
 			$item->$k = $v;
 		}
 		
-		if ($item->Save())
+		if ($id = $item->Save())
 		{
-			return $this->L('saved');
+			// re-locate if we get a new id (newly created entry)
+			return (($this->objectId == $id) ? $this->L('saved') : $this->L('saved').'<script>location.hash="id='.$id.'"</script>');
 		}
 		else
 		{
@@ -404,7 +414,7 @@ class crud
 				
 				// get the Name of the Map-Table
 				$m = array($this->objectName, $this->referenceName);
-				natsort($m);
+				natcasesort($m);
 				$m = implode('', $m);
 				
 				// delete Relations if any

@@ -36,6 +36,8 @@ if ( !file_exists('inc/super.php') ){ header('location: inc/php/setSuperpassword
 if ( count($projects) == 0 ){ header('location: admin/_project_setup/index.php'); }	// redirect to Project-Setup if no project
 // redirects END
 
+
+
 $logout = false;
 if (isset($_GET['project']))
 {
@@ -54,10 +56,11 @@ else
 	$projectName = '';
 }
 
-require('inc/php/functions.php');
+require 'inc/super.php';
+require 'inc/php/functions.php';
 
 $l = browserLang(glob('inc/locale/login/*.php'), 'en');
-@include('inc/locale/login/'.$l.'.php');
+@include 'inc/locale/login/'.$l.'.php';
 
 ?>
 <!DOCTYPE html>
@@ -79,15 +82,25 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
 	<link rel="icon" type="image/png" href="inc/img/icon.png" />
 	<link rel="stylesheet" type="text/css" href="inc/login/css/styles.css" />
-
+	<script src="inc/js/modernizr.js"></script>
+	<script>
+	Modernizr.addTest('json', function()
+	{
+		return window.JSON
+			&& window.JSON.parse
+			&& typeof window.JSON.parse === 'function'
+			&& window.JSON.stringify
+			&& typeof window.JSON.stringify === 'function';
+	});
+	</script>
 </head>
 <body>
 
-<noscript>
-	<h2>
-		<?php echo L('javascript_not_activated');?>
-	</h2>
-</noscript>
+<h2 class="warning no-js"><?php echo L('javascript_not_activated')?>!</h2>
+<h2 class="warning ie6">IE 6: <?php echo L('your_version_of_internet_explorer_may_not_work')?></h2>
+<h2 class="warning ie7">IE 7: <?php echo L('your_version_of_internet_explorer_may_not_work')?></h2>
+<h2 class="warning ie8">IE 8: <?php echo L('your_version_of_internet_explorer_may_not_work')?></h2>
+
 
 <?php
 	if (isset($_GET['error']) && L($_GET['error']))
@@ -108,11 +121,14 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 <form id="form" style="display:none" method="post" action="backend.php" enctype="multipart/form-data" >
 	<input type="hidden" id="lang" name="lang" value="<?php echo $l;?>" />
 	<input type="hidden" id="client" name="client" value="no-js" />
-
+	<script>
+	// transfer modernizr-detection to a hidden field 
+	document.getElementById("client").value = screen.availWidth + ',' + screen.availHeight + document.getElementsByTagName("html")[0].className.replace(/ /g,",")
+	</script>
 	<?php
 	echo '	'.L('login').'<br />';
 	// you can decide wether to show a selectbox showing all your Projects OR a simple input-field
-	if (count($projects)==1)
+	if (count($projects) == 1)
 	{
 		echo '	<input type="hidden" id="project" name="project" value="'.basename($projects[0]).'" />';
 	}
@@ -133,10 +149,20 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 				<label for="project">'.L('project_name').'</label>
 				<input type="text" id="project" name="project" placeholder="'.L('project_name').'" value="'.$projectName.'" /><br />
 			</p>';
-
 		}
 
 	}
+	
+	// if we have defined "autolog" no username/password is required and we can finish rendering the page!!
+	if (end($config['autolog']) === 1)
+	{
+		exit('
+		<input type="submit"value="ok" /></form>
+		<script>document.getElementById("form").style.display="block"</script>
+		</body></html>
+		');
+	}
+	
 	?>
 	<p>
 		<label for="name"><?php echo L('user_name');?></label>
@@ -170,7 +196,7 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 <img id="captcha" src="inc/login/css/blank.png" />
 <img id="cheat" src="inc/login/css/blank.png" />
 
-<script src="inc/js/modernizr.js"></script>
+
 <!--[if lt IE 9]>
 	<script src="inc/js/jquery1.min.js"></script>
 <![endif]-->
@@ -181,17 +207,7 @@ $l = browserLang(glob('inc/locale/login/*.php'), 'en');
 <script>
 
 var msgNo = 0;//
-var logout = <?php echo ($logout?'true':'false');?>;// 
-
-Modernizr.addTest('json', function()
-{
-    return window.JSON
-        && window.JSON.parse
-        && typeof window.JSON.parse === 'function'
-        && window.JSON.stringify
-        && typeof window.JSON.stringify === 'function';
-});
-
+var logout = <?php echo ($logout?'true':'false')?>;
 
 // show processing for Logout-Hooks
 function msg(str)
@@ -207,6 +223,7 @@ function msg(str)
 	}
 }
 
+// try to load a script that may add / adapt some settings on the page
 function loadProjectJs(name)
 {
 	if(name.length>2)
@@ -232,7 +249,7 @@ $(document).ready(function()
 	$('#cheat').on('click', function(){ $('input').attr('type', 'text') });
 	
 	// transfer modernizr-detection to a hidden field 
-	$('#client').val($(window).width()+','+$(window).height()+$('html').attr('class').replace(/ /g,','));
+	//$('#client').val($(window).width()+','+$(window).height()+$('html').attr('class').replace(/ /g,','));
 	
 	// "bookmarkable" Credentials (remember: Hashes are invisible for the Server)
 	h = window.location.hash.substr(1);

@@ -1,11 +1,13 @@
 <?php
 /**
-* simple Script showing the whole Directory at once
+* simple Script showing a readme-File
+* OR the whole Directory at once
 * taken from: https://github.com/mattpass/dirTree
 * (c) Standard Open Source Initiative MIT License
 */
 
 require 'inc/path.php';
+require 'inc/markdown_extended.php';
 
 $path = $mainpath[2] . $_GET['ext'];
 
@@ -13,32 +15,27 @@ $path = $mainpath[2] . $_GET['ext'];
 
 <!DOCTYPE html>
 <head>
-<title>show directory</title>
+<title>start</title>
+<meta charset="utf-8" />
 <style>
 body {
 	font-family: sans-serif;
-}
-ul {
-	list-style-type: none;
+	font-size: .9em;
 }
 </style>
-
-<script src="../../inc/js/jquery.min.js"></script>
-<script>
-$(function ()
-{
-	$('ul').prev().css({'color':'#555','cursor':'pointer','font-weight':'bold'}).prepend('<img src="inc/styles/folder.png" /> ').on('click', function() {
-		$(this).next().toggle('slow');
-	});
-	$('#dirtree>ul ul').hide();
-});
-
-</script>
 
 </head>
 <body>
 <?php
+// if we find a file called readme.md show it an exit
+if (file_exists($path.'/readme.md'))
+{
+	echo MarkdownExtended(file_get_contents($path.'/readme.md'));
+	echo '</body></html>';
+	exit;
+}
 
+// no readme.md was found. show the file-structure instead...
 
 $excludedFileFolders = array('.git', 'locale');
 
@@ -141,5 +138,25 @@ for ($i=0;$i<count($finalArray);$i++)
 }
 echo "</ul>\n</ul>\n";
 ?>
+
+<style>
+ul {
+	list-style-type: none;
+}
+</style>
+
+<script src="../../inc/js/jquery.min.js"></script>
+<script>
+$(function ()
+{
+	$('ul').prev().css({'color':'#555','cursor':'pointer','font-weight':'bold'}).prepend('<img src="inc/styles/folder.png" /> ').on('click', function() {
+		$(this).next().toggle('slow');
+	});
+	$('#dirtree>ul ul').hide();
+});
+
+</script>
+
+
 </body>
 </html>

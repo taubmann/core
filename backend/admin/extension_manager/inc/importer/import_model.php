@@ -5,7 +5,7 @@
  * </objects>  =>  PC9vYmplY3RzPg
  * PC9vYmplY3RzPgo
 */
-
+error_reporting(0);
 require 'head.php';
 
 $obj_xml = $obj_path.'__modelxml.php';
@@ -15,10 +15,7 @@ if ( is_writable($obj_xml) && is_readable($add_path) )
 {
 	require ($obj_xml);
 	
-	//$mxml = base64_decode($model);
-	//$php = file_get_contents($obj_xml);
 	
-	//$to_add = file_get_contents($add_path);
 	$xml = simplexml_load_file($add_path);
 	
 	$addstr = '';
@@ -42,7 +39,8 @@ if ( is_writable($obj_xml) && is_readable($add_path) )
 	}
 	
 	// add new Objects to model
-	$phpout = "<?php\n\$model = <<<EOD\n" . array_shift(explode('</objects>', $model)) . $addstr . '</objects>'.PHP_EOL."EOD;\n?>";
+	$blocks = explode('</objects>', $model);
+	$phpout = "<?php\n\$model = <<<EOD\n" . array_shift($blocks) . $addstr . '</objects>'.PHP_EOL."EOD;\n?>";
 	
 	// write to disk
 	file_put_contents($obj_xml, $phpout);

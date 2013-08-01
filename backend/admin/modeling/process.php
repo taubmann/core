@@ -193,7 +193,7 @@ foreach ($jsonModel as $old_name => $old_object)
 		// delete relations
 		foreach($old_object['rel'] as $k=>$v)
 		{
-			deleteTable ($queries, mapName($k,$old_name), $old_object['db']);
+			deleteTable ($queries, mapName($k, $old_name), $old_object['db']);
 		}
 		// delete the old object itself
 		deleteTable ($queries, $old_name, $old_object['db']);
@@ -205,8 +205,8 @@ foreach ($jsonModel as $old_name => $old_object)
 		if (is_array($old_object['col']))
 		{
 			$columnsToDelete = array_diff (
-										array_keys($old_object['col']),
-										array_keys($newModel[$old_name]['col'])
+											array_keys($old_object['col']),
+											array_keys($newModel[$old_name]['col'])
 										  );
 		}
 		foreach ($columnsToDelete as $d)
@@ -347,7 +347,7 @@ $_SESSION[$projectName]['objects'] = json_decode($jsonstr1, true);
 <head>
 	<title>cms-kit-process</title>
 	<meta charset="utf-8" />
-	
+	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
 	<link href="../../inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/jquery-ui.css" rel="stylesheet" />
 	<link href="../../inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/style.css" rel="stylesheet" />
 <style>

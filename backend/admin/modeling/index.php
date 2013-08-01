@@ -33,6 +33,7 @@ require $ppath . '__configuration.php';
 <html lang="en">
 <head>
 <meta charset="utf-8" />
+
 <title>cms-kit Database-Modeling</title>
 
 <link href="../../inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/jquery-ui.css" rel="stylesheet" />
@@ -166,6 +167,10 @@ ul li span
 	position: absolute; margin-left: -1.3em;
 }
 
+
+#menu_newwin {
+	display: none;
+}
 </style>
 
 <!-- jQuery-TEMPLATES BEGIN-->
@@ -354,6 +359,9 @@ ${obj}
 	<button title="<?php echo L('open_Documentation')?>" id="menu_help" data-icon="help" type="button">
 		<?php echo L('Help')?>
 	</button>
+	<button title="<?php echo L('open_new_Window')?>" id="menu_newwin" data-icon="newwin" type="button">
+	&nbsp;
+	</button>
 </div>
 
 
@@ -437,6 +445,8 @@ var canvas,
 // onload-Block
 $(function()
 {
+	if (top != self){ $('#menu_newwin').show() }
+	
 	// define the canvas http://www.w3schools.com/tags/canvas_strokestyle.asp
 	canvas = document.getElementById('bezier');
 	ctx = canvas.getContext('2d');
@@ -583,6 +593,10 @@ $(function()
 		$('#dialogbody').html('<iframe src="../extension_manager/showDoc.php?file=../../extensions/documentation/doc/<?php echo $lang?>/.object_modeling.md"></iframe>');
 		$('#dialog_SaveButton').hide();
 		$('#dialog').dialog('open');
+	});
+	
+	$('#menu_newwin').on('click', function(){
+		window.open(document.location, document.title)
 	});
 	
 	// Button-Styling

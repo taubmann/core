@@ -319,40 +319,51 @@ class ObjectGenerator
 		$this->str .= "\n\t}";
 	}
 	
-	function generateOutputMapper($obj, $indent)
+	function CreateOutputFilter($el, $obj, $indent)
 	{
+		// we have to check for f***ing magic_quotes
+		$sls = '';
+		$sle = '';
+		if (get_magic_quotes_gpc())
+		{
+			$sls = 'stripslashes(';
+			$sle = ')';
+		}
 		
-		foreach ($this->elementList['col'] as $key => $attr)
+		foreach ($el->elementList['col'] as $key => $attr)
 		{
 			if ($this->nofilter)
 			{
 				if ($attr['type']=='MODEL')
 				{
-					$this->str .= "\n".$indent."\$".$obj."->".$key." = json_decode(\$result->".$key.", true) ?: array();";
+					$this->str .= "\n".$indent."\$".$obj."->".$key." = json_decode(".$sls."\$result->".$key.$sle.", true) ?: array();";
 				}
 				continue;
 			}
 			
-			if($key=='id' && $this->manualId){ $attr['type']='VARCHAR'; }
-			
-			if(isset($attr['filter']))
+			if ($key=='id' && $this->manualId)
 			{
-				foreach($attr['filter'] as $filter => $add)
+				$attr['type'] = 'VARCHAR';
+			}
+			
+			if (isset($attr['filter']))
+			{
+				foreach ($attr['filter'] as $filter => $add)
 				{
-					$f = "\n".$indent."\$".$obj."->".$key." = filter_var(\$result->".$key.", ".$filter . (isset($add)?', '.$add:'') . ");";
+					$f = "\n".$indent."\$".$obj."->".$key." = filter_var(".$sls."\$result->".$key.$sle.", ".$filter . (isset($add)?', '.$add:'') . ");";
 				}
 				$this->str .= $f;
 			}
 			else
 			{
 			
-				switch($attr['type'])
+				switch ($attr['type'])
 				{
 					case 'MODEL':
 						$this->str .= "\n".$indent;
-						$this->str .= "\n".$indent."\$".$obj."->".$key." = json_decode(\$result->".$key.", true) ?: array();";
+						$this->str .= "\n".$indent."\$".$obj."->".$key." = json_decode(".$sls."\$result->".$key.$sle.", true) ?: array();";
 						//$this->str .= "\n".$indent."print_r(\$".$obj."->".$key.");";
-						if($this->debug)
+						if ($this->debug)
 						{
 							$this->str .= "\n".$indent."switch(json_last_error())\n".$indent."{";
 							$this->str .= "\n".$indent."\tcase JSON_ERROR_DEPTH: trigger_error('JSON-Decode-Error in ".$this->objectName.", id '.$".$obj."->id.': Maximum stack depth exceeded', E_USER_ERROR); break;";
@@ -376,7 +387,7 @@ class ObjectGenerator
 					break;
 					*/
 					default:
-						$this->str .= "\n".$indent."\$".$obj."->".$key." = \$result->".$key.";";
+						$this->str .= "\n".$indent."\$".$obj."->".$key." = ".$sls."\$result->".$key.$sle.";";
 					break;
 				}// switch end
 				
@@ -387,7 +398,7 @@ class ObjectGenerator
 	
 	//
 	
-	function generateInputMapper($obj, $indent)
+	function CreateInputFilter($obj, $indent)
 	{
 		foreach ($this->elementList['col'] as $key => $attr)
 		{
@@ -400,12 +411,15 @@ class ObjectGenerator
 				}
 				continue;
 			}
-			if($key=='id' && $this->manualId){ $attr['type'] = 'VARCHAR'; }
+			if ($key=='id' && $this->manualId)
+			{
+				$attr['type'] = 'VARCHAR';
+			}
 			
 			// see http://www.php.net/manual/de/filter.filters.sanitize.php
-			if(isset($attr['filter']))
+			if (isset($attr['filter']))
 			{
-				foreach($attr['filter'] as $filter => $add)
+				foreach ($attr['filter'] as $filter => $add)
 				{
 					$f = "\n".$indent."\$".$obj."->".$key." = filter_var(\$".$obj."->".$key.", " . $filter . (isset($add)?', '.$add:'') . ");";
 				}
@@ -508,9 +522,10 @@ class ObjectGenerator
 						array( (($this->manualId)?'string':'integer') ." \$id"),
 						"object \$".$this->objectName);
 		
-		$this->str .="\tfunction Get (\$id)\n\t{";
+		$this->str .="\tfunction Get (\$id = 0)\n\t{";
 		$this->str .= "\n\t\t\$query = 'SELECT * FROM `".strtolower($this->objectName)."` WHERE `id`=:id LIMIT 1;';";
 		$this->str .= "\n\t\t\$prepare = DB::instance($this->db)->prepare(\$query);";
+		
 		
 		
 		$this->str .= "\n\t\t";
@@ -520,7 +535,11 @@ class ObjectGenerator
 		$this->str .= "\n\t\t\t\$prepare->execute(array(':id'=>\$id));";//
 		$this->str .= "\n\t\t\t\$result = \$prepare->fetch();\n\t\t";
 		
-		$this->generateOutputMapper('this', "\t\t\t");
+		// force to return an empty object if we call by $object->Get(0);
+		$this->str .= "\n\t\t\tif (empty(\$id)) return \$this;";
+		$this->str .= "\n\t\t\t";
+		
+		$this->CreateOutputFilter($this, 'this', "\t\t\t");
 		
 		$this->str .= "\n\t\n\t\t\treturn \$this;";
 		
@@ -648,7 +667,7 @@ class ObjectGenerator
 		//$this->str .= "\n\t\t\t\t{";
 		//$this->str .= "\n\t\t\t\t\t\$".$this->objectName."->\$key = \$val;";
 		//$this->str .= "\n\t\t\t\t}";
-		$this->generateOutputMapper($this->objectName, "\t\t\t\t");
+		$this->CreateOutputFilter($this, $this->objectName, "\t\t\t\t");
 		$this->str .= "\n\t\t\t\t\$".$this->objectName."List[] = \$".$this->objectName.";";
 		$this->str .= "\n\t\t\t}";
 		$this->str .= "\n\t\t\treturn \$".$this->objectName."List;";
@@ -1342,7 +1361,7 @@ class ObjectGenerator
 		$this->str .= "\n\t\t\$prepare0->execute(array(':id'=>".($this->manualId?'trim':'intval')."(\$this->id)));";//
 		$this->str .= "\n\t\ttry{\$result = \$prepare0->fetchAll();}catch(Exception \$e){\$result = array();}\n\t\t";
 		$this->str .= "\n\t\t\$prepare0->closeCursor();\n\t\t";
-		$this->generateInputMapper('this', "\t\t");
+		$this->CreateInputFilter('this', "\t\t");
 		
 		$this->str .= "\n\t\tif (count(\$result) === 1)";
 		$this->str .= "\n\t\t{";
@@ -1922,6 +1941,14 @@ class ObjectGenerator
 	//-------------------------------------------------------------
 	function CreateGetAssociationsFunction($sibling)
 	{
+		$sls = '';
+		$sle = '';
+		if (get_magic_quotes_gpc())
+		{
+			
+			$sls = 'stripslashes(';
+			$sle = ')';
+		}
 		$siblingLower = strtolower($sibling);
 		
 		$this->str .= "\n\t\n\t";
@@ -1936,7 +1963,24 @@ class ObjectGenerator
 		
 		$this->str .= "\n\t\t\$".$siblingLower."List = array();";
 		$this->str .= "\n\t\t\$bindings = array(\$this->id);";
-		$this->str .= "\n\t\t\$query = 'SELECT DISTINCT a.* FROM `".$siblingLower."` a INNER JOIN `".strtolower($this->MappingName($this->objectName, $sibling))."` m ON m.".$siblingLower."id = a.id WHERE m.".strtolower($this->objectName)."id = ?';";//'.\$this->".strtolower($this->objectName)."Id;";
+		
+		$adds = '';
+		$map = strtolower($this->MappingName($this->objectName, $sibling));
+		
+		//  if we have a enhanced mapping-table we must add the fields
+		if (isset($this->model[$map]))
+		{
+			foreach ($this->model[$map]['col'] as $colk=>$colv)
+			{
+				if (substr($colk,-2)!='id' && substr($colk,-4)!='sort')
+				{
+					//exit($colk);
+					$adds .= ', m.'.$colk;
+				}
+			}
+		}
+		
+		$this->str .= "\n\t\t\$query = 'SELECT DISTINCT a.*".$adds." FROM `".$siblingLower."` a INNER JOIN `".$map."` m ON m.".$siblingLower."id = a.id WHERE m.".strtolower($this->objectName)."id = ?';";//'.\$this->".strtolower($this->objectName)."Id;";
 		
 		
 		$this->str .= "\n\t\t";
@@ -2024,7 +2068,7 @@ class ObjectGenerator
 		
 		$this->str .= "\n\t\t\tforeach (\$lst as \$key => \$val)";
 		$this->str .= "\n\t\t\t{";
-		$this->str .= "\n\t\t\t\t\$".$siblingLower."->\$key = \$val;";
+		$this->str .= "\n\t\t\t\t\$".$siblingLower."->\$key = ".$sls."\$val".$sle.";";
 		$this->str .= "\n\t\t\t}";
 		$this->str .= "\n\t\t\t\$".$siblingLower."List[] = \$".$siblingLower.";";
 		$this->str .= "\n\t\t}";
@@ -2133,6 +2177,7 @@ class ObjectMap
 		// enforce alphabetical Order of Object-Names
 		$arr = array($object1, $object2);
 		natcasesort($arr);
+		
 		$this->object1 = array_shift($arr);
 		$this->object2 = array_shift($arr);
 		

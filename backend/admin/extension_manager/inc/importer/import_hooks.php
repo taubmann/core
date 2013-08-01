@@ -8,7 +8,7 @@
 * - and if not, add to projects/YOUR_PROJECT/cms/hooks.php
 * 
 */
-
+error_reporting(0);
 require 'head.php';
 
 $hook_path = $bp.'/../projects/' . $projectName . '/extensions/cms/hooks.php';

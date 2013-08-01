@@ -354,7 +354,7 @@ function checkRelation (&$queries, $name, $fname, $index, $object, $db, $increme
 function mapName ($a, $b, $add = 'map')
 {
 	$x = array(strtolower($a), strtolower($b));
-	natsort($x);
+	natcasesort($x);
 	return implode('', $x) . $add;
 }
 

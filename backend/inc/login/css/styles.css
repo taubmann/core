@@ -14,3 +14,9 @@ input[type=text], input[type=password], select {-webkit-box-sizing:border-box;-m
 #captcha{position:absolute;height:30px;z-index:10;cursor:pointer;}
 #cheat{position:absolute;bottom:0;height:30px;z-index:11;cursor:pointer;}
 #reset_button, #register_button{display:none}
+
+.warning { color:#c22; display:none; }
+.no-js .no-js{display:block;}
+.ie6 .ie6{display:block;}
+.ie7 .ie7{display:block;}
+.ie8 .ie8{display:block;}

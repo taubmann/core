@@ -35,7 +35,7 @@ require '../../inc/php/collectExtensionInfos.php';
 <title>cms-kit Generic Modeling</title>
 <meta charset="utf-8" />
 <link href="../../inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/jquery-ui.css" rel="stylesheet" />
-<link href="../../inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/style.css" rel="stylesheet" />
+<link href="../../templates/default/css/packed_<?php echo end($_SESSION[$projectName]['config']['theme'])?>.css" rel="stylesheet" />
 
 <style>
 #filelist

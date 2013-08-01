@@ -128,7 +128,8 @@ if(isset($_GET['ext']))
 <html lang="en">
 <head>
 <title>cms-kit Extension-Management</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
 <link rel="stylesheet" type="text/css" href="inc/styles/style.css" />
 <link href="../../inc/css/<?php echo end($_SESSION[$projectName]['config']['theme'])?>/jquery-ui.css" rel="stylesheet" />
 <script src="../../inc/js/jquery.min.js"></script>

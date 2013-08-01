@@ -33,7 +33,6 @@
 session_start();
 $backend = '../../';
 require $backend.'inc/php/functions.php';
-
 require($backend.'inc/super.php');
 
 $lang = browserLang( glob('inc/locale/*.php') );
@@ -41,6 +40,13 @@ $lang = browserLang( glob('inc/locale/*.php') );
 $LL = array();
 @include 'inc/locale/'.$lang.'.php';
 
+// create the project-folder if not exists
+if (!file_exists($backend.'../projects'))
+{
+	mkdir($backend.'../projects');
+	chmod($backend.'../projects', 0776);
+	file_put_contents($backend.'../projects/index.html', '');
+}
 
 
 // create Tooltip-Labels used in Step 3 / 4 below
@@ -58,7 +64,7 @@ function hlp($what, $float=true)
 <head>
 <title>create a new Project</title>
 <meta charset="utf-8" />
-
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1" />
 <script type="text/javascript" src="../../inc/js/jquery.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="inc/css/styles.css" />

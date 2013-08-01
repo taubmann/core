@@ -53,21 +53,19 @@ foreach($templates as $template)
 <head>
 	<title>set new Super-Password</title>
 	<meta charset="utf-8" />
-
+	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1" />
 	<script type="text/javascript" src="../js/jquery.min.js"></script>
 	<script type="text/javascript" src="../js/jquery.plugin_password_strength.js"></script>
 	<script type="text/javascript" src="../js/gpw.js"></script>
 	<style>
 		body{background:#eee; font:72.5% "Trebuchet MS", Arial, sans-serif;}
 		a{text-decoration:none;color:#333;}
-		#frm{position:absolute;top:50%;left:50%;width:160px;margin:-80px 0px 0px -80px;}
-		input, select{background:#fff;border:1px solid #333;padding:5px;margin:3px 0px;-moz-border-radius:5px;-webkit-border-radius:5px;-khtml-border-radius:5px;border-radius:5px;}
+		#frm{position:absolute;top:50%;left:50%;width:170px;margin:-80px 0px 0px -80px;}
+		input, select{background:#fff;border:1px solid #333;padding:5px;margin:3px 0px;border-radius:5px;}
 		input[type=text]{width:158px;}
-
-
+		
 		h3{color: #f00;}
-
-
+		
 		.password_strength   {padding: 0 5px; display: inline-block;}
 		.password_strength_1 {background-color: #fcb6b1;}
 		.password_strength_2 {background-color: #fccab1;}
@@ -84,55 +82,61 @@ foreach($templates as $template)
 
 require 'functions.php';
 
-
-
 if(!file_exists('../super.php'))
 {
-if(is_writable('../'))
-{
-if(isset($_POST['pass']))
-{
-$templates = glob('./tpl_*.php');
-$tpl = array();
-foreach($templates as $template)
-{
-	$tpl[] = basename($template);
-}
-file_put_contents('../super.php', '<?php
-// auto-generated: do not edit!
-$super = array(\''.$_POST['salt'].'\', \''.array_pop(explode(':',crpt($_POST['pass'], $_POST['salt']))).'\');
-$config = array(
-	\'theme\' => array(\''.$_POST['theme'].'\'), // default jQuery-UI-Theme
-	\'template\' => array(\''.$_POST['template'].'\'), // default Backend-Template
-	\'autolog\' => array(0), // automatic Login (1/0)
-);
-');
+	if(is_writable('../'))
+	{
+		if(isset($_POST['pass']))
+		{
+			$templates = glob('./tpl_*.php');
+			$tpl = array();
+			foreach($templates as $template)
+			{
+				$tpl[] = basename($template);
+			}
+			$crpt = explode(':', crpt($_POST['pass'], $_POST['salt']));
+	
+	// save the Settings to inc/super.php
+	file_put_contents('../super.php', 
+	'<?php
+	// auto-generated: do not edit!
+	$super = array(\''.$_POST['salt'].'\', \''.array_pop($crpt).'\');
+	$config = array(
+		\'theme\' => array(\''.$_POST['theme'].'\'), // default jQuery-UI-Theme
+		\'template\' => array(\''.$_POST['template'].'\'), // default Backend-Template
+		\'autolog\' => array('.(strlen($_POST['pass'])>0 ? '0' : '1').'), // automatic Login without Password (1/0)
+	);
+	');
 			
 			chmod('../super.php', 0776);
-			echo '<h2>Password saved!</h2>
-			<a href="../../">Login-Page</a>';
+			echo '<h2>' . L('Password_saved') . '!</h2>
+			<a href="../../">' . L('Login-Page') . '</a>';
 		}
 		else
 		{
-			echo '<h4>set Super-Password</h4>
-			<input type="password" autocomplete="off" id="inputPassword" name="pass" />
-			<input type="hidden" name="salt" id="salt" value="x" />
-			<h4>default Theme</h4>
-			<select name="theme">'.$sopt.'</select>
-			<h4>Templates</h4>
-			<select name="template">'.$topt.'</select>
+			echo '<h4>' . L('set_Super-Password') . '</h4>
+			<input type="password" autocomplete="off" id="inputPassword" name="pass" title="' . L('leave_empty_to_enable_auto-login') . '" /> 
+			<input type="hidden" name="salt" id="salt" value="' . md5(mt_rand()) . '" />
+			<h4>' . L('default_Theme') . '</h4>
+			<select name="theme" title="' . L('choose_the_default_UI-Stylesheet_for_Backend') . '">' .
+			$sopt .
+			'</select>
+			<h4>' . L('default_Template') . '</h4>
+			<select name="template" title="' . L('choose_the_default_Template_for_Backend') . '">' .
+			$topt .
+			'</select>
 			
-			<hr /><input type="submit" value="save" />';
+			<hr /><input type="submit" value="' . L('save_Settings') . '" />';
 		}
 	}
 	else
 	{
-		echo '<h3>"backend/inc/" is not writable!</h3>';
+		echo '<h3>"backend/inc/"' . L('is_not_writable') . ' !</h3>';
 	}
 }
 else
 {
-	echo '<h3>Super-Password already exists!</h3>';
+	echo '<h3>' . L('Super-Password_already_exists') . '!</h3>';
 }
 
 ?>
@@ -146,7 +150,7 @@ else
 		var opts = {
 			'minLength' : 8,
 			'texts' : {
-				1 : '<?php echo L('Password_too_weak')?>',
+				1 : '<?php echo L('Password_extremely_weak')?>',
 				2 : '<?php echo L('Password_weak')?>',
 				3 : '<?php echo L('Password_ok')?>',
 				4 : '<?php echo L('Password_strong')?>',
@@ -155,7 +159,7 @@ else
 		};
 		$('#inputPassword').password_strength(opts);
 		
-		// generate a new random Salt
+		// generate a new random Salt (hopefully better than md5)
 		$('#salt').val(GPW.complex(12));
 	});
 </script>

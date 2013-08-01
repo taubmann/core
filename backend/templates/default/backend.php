@@ -20,7 +20,7 @@
 
 <?php
 	
-	if ( !in_array('nojson', $_SESSION[$projectName]['client']) ) echo '<script src="inc/js/json2.min.js"></script>';
+	if ( !in_array('json', $_SESSION[$projectName]['client']['capabilities']) ) echo '<script src="inc/js/json2.min.js"></script>';
 	
 	echo '
 <script>

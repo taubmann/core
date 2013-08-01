@@ -3,7 +3,7 @@
 * Desktop-Functions
 */
 
-var ch, objectId = '', objectHType = false;
+var ch, objectId = '', objectHType = false, hasCanged=false;
 
 
 /**
@@ -256,7 +256,7 @@ function getPlainList(id)
 					else
 					{
 						if(typeof a[0]!='undefined') {
-							getContent(a[0])
+							getContent(a[0]);
 						};
 					}
 				}
@@ -469,6 +469,11 @@ function getContent(id)
 	
 	if(id=='undefined'){return false;};
 	
+	if(hasCanged) {
+		//if(!confirm(_('skip_saving'))) return;
+	}
+	hasCanged = false;
+	
 	window.location.hash = 'id='+id;// store the ID in URL
 	objectId = id;
 	$('#colMidb').empty();
@@ -498,9 +503,14 @@ function getContent(id)
 		{
 			//alert(JSON.stringify($(this).data()))
 			
+			
 			// get all data-... attributes of element e
 			var e = $(this);
 			var d = e.data();
+			
+			//.on('change', function(){
+			//alert(e.prop('nodeName'));
+			
 			
 			// Wizard detected, (try to) prepare
 			if(d.wizard)
@@ -519,7 +529,6 @@ function getContent(id)
 				}
 				else // embedded Wizard (load Script)
 				{
-					//alert((d.path? d.path : 'wizards/'+d.wizard)+'/include.php');
 					$.loadScript((d.path? d.path : 'wizards/'+d.wizard)+'/include.php', 
 					function() {
 						e[d.wizard]()
@@ -527,12 +536,17 @@ function getContent(id)
 				}
 			}
 			
+			
 			// change some basic stylings
 			if(d.readonly) $(this).attr('readonly','readonly');// make the Field readonly
 			if(d.hide_input) $(this).css({'position':'absolute','left':'-1000px'});// hide the Field
 			if(d.hide_label) $(this).prev('label').css('display','none');// hide the Label
 			if(d.exclude_input) $(this).parent().remove();// delete the Field
 			
+			
+			// set a variable, defining that current entry was changed
+			var ev = (e.prop('type')=='text' || e.prop('nodeName')=='TEXTAREA') ? 'keyup' : 'change';
+			e[ev](function() { hasCanged = true; });
 			
 			
 		});// $('#colMidb .inp') END
@@ -634,11 +648,8 @@ function getConnectedReferences(id, off)
 			styleButtons('colRightb');
 			$('#colRightb .lnk').on('click',function(e)
 			{
-				window.location = 'backend.php?project='+projectName+'&object='+$(this).data('object')+'#id='+$(this).data('id');
-				//getList();
-				//$('#objectSelect').selectmenu("value", objectName);
-				//$('#objectSelect').val(objectName);
-				//getContent($(this).data('id'));
+				//window.location = 'backend.php?project='+projectName+'&object='+$(this).data('object')+'#id='+$(this).data('id');
+				showReference($(this));
 				e.preventDefault();
 			});
 		});
@@ -671,6 +682,7 @@ function saveContent(id)
 	function(data) {
 		message(data);
 		getList(id);
+		hasCanged = false;
 		afterSaveContent(id);
 	});
 };
@@ -685,6 +697,7 @@ function afterSaveContent(id){};
 */
 function createContent()
 {
+	/*
 	$.get('crud.php',
 	{ 
 		action: 'createContent', 
@@ -706,7 +719,9 @@ function createContent()
 			getContent(data);
 			message(_('entry_created')+' (ID:'+data+')');
 		}
-	});
+	});*/
+	location.hash = 'id=0';
+	getContent(0);
 };
 
 /**
@@ -736,6 +751,13 @@ function deleteContent(id)
 		});
 	}
 };
+
+function showReference (obj)
+{
+	if(hasCanged) {	if(!confirm(_('skip_saving'))) return; }
+	window.location = 'backend.php?project=' + projectName + '&object=' + obj.data('object') + '#id=' + obj.data('id');
+				
+}
 
 
 /**
@@ -846,8 +868,7 @@ function getReferences (id, offs1, offs2)
 			
 			$('#colRightb .lnk').on('click',function(e)
 			{
-				window.location = 'backend.php?project='+projectName+'&object='+$(this).data('object')+'#id='+$(this).data('id');
-				
+				showReference($(this));
 				/*objectName = $(this).data('object');
 				getList();
 				//$('#objectSelect').selectmenu("value", objectName);

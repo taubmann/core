@@ -22,7 +22,7 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ************************************************************************************/
-
+ini_set( 'magic_quotes_gpc', 0 );
 /** 
 * this extends inc/php/class.crud.php
 * 
@@ -339,51 +339,62 @@ class default_crud extends crud
 	*/
 	public function getContent()
 	{
-		$item = $this->getElementBy($this->objectId, $this->getContentFilter);
 		
 		$field = '';
 		
 		// Content-Variables
 		$strp0 = $strp1 = $str0 = $str1 = $str2 = '';
 		
-		
-		// collect Relations
-		if (isset($this->objects[$this->objectName]['rel']))
+		// if the objectz is empty (to be created)
+		if ($this->objectId == 0)
 		{
-			foreach ($this->objects[$this->objectName]['rel'] as $rk => $rt)
-			{
-				$str0 .= '<option class="relType'.$rt.'" value="'.$rk.'">'.(isset($this->objects[$rk]['lang'][$this->lang]) ? trim($this->objects[$rk]['lang'][$this->lang], '.') : $rk).'</option>';
-			}
+			$obj = new $this->objectName();
+			$item = $obj->Get(0);
 		}
-		
-		if ( strlen($str0)>0 )
+		else
 		{
-			// hide this select if users shouldn't select ANY References
-			$hide = (isset($this->disallow['referenceselect']) ? ' style="display:none"' : '');
-			$str0 = '<select'.$hide .' id="referenceSelect" onchange="getReferences(\''.$this->objectId.'\',0)"><option value="" class="relType">'.$this->L('relations_to_this_entry').'</option>'.$str0.'</select>';
-		}
-		
-		if ( isset($this->objects[$this->objectName]['vurl']) && !isset($this->disallow['previewbutton']) )
-		{
-			if (count($this->objects[$this->objectName]['vurl'])==1)
+			$item = $this->getElementBy($this->objectId, $this->getContentFilter);
+			
+			// collect Relations
+			if (isset($this->objects[$this->objectName]['rel']))
 			{
-				$str0 .= ' <button type="button" rel="extlink" onclick="getFrame(\''. str_replace('ID', $this->objectId, $this->objects[$this->objectName]['vurl'][0]) . '\')">'.$this->L('preview').'</button>';
-			}
-			else
-			{
-				$str0 .= '<select onchange="if(this.value.length>0){getFrame(this.value)}"><option value="">'.L('preview').'</option>';
-				$c = 1;
-				foreach ($this->objects[$this->objectName]['vurl'] as $v)
+				foreach ($this->objects[$this->objectName]['rel'] as $rk => $rt)
 				{
-					$h = explode(' ', $v);
-					$str0 .= '<option value="'.$v[0].'">'.($v[1]?$v[1]:L('preview').' '.$c).'</option>';
-					$c++;
+					$str0 .= '<option class="relType'.$rt.'" value="'.$rk.'">'.(isset($this->objects[$rk]['lang'][$this->lang]) ? trim($this->objects[$rk]['lang'][$this->lang], '.') : $rk).'</option>';
 				}
-				$str0 .= '</select>';
 			}
 			
+			if ( strlen($str0)>0 )
+			{
+				// hide this select if users shouldn't select ANY References
+				$hide = (isset($this->disallow['referenceselect']) ? ' style="display:none"' : '');
+				$str0 = '<select'.$hide .' id="referenceSelect" onchange="getReferences(\''.$this->objectId.'\',0)"><option value="" class="relType">'.$this->L('relations_to_this_entry').'</option>'.$str0.'</select>';
+			}
+			
+			if ( isset($this->objects[$this->objectName]['vurl']) && !isset($this->disallow['previewbutton']) )
+			{
+				if (count($this->objects[$this->objectName]['vurl'])==1)
+				{
+					$str0 .= ' <button type="button" rel="extlink" onclick="getFrame(\''. str_replace('ID', $this->objectId, $this->objects[$this->objectName]['vurl'][0]) . '\')">'.$this->L('preview').'</button>';
+				}
+				else
+				{
+					$str0 .= '<select onchange="if(this.value.length>0){getFrame(this.value)}"><option value="">'.L('preview').'</option>';
+					$c = 1;
+					foreach ($this->objects[$this->objectName]['vurl'] as $v)
+					{
+						$h = explode(' ', $v);
+						$str0 .= '<option value="'.$v[0].'">'.($v[1]?$v[1]:L('preview').' '.$c).'</option>';
+						$c++;
+					}
+					$str0 .= '</select>';
+				}
+				
+				
+			}
 			
 		}
+		
 		$str0 .= '<!--cb1-->';
 		
 		$str0 .= '<div id="innerForm">';
@@ -483,7 +494,7 @@ class default_crud extends crud
 					$temp = $item->$fk;
 					
 					// temporary fix
-					$temp['MODEL'] = array('type'=>'HIDDENTEXT','value'=>(is_string($temp['MODEL'])?$temp['MODEL']:$temp['MODEL']['value']));// : array('type'=>'HIDDENTEXT','value'=>);
+					@$temp['MODEL'] = array('type'=>'HIDDENTEXT','value'=>(is_string($temp['MODEL'])?$temp['MODEL']:$temp['MODEL']['value']));// : array('type'=>'HIDDENTEXT','value'=>);
 					
 					// merge Data with external Model
 					if (isset($temp['MODEL']) && file_exists($this->ppath.'/objects/generic/'.trim($temp['MODEL']['value']).'.php'))

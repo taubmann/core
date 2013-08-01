@@ -1,5 +1,5 @@
 {
-    "name": "cms-kit"
+    "name": "cmskit/core"
   , "description": "Framework for building your own Content-Management-Applications"
   , "version": "0.9.0"
   , "keywords": ["Framework","CMS"]
